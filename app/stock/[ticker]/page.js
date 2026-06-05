@@ -225,18 +225,7 @@ export default function StockPage({ params }) {
                   <div style={{ color: 'var(--text-3)', fontSize: '10px' }}>MARKET CAP</div>
                 </>
               )}
-              {intrinsicValue && (
-                <div style={{ marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '12px', textAlign: 'right' }}>
-                  <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '4px' }}>INTRINSIC VALUE</div>
-                  <div style={{ color: undervalued ? 'var(--green)' : 'var(--red)', fontSize: '22px', fontWeight: 600 }}>${intrinsicValue}</div>
-                  <div style={{ color: 'var(--text-3)', fontSize: '10px' }}>20x FCF/SHARE</div>
-                  {price && (
-                    <div style={{ color: undervalued ? 'var(--green)' : 'var(--red)', fontSize: '11px', marginTop: '4px' }}>
-                      {undervalued ? '▲' : '▼'} {Math.abs(((intrinsicValue - price) / price) * 100).toFixed(1)}% {undervalued ? 'UPSIDE' : 'DOWNSIDE'}
-                    </div>
-                  )}
-                </div>
-              )}
+              
             </div>
           </div>
 
@@ -633,12 +622,97 @@ export default function StockPage({ params }) {
           {/* DCF TAB */}
           {tab === 'dcf' && (
             <div>
-              <div style={S.section}>DYNAMIC DCF VALUATION</div>
-              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '40px', textAlign: 'center' }}>
-                <div style={{ color: 'var(--accent)', fontSize: '32px', fontWeight: 600, letterSpacing: '4px', marginBottom: '8px' }}>$__.__</div>
-                <div style={{ color: 'var(--text-2)', fontSize: '12px', marginBottom: '4px', letterSpacing: '1px' }}>AUTOMATED DCF VALUATION</div>
-                <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>COMING SOON — Will use latest 10-K data automatically.</div>
-              </div>
+              <div style={S.section}>GRAHAM INTRINSIC VALUE — V = EPS × (8.5 + 2g)</div>
+
+              {data.eps ? (
+                <>
+                  <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '16px', marginBottom: '24px', fontSize: '11px', color: 'var(--text-2)', lineHeight: 1.8 }}>
+                    <span style={{ color: 'var(--accent)' }}>V = EPS × (8.5 + 2g)</span> &nbsp;·&nbsp;
+                    EPS: <span style={{ color: 'var(--text)' }}>${data.eps}</span> &nbsp;·&nbsp;
+                    Base growth (g): <span style={{ color: 'var(--text)' }}>{data.revGrowth !== null ? `${data.revGrowth.toFixed(1)}%` : 'N/A'}</span> &nbsp;·&nbsp;
+                    <span style={{ color: 'var(--text-3)' }}>Benjamin Graham formula · Not investment advice</span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                    {[
+                      { label: 'CONSERVATIVE', g: data.revGrowth !== null ? +(data.revGrowth * 0.5).toFixed(1) : 3, desc: '50% of historical growth' },
+                      { label: 'BASE', g: data.revGrowth !== null ? +data.revGrowth.toFixed(1) : 7, desc: 'Historical revenue growth' },
+                      { label: 'OPTIMISTIC', g: data.revGrowth !== null ? +(data.revGrowth * 1.5).toFixed(1) : 12, desc: '150% of historical growth' },
+                    ].map(scenario => {
+                      const g = Math.max(0, Math.min(scenario.g, 25));
+                      const intrinsic = +(data.eps * (8.5 + 2 * g)).toFixed(2);
+                      const diff = price ? (((intrinsic - price) / price) * 100).toFixed(1) : null;
+                      const underval = price ? intrinsic > price : null;
+                      return (
+                        <div key={scenario.label} style={{ background: 'var(--bg-1)', padding: '20px' }}>
+                          <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>{scenario.label}</div>
+                          <div style={{ color: 'var(--text-3)', fontSize: '10px', marginBottom: '4px' }}>g = {g}%</div>
+                          <div style={{ fontSize: '32px', fontWeight: 600, color: underval ? 'var(--green)' : 'var(--red)', marginBottom: '4px', letterSpacing: '-1px' }}>
+                            ${intrinsic}
+                          </div>
+                          <div style={{ color: 'var(--text-3)', fontSize: '10px', marginBottom: '12px' }}>{scenario.desc}</div>
+                          {diff !== null && (
+                            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
+                              <div style={{ color: underval ? 'var(--green)' : 'var(--red)', fontSize: '13px', fontWeight: 600 }}>
+                                {underval ? '▲' : '▼'} {Math.abs(diff)}% {underval ? 'UPSIDE' : 'DOWNSIDE'}
+                              </div>
+                              <div style={{ color: 'var(--text-3)', fontSize: '10px', marginTop: '2px' }}>
+                                vs current price ${price?.toFixed(2)}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {price && (
+                    <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '20px', marginBottom: '24px' }}>
+                      <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '32px' }}>PRICE VS INTRINSIC VALUE RANGE</div>
+                      {(() => {
+                        const gCons = Math.max(0, Math.min(data.revGrowth !== null ? data.revGrowth * 0.5 : 3, 25));
+                        const gOpt = Math.max(0, Math.min(data.revGrowth !== null ? data.revGrowth * 1.5 : 12, 25));
+                        const low = +(data.eps * (8.5 + 2 * gCons)).toFixed(2);
+                        const high = +(data.eps * (8.5 + 2 * gOpt)).toFixed(2);
+                        const rangeMin = Math.min(low, high, price) * 0.9;
+                        const rangeMax = Math.max(low, high, price) * 1.1;
+                        const pct = v => ((v - rangeMin) / (rangeMax - rangeMin)) * 100;
+                        return (
+                          <div style={{ position: 'relative', height: '48px' }}>
+                            <div style={{ position: 'absolute', top: '18px', left: `${Math.min(pct(low), pct(high))}%`, width: `${Math.abs(pct(high) - pct(low))}%`, height: '12px', background: 'var(--accent)', opacity: 0.25 }}></div>
+                            {[
+                              { val: low, label: `$${low}`, color: 'var(--green)', top: true },
+                              { val: high, label: `$${high}`, color: 'var(--green)', top: true },
+                              { val: price, label: `$${price.toFixed(2)}`, color: 'var(--text)', top: false },
+                            ].map((m, i) => (
+                              <div key={i} style={{ position: 'absolute', left: `${pct(m.val)}%`, transform: 'translateX(-50%)', top: 0 }}>
+                                {m.top && <div style={{ color: m.color, fontSize: '10px', whiteSpace: 'nowrap', textAlign: 'center', marginBottom: '4px' }}>{m.label}</div>}
+                                <div style={{ width: '1px', height: m.top ? '24px' : '48px', background: m.color, margin: '0 auto', marginTop: m.top ? '0' : '-48px' }}></div>
+                                {!m.top && <div style={{ color: m.color, fontSize: '10px', whiteSpace: 'nowrap', textAlign: 'center', marginTop: '2px' }}>{m.label}</div>}
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-3)', fontSize: '10px', marginTop: '8px' }}>
+                        <span>CONSERVATIVE</span>
+                        <span>CURRENT PRICE</span>
+                        <span>OPTIMISTIC</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>
+                    GRAHAM FORMULA (1962) · EPS FROM ALPHA VANTAGE · GROWTH FROM SEC EDGAR · NOT INVESTMENT ADVICE
+                  </div>
+                </>
+              ) : (
+                <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '40px', textAlign: 'center' }}>
+                  <div style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 600, letterSpacing: '4px', marginBottom: '8px' }}>N/A</div>
+                  <div style={{ color: 'var(--text-2)', fontSize: '12px', marginBottom: '4px' }}>EPS DATA NOT AVAILABLE</div>
+                  <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>Graham formula requires EPS data from Alpha Vantage.</div>
+                </div>
+              )}
             </div>
           )}
 
