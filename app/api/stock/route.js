@@ -96,11 +96,7 @@ export async function GET(request) {
       ? +(((sharesLatest - sharesOldest) / sharesOldest) * 100).toFixed(1)
       : null;
 
-    const avRes = await fetch(
-      `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${AV_KEY}`
-    );
-    const av = await avRes.json();
-
+    // Finnhub — precio actual (ilimitado)
     const fhRes = await fetch(
       `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${FH_KEY}`
     );
@@ -110,25 +106,55 @@ export async function GET(request) {
     const priceChange = fh.d || null;
     const priceChangePct = fh.dp || null;
     const prevClose = fh.pc || null;
-    const high = fh.h || null;
-    const low = fh.l || null;
+    const high52 = fh.h || null;
+    const low52 = fh.l || null;
+
+    // Calcular EPS y P/E desde SEC EDGAR + Finnhub (sin Alpha Vantage)
+    const epsCalc = niVal && sharesVal ? +(niVal / sharesVal).toFixed(2) : null;
+    const peCalc = epsCalc && currentPrice ? +(currentPrice / epsCalc).toFixed(2) : null;
+    const marketCapCalc = currentPrice && sharesVal ? currentPrice * sharesVal : null;
+    const pfcfCalc = marketCapCalc && fcfVal && fcfVal > 0 ? +(marketCapCalc / fcfVal).toFixed(1) : null;
+    const fcfYield = marketCapCalc && fcfVal ? +((fcfVal / marketCapCalc) * 100).toFixed(2) : null;
+    const roic = equityVal && debtVal && oiVal
+      ? +((oiVal / (equityVal + debtVal)) * 100).toFixed(1)
+      : null;
+
+    // Alpha Vantage — solo para datos que no podemos calcular (sector, descripcion, beta)
+    // Con rate limit bajo, intentamos pero no fallamos si no responde
+    let av = {};
+    try {
+      const avRes = await fetch(
+        `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${AV_KEY}`,
+        { signal: AbortSignal.timeout(5000) }
+      );
+      av = await avRes.json();
+      if (av.Note || av.Information) av = {}; // rate limited
+    } catch (e) {
+      av = {};
+    }
 
     return Response.json({
       name: company.title,
       ticker,
       cik,
+      // SEC EDGAR metrics
       revVal, niVal, oiVal, fcfVal, assetsVal, equityVal, debtVal, cashVal, sharesVal, rdVal,
-      opMargin, netMargin, grossMargin, revGrowth, roe, roa, debtToEquity, netDebt,
+      opMargin, netMargin, grossMargin, revGrowth, roe, roa, debtToEquity, netDebt, roic,
       revHistory, niHistory, fcfHistory, oiHistory,
       sharesHistory, gpHistory, marginHistory, shareDilution,
-      currentPrice, priceChange, priceChangePct, prevClose, high, low,
-      marketCap: av.MarketCapitalization ? +av.MarketCapitalization : null,
-      pe: av.PERatio && av.PERatio !== 'None' ? +av.PERatio : null,
-      forwardPE: av.ForwardPE && av.ForwardPE !== 'None' ? +av.ForwardPE : null,
-      eps: av.EPS && av.EPS !== 'None' ? +av.EPS : null,
+      // Finnhub (ilimitado)
+      currentPrice, priceChange, priceChangePct, prevClose,
+      // Calculados desde SEC + Finnhub
+      eps: epsCalc,
+      pe: peCalc,
+      marketCap: marketCapCalc,
+      pfcf: pfcfCalc,
+      fcfYield,
+      high52, low52,
+      // Alpha Vantage (best effort, puede ser null)
       beta: av.Beta && av.Beta !== 'None' ? +av.Beta : null,
-      high52: av['52WeekHigh'] && av['52WeekHigh'] !== 'None' ? +av['52WeekHigh'] : null,
-      low52: av['52WeekLow'] && av['52WeekLow'] !== 'None' ? +av['52WeekLow'] : null,
+      high52av: av['52WeekHigh'] && av['52WeekHigh'] !== 'None' ? +av['52WeekHigh'] : high52,
+      low52av: av['52WeekLow'] && av['52WeekLow'] !== 'None' ? +av['52WeekLow'] : low52,
       dividendYield: av.DividendYield && av.DividendYield !== 'None' ? +(+av.DividendYield * 100).toFixed(2) : null,
       priceToBook: av.PriceToBookRatio && av.PriceToBookRatio !== 'None' ? +av.PriceToBookRatio : null,
       evEbitda: av.EVToEBITDA && av.EVToEBITDA !== 'None' ? +av.EVToEBITDA : null,
@@ -137,10 +163,8 @@ export async function GET(request) {
       description: av.Description || null,
       employees: av.FullTimeEmployees || null,
       exchange: av.Exchange || null,
-      country: av.Country || null,
       analystTarget: av.AnalystTargetPrice && av.AnalystTargetPrice !== 'None' ? +av.AnalystTargetPrice : null,
-      sharesOutstanding: av.SharesOutstanding && av.SharesOutstanding !== 'None' ? +av.SharesOutstanding : null,
-      sharesFloat: av.SharesFloat && av.SharesFloat !== 'None' ? +av.SharesFloat : null,
+      sharesOutstanding: av.SharesOutstanding && av.SharesOutstanding !== 'None' ? +av.SharesOutstanding : sharesVal,
       shortRatio: av.ShortRatio && av.ShortRatio !== 'None' ? +av.ShortRatio : null,
     });
 
