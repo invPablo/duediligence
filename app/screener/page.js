@@ -13,6 +13,22 @@ const fmtP = (v) => v !== null && v !== undefined ? `${v}%` : '—';
 const fmtN = (v, d = 1) => v !== null && v !== undefined ? v.toFixed(d) : '—';
 
 const SECTORS = ['All', 'Technology', 'Healthcare', 'Financials', 'Industrials', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Materials', 'Real Estate', 'Utilities', 'Communication Services'];
+const mapSector = (industry) => {
+  if (!industry) return null;
+  const i = industry.toLowerCase();
+  if (i.includes('semiconductor') || i.includes('software') || i.includes('hardware') || i.includes('tech') || i.includes('electronic') || i.includes('internet')) return 'Technology';
+  if (i.includes('drug') || i.includes('biotech') || i.includes('medical') || i.includes('health') || i.includes('pharma') || i.includes('hospital')) return 'Healthcare';
+  if (i.includes('bank') || i.includes('insurance') || i.includes('financial') || i.includes('asset') || i.includes('investment') || i.includes('credit')) return 'Financials';
+  if (i.includes('aerospace') || i.includes('defense') || i.includes('industrial') || i.includes('machinery') || i.includes('engineering') || i.includes('construction')) return 'Industrials';
+  if (i.includes('retail') || i.includes('auto') || i.includes('apparel') || i.includes('restaurant') || i.includes('hotel') || i.includes('travel') || i.includes('entertainment')) return 'Consumer Cyclical';
+  if (i.includes('food') || i.includes('beverage') || i.includes('tobacco') || i.includes('household') || i.includes('consumer staple') || i.includes('grocery')) return 'Consumer Defensive';
+  if (i.includes('oil') || i.includes('gas') || i.includes('energy') || i.includes('coal') || i.includes('refin')) return 'Energy';
+  if (i.includes('chemical') || i.includes('mining') || i.includes('metal') || i.includes('material') || i.includes('paper') || i.includes('gold') || i.includes('silver')) return 'Materials';
+  if (i.includes('reit') || i.includes('real estate') || i.includes('property')) return 'Real Estate';
+  if (i.includes('utility') || i.includes('utilities') || i.includes('electric') || i.includes('water') || i.includes('gas util')) return 'Utilities';
+  if (i.includes('telecom') || i.includes('communication') || i.includes('media') || i.includes('broadcasting') || i.includes('social')) return 'Communication Services';
+  return null;
+};
 
 export default function Screener() {
   const router = useRouter();
@@ -34,12 +50,12 @@ export default function Screener() {
   }, []);
 
   const filtered = stocks
-    .filter(s => sector === 'All' || s.sector === sector)
+    .filter(s => sector === 'All' || mapSector(s.sector) === sector)
     .filter(s => !search || s.ticker.includes(search.toUpperCase()) || s.name?.toUpperCase().includes(search.toUpperCase()))
     .filter(s => filters.minMargin === '' || (s.opMargin !== null && s.opMargin >= Number(filters.minMargin)))
-.filter(s => filters.maxPE === '' || (s.pe !== null && s.pe > 0 && s.pe <= Number(filters.maxPE)))
-.filter(s => filters.minFCFYield === '' || (s.fcfYield !== null && s.fcfYield >= Number(filters.minFCFYield)))
-.filter(s => filters.minRevGrowth === '' || (s.revGrowth !== null && s.revGrowth >= Number(filters.minRevGrowth)))
+    .filter(s => filters.maxPE === '' || (s.pe !== null && s.pe > 0 && s.pe <= Number(filters.maxPE)))
+    .filter(s => filters.minFCFYield === '' || (s.fcfYield !== null && s.fcfYield >= Number(filters.minFCFYield)))
+    .filter(s => filters.minRevGrowth === '' || (s.revGrowth !== null && s.revGrowth >= Number(filters.minRevGrowth)))
     .sort((a, b) => {
       const av = a[sortBy] ?? (sortDir === 'desc' ? -Infinity : Infinity);
       const bv = b[sortBy] ?? (sortDir === 'desc' ? -Infinity : Infinity);
