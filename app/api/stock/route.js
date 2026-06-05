@@ -1,4 +1,6 @@
 const AV_KEY = 'HQ3HYMDJQK4QBM4I';
+const FH_KEY = 'd8he51pr01qgcfbpbuo0d8he51pr01qgcfbpbuog';
+
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -85,41 +87,60 @@ export async function GET(request) {
     const oiHistory = buildHistory(operatingIncomes);
 
     // Alpha Vantage — overview
-    const avRes = await fetch(
-      `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${AV_KEY}`
-    );
-    const av = await avRes.json();
+const avRes = await fetch(
+  `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${AV_KEY}`
+);
+const av = await avRes.json();
 
-    return Response.json({
-      name: company.title,
-      ticker,
-      cik,
-      // SEC métricas
-      revVal, niVal, oiVal, fcfVal, assetsVal, equityVal, debtVal, cashVal, sharesVal, rdVal,
-      opMargin, netMargin, grossMargin, revGrowth, roe, roa, debtToEquity, netDebt,
-      revHistory, niHistory, fcfHistory, oiHistory,
-      // Alpha Vantage
-      marketCap: av.MarketCapitalization ? +av.MarketCapitalization : null,
-      pe: av.PERatio && av.PERatio !== 'None' ? +av.PERatio : null,
-      forwardPE: av.ForwardPE && av.ForwardPE !== 'None' ? +av.ForwardPE : null,
-      eps: av.EPS && av.EPS !== 'None' ? +av.EPS : null,
-      beta: av.Beta && av.Beta !== 'None' ? +av.Beta : null,
-      high52: av['52WeekHigh'] && av['52WeekHigh'] !== 'None' ? +av['52WeekHigh'] : null,
-      low52: av['52WeekLow'] && av['52WeekLow'] !== 'None' ? +av['52WeekLow'] : null,
-      dividendYield: av.DividendYield && av.DividendYield !== 'None' ? +(+av.DividendYield * 100).toFixed(2) : null,
-      priceToBook: av.PriceToBookRatio && av.PriceToBookRatio !== 'None' ? +av.PriceToBookRatio : null,
-      evEbitda: av.EVToEBITDA && av.EVToEBITDA !== 'None' ? +av.EVToEBITDA : null,
-      sector: av.Sector || null,
-      industry: av.Industry || null,
-      description: av.Description || null,
-      employees: av.FullTimeEmployees || null,
-      exchange: av.Exchange || null,
-      country: av.Country || null,
-      analystTarget: av.AnalystTargetPrice && av.AnalystTargetPrice !== 'None' ? +av.AnalystTargetPrice : null,
-      sharesOutstanding: av.SharesOutstanding && av.SharesOutstanding !== 'None' ? +av.SharesOutstanding : null,
-      sharesFloat: av.SharesFloat && av.SharesFloat !== 'None' ? +av.SharesFloat : null,
-      shortRatio: av.ShortRatio && av.ShortRatio !== 'None' ? +av.ShortRatio : null,
-    });
+// Finnhub — precio actual
+const fhRes = await fetch(
+  `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${FH_KEY}`
+);
+const fh = await fhRes.json();
+
+const currentPrice = fh.c || null;
+const priceChange = fh.d || null;
+const priceChangePct = fh.dp || null;
+const prevClose = fh.pc || null;
+const high = fh.h || null;
+const low = fh.l || null;
+
+return Response.json({
+  name: company.title,
+  ticker,
+  cik,
+  revVal, niVal, oiVal, fcfVal, assetsVal, equityVal, debtVal, cashVal, sharesVal, rdVal,
+  opMargin, netMargin, grossMargin, revGrowth, roe, roa, debtToEquity, netDebt,
+  revHistory, niHistory, fcfHistory, oiHistory,
+  // precio real
+  currentPrice,
+  priceChange,
+  priceChangePct,
+  prevClose,
+  high,
+  low,
+  // Alpha Vantage
+  marketCap: av.MarketCapitalization ? +av.MarketCapitalization : null,
+  pe: av.PERatio && av.PERatio !== 'None' ? +av.PERatio : null,
+  forwardPE: av.ForwardPE && av.ForwardPE !== 'None' ? +av.ForwardPE : null,
+  eps: av.EPS && av.EPS !== 'None' ? +av.EPS : null,
+  beta: av.Beta && av.Beta !== 'None' ? +av.Beta : null,
+  high52: av['52WeekHigh'] && av['52WeekHigh'] !== 'None' ? +av['52WeekHigh'] : null,
+  low52: av['52WeekLow'] && av['52WeekLow'] !== 'None' ? +av['52WeekLow'] : null,
+  dividendYield: av.DividendYield && av.DividendYield !== 'None' ? +(+av.DividendYield * 100).toFixed(2) : null,
+  priceToBook: av.PriceToBookRatio && av.PriceToBookRatio !== 'None' ? +av.PriceToBookRatio : null,
+  evEbitda: av.EVToEBITDA && av.EVToEBITDA !== 'None' ? +av.EVToEBITDA : null,
+  sector: av.Sector || null,
+  industry: av.Industry || null,
+  description: av.Description || null,
+  employees: av.FullTimeEmployees || null,
+  exchange: av.Exchange || null,
+  country: av.Country || null,
+  analystTarget: av.AnalystTargetPrice && av.AnalystTargetPrice !== 'None' ? +av.AnalystTargetPrice : null,
+  sharesOutstanding: av.SharesOutstanding && av.SharesOutstanding !== 'None' ? +av.SharesOutstanding : null,
+  sharesFloat: av.SharesFloat && av.SharesFloat !== 'None' ? +av.SharesFloat : null,
+  shortRatio: av.ShortRatio && av.ShortRatio !== 'None' ? +av.ShortRatio : null,
+});
 
   } catch (e) {
     console.error(e);

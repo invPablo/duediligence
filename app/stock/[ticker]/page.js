@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, use } from 'react';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import PriceChart from './chart';
 
 const fmt = (val) => {
@@ -10,10 +10,11 @@ const fmt = (val) => {
   if (Math.abs(val) >= 1e6) return `$${(val / 1e6).toFixed(0)}M`;
   return `$${val.toLocaleString()}`;
 };
-
-const fmtN = (val, dec = 2) => val !== null && val !== undefined ? val.toFixed(dec) : 'N/A';
-const fmtP = (val) => val !== null && val !== undefined ? `${val}%` : 'N/A';
-const color = (val, good, bad) => val === null ? 'text-zinc-400' : val >= good ? 'text-emerald-400' : val <= bad ? 'text-red-400' : 'text-amber-400';
+const fmtP = (v) => v !== null && v !== undefined ? `${v}%` : '—';
+const fmtN = (v, d = 2) => v !== null && v !== undefined ? v.toFixed(d) : '—';
+const green = 'text-emerald-400';
+const red = 'text-red-400';
+const muted = 'text-zinc-400';
 
 const NAV = [
   { key: 'overview', label: 'Stock Overview' },
@@ -23,29 +24,48 @@ const NAV = [
 ];
 
 const QUESTIONS = [
-  { dim: 'Gestión', text: '¿El equipo directivo cumplió su guidance trimestral?' },
-  { dim: 'Gestión', text: '¿La compensación ejecutiva está alineada con métricas de largo plazo?' },
-  { dim: 'Gestión', text: '¿Hubo cambios significativos en el C-suite en los últimos 12 meses?' },
-  { dim: 'Concentración', text: '¿El top-3 de clientes representa menos del 30% de ingresos?' },
-  { dim: 'Concentración', text: '¿Opera en más de un segmento geográfico relevante?' },
-  { dim: 'Concentración', text: '¿El producto principal representa menos del 50% de ingresos?' },
-  { dim: 'Tendencia Operativa', text: '¿El margen operativo mejoró en los últimos 3 años?' },
-  { dim: 'Tendencia Operativa', text: '¿El FCF/share creció >8% CAGR en los últimos 5 años?' },
-  { dim: 'Tendencia Operativa', text: '¿El ROIC supera el WACC estimado?' },
-  { dim: 'Calidad Beneficios', text: '¿El ratio FCF/Net Income supera 0.8x promedio de 3 años?' },
-  { dim: 'Calidad Beneficios', text: '¿Las accruals como % de activos son inferiores al 5%?' },
-  { dim: 'Calidad Beneficios', text: '¿El crecimiento de receivables no dobla el de revenues?' },
-  { dim: 'Transparencia', text: '¿La empresa provee guidance cuantitativo trimestral?' },
-  { dim: 'Transparencia', text: '¿El 10-K incluye riesgos materiales específicos del negocio?' },
-  { dim: 'Transparencia', text: '¿Los segmentos permiten calcular márgenes por unidad de negocio?' },
+  { dim: 'Management', text: 'Has the management team consistently met quarterly guidance?' },
+  { dim: 'Management', text: 'Is executive compensation aligned with long-term metrics?' },
+  { dim: 'Management', text: 'Were there significant C-suite changes in the last 12 months?' },
+  { dim: 'Concentration', text: 'Does the top-3 customers represent less than 30% of revenue?' },
+  { dim: 'Concentration', text: 'Does the company operate in more than one relevant geographic segment?' },
+  { dim: 'Concentration', text: 'Does the main product represent less than 50% of revenue?' },
+  { dim: 'Operational Trend', text: 'Did operating margin improve over the last 3 years?' },
+  { dim: 'Operational Trend', text: 'Did FCF/share grow at >8% CAGR over the last 5 years?' },
+  { dim: 'Operational Trend', text: 'Does ROIC exceed the estimated WACC?' },
+  { dim: 'Earnings Quality', text: 'Does the FCF/Net Income ratio exceed 0.8x on a 3-year average?' },
+  { dim: 'Earnings Quality', text: 'Are accruals as a % of assets below 5%?' },
+  { dim: 'Earnings Quality', text: 'Does receivables growth not exceed twice revenue growth?' },
+  { dim: 'Transparency', text: 'Does the company provide quantitative quarterly guidance?' },
+  { dim: 'Transparency', text: 'Does the 10-K include detailed business-specific material risks?' },
+  { dim: 'Transparency', text: 'Do reported segments allow margin calculation by business unit?' },
 ];
+const DIMS = ['Management', 'Concentration', 'Operational Trend', 'Earnings Quality', 'Transparency'];
 
-const DIMS = ['Gestión', 'Concentración', 'Tendencia Operativa', 'Calidad Beneficios', 'Transparencia'];
+const Pill = ({ label, value, good }) => (
+  <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 flex items-center justify-between">
+    <span className="text-xs text-zinc-500 uppercase tracking-widest">{label}</span>
+    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${good ? 'bg-emerald-500/15 text-emerald-400' : good === false ? 'bg-red-500/15 text-red-400' : 'bg-zinc-700/50 text-zinc-400'}`}>
+      {value}
+    </span>
+  </div>
+);
+
+const MetricCard = ({ label, value, delta, deltaGood, dot }) => (
+  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+    <div className="flex items-center gap-2 mb-2">
+      {dot && <div className={`w-2 h-2 rounded-full ${dot}`}></div>}
+      <span className="text-xs text-zinc-500 uppercase tracking-wide">{label}</span>
+    </div>
+    <div className="text-2xl font-medium mb-1">{value}</div>
+    {delta && <div className={`text-xs ${deltaGood ? 'text-emerald-400' : 'text-red-400'}`}>{delta}</div>}
+  </div>
+);
 
 const ScoreRing = ({ score, size = 80 }) => {
   const r = size / 2 - 6;
   const circ = 2 * Math.PI * r;
-  const fill = score !== null ? (circ * (1 - score / 100)) : circ;
+  const fill = score !== null ? circ * (1 - score / 100) : circ;
   const c = score === null ? '#3f3f46' : score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444';
   return (
     <svg width={size} height={size}>
@@ -59,18 +79,6 @@ const ScoreRing = ({ score, size = 80 }) => {
     </svg>
   );
 };
-
-const MiniChart = ({ data, dataKey, color: c = '#10b981' }) => (
-  <ResponsiveContainer width="100%" height={80}>
-    <BarChart data={data} barSize={20}>
-      <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
-      <Tooltip formatter={v => [`$${Math.abs(v)}B`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
-      <Bar dataKey={dataKey} radius={[2, 2, 0, 0]}>
-        {data.map((d, i) => <Cell key={i} fill={i === data.length - 1 ? c : `${c}55`} />)}
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
-);
 
 export default function StockPage({ params }) {
   const { ticker: rawTicker } = use(params);
@@ -86,17 +94,16 @@ export default function StockPage({ params }) {
     fetch(`/api/stock?ticker=${ticker}`)
       .then(r => r.json())
       .then(d => { if (d.error) { setError(d.error); return; } setData(d); })
-      .catch(() => setError('Error de conexión'))
+      .catch(() => setError('Connection error'))
       .finally(() => setLoading(false));
   }, [ticker]);
 
   const getDimScore = (dim) => {
     const indices = QUESTIONS.map((q, i) => q.dim === dim ? i : -1).filter(i => i >= 0);
-    const answered = indices.filter(i => answers[i] === 'SI' || answers[i] === 'NO');
+    const answered = indices.filter(i => answers[i] === 'YES' || answers[i] === 'NO');
     if (!answered.length) return null;
-    return Math.round((answered.filter(i => answers[i] === 'SI').length / answered.length) * 100);
+    return Math.round((answered.filter(i => answers[i] === 'YES').length / answered.length) * 100);
   };
-
   const totalScore = () => {
     const scores = DIMS.map(d => getDimScore(d)).filter(s => s !== null);
     if (!scores.length) return null;
@@ -107,7 +114,7 @@ export default function StockPage({ params }) {
     <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
       <div className="text-center">
         <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <div className="text-emerald-400 mb-1">Cargando datos...</div>
+        <div className="text-emerald-400 mb-1">Loading data...</div>
         <div className="text-zinc-500 text-sm">{ticker}</div>
       </div>
     </main>
@@ -117,7 +124,7 @@ export default function StockPage({ params }) {
     <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
       <div className="text-center">
         <div className="text-red-400 text-lg mb-4">{error}</div>
-        <a href="/" className="text-zinc-500 text-sm hover:text-white">← Volver</a>
+        <a href="/" className="text-zinc-500 text-sm hover:text-white">← Back</a>
       </div>
     </main>
   );
@@ -125,30 +132,63 @@ export default function StockPage({ params }) {
   const score = totalScore();
   const answeredCount = Object.keys(answers).filter(k => answers[k]).length;
   const revChart = data.revHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
-  const niChart = data.niHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
   const fcfChart = data.fcfHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
 
-  const Row = ({ label, value, highlight }) => (
-    <tr className="border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors">
-      <td className="px-4 py-2.5 text-zinc-500 text-sm">{label}</td>
-      <td className={`px-4 py-2.5 text-sm font-medium text-right ${highlight || 'text-white'}`}>{value}</td>
-    </tr>
-  );
+  const profLabel = data.grossMargin > 50 ? 'Strong margins' : data.grossMargin > 30 ? 'Solid margins' : 'Thin margins';
+  const profGood = data.grossMargin > 40;
+  const growthLabel = data.revGrowth > 20 ? 'Accelerating' : data.revGrowth > 5 ? 'Steady growth' : 'Slow growth';
+  const growthGood = data.revGrowth > 10;
+  const cashLabel = data.fcfVal > 0 ? 'Positive FCF' : 'Negative FCF';
+  const cashGood = data.fcfVal > 0;
+  const fcfPerSharePill = data.fcfVal && data.sharesOutstanding ? data.fcfVal / data.sharesOutstanding : null;
+const intrinsicPill = fcfPerSharePill ? fcfPerSharePill * 20 : null;
+const currentPricePill = data.currentPrice;
+const valLabel = intrinsicPill && currentPricePill
+  ? intrinsicPill > currentPricePill * 1.2 ? 'Undervalued'
+  : intrinsicPill > currentPricePill ? 'Fair value'
+  : intrinsicPill > currentPricePill * 0.8 ? 'Slightly rich'
+  : 'Not cheap'
+  : data.pe > 40 ? 'Not cheap' : data.pe > 20 ? 'Fair value' : data.pe > 0 ? 'Attractive' : 'N/A';
+const valGood = intrinsicPill && currentPricePill ? intrinsicPill > currentPricePill : data.pe > 0 && data.pe < 25;
+
+  const Row52 = () => {
+    if (!data.low52 || !data.high52) return null;
+    const pct = Math.min(100, Math.max(0, ((data.analystTarget - data.low52) / (data.high52 - data.low52)) * 100));
+    return (
+      <div className="mt-4">
+        <div className="text-xs text-zinc-500 uppercase tracking-wide mb-2">52-Week Range</div>
+        <div className="relative h-1.5 bg-zinc-700 rounded-full mb-1">
+          <div className="absolute h-1.5 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }}></div>
+        </div>
+        <div className="flex justify-between text-xs text-zinc-500">
+          <span>${data.low52}</span>
+          <span>${data.high52}</span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
-      <div className="border-b border-zinc-800 px-6 py-3 flex items-center gap-3 sticky top-0 bg-zinc-950 z-10">
-        <a href="/" className="flex items-center gap-2 mr-2">
-          <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center text-xs font-bold">DD</div>
-          <span className="text-sm font-medium">DueDiligence</span>
-        </a>
-        <span className="text-zinc-700">/</span>
-        <a href="/" className="text-zinc-500 text-sm hover:text-white">Home</a>
-        <span className="text-zinc-700">/</span>
-        <span className="text-zinc-300 text-sm">{ticker}</span>
-        <span className="text-zinc-700">/</span>
-        <span className="text-emerald-400 text-sm">{NAV.find(n => n.key === tab)?.label}</span>
-      </div>
+      <div className="border-b border-zinc-800 px-6 py-3 flex items-center gap-4 sticky top-0 bg-zinc-950 z-10">
+  <a href="/" className="flex items-center gap-2 shrink-0">
+    <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center text-xs font-bold">DD</div>
+    <span className="text-sm font-medium">DueDiligence</span>
+  </a>
+  <span className="text-zinc-700">/</span>
+  <a href="/" className="text-zinc-500 text-sm hover:text-white shrink-0">Home</a>
+  <span className="text-zinc-700">/</span>
+  <span className="text-zinc-300 text-sm font-medium shrink-0">{ticker}</span>
+  <div className="flex-1 max-w-xs ml-4">
+    <form onSubmit={e => { e.preventDefault(); const t = e.target.search.value.toUpperCase().trim(); if (t) window.location.href = `/stock/${t}`; }}>
+      <input
+        name="search"
+        className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors"
+        placeholder="Search ticker: AAPL, MSFT..."
+      />
+    </form>
+  </div>
+</div>
 
       <div className="flex">
         <div className="w-52 shrink-0 border-r border-zinc-800 min-h-screen p-4 sticky top-12 self-start">
@@ -166,155 +206,272 @@ export default function StockPage({ params }) {
           {score !== null && (
             <div className="mt-6 p-4 bg-zinc-900 rounded-xl text-center border border-zinc-800">
               <ScoreRing score={score} size={72} />
-              <div className="text-xs text-zinc-500 mt-2">Score DD</div>
+              <div className="text-xs text-zinc-500 mt-2">DD Score</div>
               <div className="text-xs text-zinc-600">{answeredCount}/15</div>
             </div>
           )}
         </div>
 
-        <div className="flex-1 p-6 max-w-none">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-lg font-bold text-emerald-400 border border-zinc-700">
-                {ticker.slice(0, 2)}
-              </div>
-              <div>
-                <h1 className="text-2xl font-medium tracking-tight">{data.name}</h1>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-zinc-500 text-sm">{ticker}</span>
-                  {data.exchange && <span className="text-zinc-600 text-xs">{data.exchange}</span>}
-                  {data.sector && <span className="text-xs bg-zinc-800 px-2 py-0.5 rounded text-zinc-400">{data.sector}</span>}
-                  {data.industry && <span className="text-xs bg-zinc-800 px-2 py-0.5 rounded text-zinc-400">{data.industry}</span>}
-                  <a href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${data.cik}&type=10-K`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="text-xs border border-zinc-700 px-2 py-0.5 rounded text-zinc-500 hover:border-emerald-500 hover:text-emerald-400 transition-colors">
-                    SEC EDGAR ↗
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* OVERVIEW */}
+        <div className="flex-1 p-6">
           {tab === 'overview' && (
             <div>
-                <div className="mb-6">
-  <PriceChart ticker={ticker} />
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-zinc-700">
+  <img
+    src={`https://logo.clearbit.com/${data.name
+      .toLowerCase()
+      .replace(/\binc\b|\bcorp\b|\bltd\b|\bplc\b|\bco\b|\bllc\b|\bgroup\b|\bholdings\b|\binternational\b|\bthe\b/g, '')
+      .trim()
+      .split(/\s+/)[0]
+      .replace(/[^a-z0-9]/g, '')}.com`}
+    alt={data.name}
+    className="w-10 h-10 object-contain"
+    onError={e => {
+      e.target.style.display = 'none';
+      e.target.parentElement.innerHTML = `<span class="text-xl font-bold text-emerald-400">${ticker.slice(0, 2)}</span>`;
+      e.target.parentElement.classList.remove('bg-white');
+      e.target.parentElement.classList.add('bg-zinc-800');
+    }}
+  />
 </div>
-              {data.description && (
-                <p className="text-zinc-400 text-sm leading-relaxed mb-6 max-w-3xl border-l-2 border-emerald-500/30 pl-4">
-                  {data.description.slice(0, 300)}{data.description.length > 300 ? '...' : ''}
-                </p>
+                  <div>
+                    <h1 className="text-2xl font-medium tracking-tight">{data.name}</h1>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-zinc-500 text-sm font-medium">{ticker}</span>
+                      {data.exchange && <span className="text-zinc-600 text-xs">/ {data.exchange}</span>}
+                      {data.sector && <span className="text-xs text-zinc-500">/ {data.sector}</span>}
+                    </div>
+                    {data.description && (
+                      <p className="text-zinc-400 text-sm mt-2 max-w-xl leading-relaxed">
+                        {data.description.slice(0, 200)}{data.description.length > 200 ? '...' : ''}
+                      </p>
+                    )}
+                    <div className="flex gap-2 mt-3">
+                      <a href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${data.cik}&type=10-K`}
+                        target="_blank" rel="noopener noreferrer"
+                        className="text-xs border border-zinc-700 px-3 py-1 rounded-lg text-zinc-400 hover:border-emerald-500 hover:text-emerald-400 transition-colors">
+                        SEC Filings ↗
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div className="shrink-0 ml-8 flex items-start gap-6">
+  {(() => {
+    const price = data.currentPrice;
+    const change = data.priceChange;
+    const changePct = data.priceChangePct;
+    const fcfPerShare = data.fcfVal && data.sharesOutstanding ? data.fcfVal / data.sharesOutstanding : null;
+    const intrinsicValue = fcfPerShare ? +(fcfPerShare * 20).toFixed(2) : null;
+    const undervalued = intrinsicValue && price ? intrinsicValue > price : null;
+    return (
+      <>
+        {/* Precio actual — grande */}
+        <div className="text-right">
+          {price ? (
+            <>
+              <div className="text-5xl font-medium text-white tracking-tight">${price.toFixed(2)}</div>
+              {change !== null && (
+                <div className={`text-base mt-1 font-medium ${change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {change >= 0 ? '+' : ''}{change.toFixed(2)} ({changePct?.toFixed(2)}%)
+                </div>
               )}
+              <div className="text-xs text-zinc-600 mt-1">Live price · Finnhub</div>
+            </>
+          ) : (
+            <>
+              <div className="text-4xl font-medium">{fmt(data.marketCap)}</div>
+              <div className="text-xs text-zinc-500 mt-1">Market Cap</div>
+            </>
+          )}
+        </div>
 
-              {/* Métricas de mercado */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                {[
-                  { label: 'Market Cap', val: fmt(data.marketCap) },
-                  { label: 'P/E Ratio', val: fmtN(data.pe) },
-                  { label: 'EPS (TTM)', val: data.eps ? `$${data.eps}` : 'N/A' },
-                  { label: 'Beta', val: fmtN(data.beta) },
-                ].map(m => (
-                  <div key={m.label} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                    <div className="text-xs text-zinc-500 uppercase tracking-wide mb-1">{m.label}</div>
-                    <div className="text-xl font-medium">{m.val}</div>
-                  </div>
-                ))}
+        {/* Intrinsic Value — compacto al lado */}
+        {intrinsicValue && (
+          <div className="border-l border-zinc-800 pl-6 text-right">
+            <div className="text-xs text-zinc-500 uppercase tracking-wide mb-1">Intrinsic Value</div>
+            <div className={`text-3xl font-medium tracking-tight ${undervalued ? 'text-emerald-400' : 'text-red-400'}`}>
+              ${intrinsicValue}
+            </div>
+            <div className="text-xs text-zinc-600 mt-0.5">20x FCF/share</div>
+            {price && (
+              <div className={`text-xs mt-2 font-medium px-2 py-0.5 rounded-full inline-block ${undervalued ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+                {undervalued
+                  ? `▲ +${(((intrinsicValue - price) / price) * 100).toFixed(1)}% upside`
+                  : `▼ ${(((intrinsicValue - price) / price) * 100).toFixed(1)}% downside`}
+              </div>
+            )}
+          </div>
+        )}
+      </>
+    );
+  })()}
+</div>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-                {[
-                  { label: 'Revenue TTM', val: fmt(data.revVal), sub: data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}% YoY` : null, good: data.revGrowth > 0 },
-                  { label: 'Net Income', val: fmt(data.niVal), sub: null },
-                  { label: 'Free Cash Flow', val: fmt(data.fcfVal), sub: null },
-                  { label: 'Total Assets', val: fmt(data.assetsVal), sub: null },
-                ].map(m => (
-                  <div key={m.label} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                    <div className="text-xs text-zinc-500 uppercase tracking-wide mb-1">{m.label}</div>
-                    <div className="text-xl font-medium">{m.val}</div>
-                    {m.sub && <div className={`text-xs mt-1 ${m.good ? 'text-emerald-400' : 'text-red-400'}`}>{m.sub}</div>}
-                  </div>
-                ))}
+              <div className="flex gap-3 mb-6">
+                <Pill label="Profitability" value={profLabel} good={profGood} />
+                <Pill label="Growth" value={growthLabel} good={growthGood} />
+                <Pill label="Cash Flow" value={cashLabel} good={cashGood} />
+                <Pill label="Valuation" value={valLabel} good={valGood} />
               </div>
 
-              {/* Tabla de métricas estilo Finviz */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-                  <div className="px-4 py-2 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wide">Valoración</div>
-                  <table className="w-full">
-                    <tbody>
-                      <Row label="P/E" value={fmtN(data.pe)} highlight={data.pe > 30 ? 'text-red-400' : 'text-emerald-400'} />
-                      <Row label="Forward P/E" value={fmtN(data.forwardPE)} />
-                      <Row label="P/B" value={fmtN(data.priceToBook)} />
-                      <Row label="EV/EBITDA" value={fmtN(data.evEbitda)} />
-                      <Row label="Dividend Yield" value={fmtP(data.dividendYield)} />
-                      <Row label="Analyst Target" value={data.analystTarget ? `$${data.analystTarget}` : 'N/A'} highlight="text-emerald-400" />
-                    </tbody>
-                  </table>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                  <div className="text-xs text-emerald-400 uppercase tracking-widest mb-2">What stands out</div>
+                  <p className="text-sm text-zinc-300 leading-relaxed">
+                    {data.grossMargin > 50
+                      ? `Gross margin of ${data.grossMargin}% signals strong pricing power. Positive ROIC spread.`
+                      : `Revenue grew ${data.revGrowth}% YoY with an operating margin of ${data.opMargin}%.`}
+                  </p>
                 </div>
-
-                <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-                  <div className="px-4 py-2 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wide">Rentabilidad</div>
-                  <table className="w-full">
-                    <tbody>
-                      <Row label="Gross Margin" value={fmtP(data.grossMargin)} highlight={data.grossMargin > 40 ? 'text-emerald-400' : 'text-amber-400'} />
-                      <Row label="Op. Margin" value={fmtP(data.opMargin)} highlight={data.opMargin > 15 ? 'text-emerald-400' : 'text-amber-400'} />
-                      <Row label="Net Margin" value={fmtP(data.netMargin)} highlight={data.netMargin > 10 ? 'text-emerald-400' : 'text-amber-400'} />
-                      <Row label="ROE" value={fmtP(data.roe)} highlight={data.roe > 15 ? 'text-emerald-400' : 'text-amber-400'} />
-                      <Row label="ROA" value={fmtP(data.roa)} highlight={data.roa > 5 ? 'text-emerald-400' : 'text-amber-400'} />
-                      <Row label="Rev. Growth YoY" value={fmtP(data.revGrowth)} highlight={data.revGrowth > 0 ? 'text-emerald-400' : 'text-red-400'} />
-                    </tbody>
-                  </table>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                  <div className="text-xs text-blue-400 uppercase tracking-widest mb-2">What's changing</div>
+                  <p className="text-sm text-zinc-300 leading-relaxed">
+                    {data.revGrowth > 0
+                      ? `Revenue growing at ${data.revGrowth}% YoY. ${data.opMargin > 15 ? 'Operating margins remain solid.' : 'Margins showing expansion.'}`
+                      : `Revenue contracting ${data.revGrowth}% YoY. Monitor margin evolution closely.`}
+                  </p>
                 </div>
-
-                <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-                  <div className="px-4 py-2 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wide">Balance & Mercado</div>
-                  <table className="w-full">
-                    <tbody>
-                      <Row label="Cash" value={fmt(data.cashVal)} highlight="text-emerald-400" />
-                      <Row label="Deuda LP" value={fmt(data.debtVal)} />
-                      <Row label="Deuda Neta" value={fmt(data.netDebt)} highlight={data.netDebt < 0 ? 'text-emerald-400' : 'text-amber-400'} />
-                      <Row label="D/E Ratio" value={fmtN(data.debtToEquity)} highlight={data.debtToEquity < 1 ? 'text-emerald-400' : 'text-amber-400'} />
-                      <Row label="Beta" value={fmtN(data.beta)} />
-                      <Row label="52W High" value={data.high52 ? `$${data.high52}` : 'N/A'} />
-                    </tbody>
-                  </table>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                  <div className="text-xs text-amber-400 uppercase tracking-widest mb-2">What deserves caution</div>
+                  <p className="text-sm text-zinc-300 leading-relaxed">
+                    {data.pe > 35
+                      ? `P/E of ${data.pe}x leaves limited room for execution misses or growth deceleration.`
+                      : data.debtToEquity > 2
+                      ? `Debt/equity of ${data.debtToEquity}x warrants attention in a high-rate environment.`
+                      : `Monitor margin evolution and free cash flow generation going forward.`}
+                  </p>
+                </div>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                  <div className="text-xs text-purple-400 uppercase tracking-widest mb-2">Valuation context</div>
+                  <p className="text-sm text-zinc-300 leading-relaxed">
+                    {data.pe
+                      ? `${data.pe}x earnings. ${data.pe > 30 ? 'Quality is already priced in.' : 'Reasonable valuation given the business profile.'} ${data.analystTarget ? `Analyst target: $${data.analystTarget}.` : ''}`
+                      : `No P/E available. Consider alternative valuation metrics such as EV/EBITDA (${fmtN(data.evEbitda)}x).`}
+                  </p>
                 </div>
               </div>
 
-              {/* Gráficos */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="flex gap-4 mb-6">
+                <div className="flex-1 min-w-0">
+                  <PriceChart ticker={ticker} />
+                </div>
+                <div className="w-64 shrink-0 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                  <div className="text-xs text-zinc-500 uppercase tracking-wide mb-4">Valuation & Multiples</div>
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {[
+                        { label: 'Market Cap', val: fmt(data.marketCap) },
+                        { label: 'EPS', val: data.eps ? `$${data.eps}` : '—' },
+                        { label: 'P/E', val: fmtN(data.pe), color: data.pe > 30 ? red : green },
+                        { label: 'P/FCF', val: data.fcfVal && data.marketCap ? fmtN(data.marketCap / data.fcfVal) : '—' },
+                        { label: 'EV/EBITDA', val: fmtN(data.evEbitda) },
+                        { label: 'FCF Yield', val: data.fcfVal && data.marketCap ? `${((data.fcfVal / data.marketCap) * 100).toFixed(1)}%` : '—' },
+                        { label: 'Div. Yield', val: fmtP(data.dividendYield) },
+                        { label: 'Net Debt/FCF', val: data.netDebt && data.fcfVal ? fmtN(data.netDebt / data.fcfVal) : '—', color: data.netDebt < 0 ? green : muted },
+                      ].map(r => (
+                        <tr key={r.label} className="border-b border-zinc-800/50">
+                          <td className="py-2 text-zinc-500">{r.label}</td>
+                          <td className={`py-2 text-right font-medium ${r.color || 'text-white'}`}>{r.val}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <Row52 />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Profitability & Returns</div>
+                <div className="grid grid-cols-4 gap-3">
+                  <MetricCard label="Revenue (TTM)" value={fmt(data.revVal)}
+                    delta={data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}% YoY` : null}
+                    deltaGood={data.revGrowth > 0} dot="bg-emerald-500" />
+                  <MetricCard label="Net Income (TTM)" value={fmt(data.niVal)}
+                    delta={data.netMargin !== null ? `${data.netMargin}% net margin` : null}
+                    deltaGood={data.netMargin > 10} dot="bg-emerald-500" />
+                  <MetricCard label="Op. Margin" value={fmtP(data.opMargin)}
+                    delta={data.opMargin > 15 ? 'Above threshold' : 'Below threshold'}
+                    deltaGood={data.opMargin > 15} dot={data.opMargin > 15 ? 'bg-emerald-500' : 'bg-amber-500'} />
+                  <MetricCard label="ROE" value={fmtP(data.roe)}
+                    delta={data.roe > 15 ? 'Strong return' : 'Moderate return'}
+                    deltaGood={data.roe > 15} dot={data.roe > 15 ? 'bg-emerald-500' : 'bg-amber-500'} />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Cash Flow & Balance Sheet</div>
+                <div className="grid grid-cols-4 gap-3">
+                  <MetricCard label="Free Cash Flow" value={fmt(data.fcfVal)}
+                    delta={data.fcfVal > 0 ? 'Positive FCF' : 'Negative FCF'}
+                    deltaGood={data.fcfVal > 0} dot={data.fcfVal > 0 ? 'bg-emerald-500' : 'bg-red-500'} />
+                  <MetricCard label="Op. Cash Flow (TTM)" value={fmt(data.fcfVal)}
+                    delta={data.fcfVal > 0 ? `${((data.fcfVal / (data.revVal || 1)) * 100).toFixed(1)}% conversion` : null}
+                    deltaGood={data.fcfVal > 0} dot="bg-emerald-500" />
+                  <MetricCard label="Net Debt" value={fmt(data.netDebt)}
+                    delta={data.netDebt < 0 ? 'Net Cash Position' : 'Net Debt Position'}
+                    deltaGood={data.netDebt < 0} dot={data.netDebt < 0 ? 'bg-emerald-500' : 'bg-amber-500'} />
+                  <MetricCard label="Cash & Equiv." value={fmt(data.cashVal)} dot="bg-emerald-500" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
                 {[
-                  { title: 'Revenue histórico', chart: revChart, c: '#10b981' },
-                  { title: 'Net Income histórico', chart: niChart, c: '#3b82f6' },
-                  { title: 'Cash Flow Op. histórico', chart: fcfChart, c: '#8b5cf6' },
+                  { title: 'Revenue', chart: revChart, c: '#10b981' },
+                  { title: 'Free Cash Flow', chart: fcfChart, c: '#8b5cf6' },
                 ].map(({ title, chart, c }) => (
-                  <div key={title} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                    <div className="text-xs text-zinc-500 uppercase tracking-wide mb-3">{title}</div>
-                    <MiniChart data={chart} dataKey="value" color={c} />
+                  <div key={title} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                    <div className="text-sm font-medium mb-4">{title}</div>
+                    <ResponsiveContainer width="100%" height={140}>
+                      <BarChart data={chart} barSize={32}>
+                        <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}B`} />
+                        <Tooltip formatter={v => [`$${v}B`, title]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 12 }} />
+                        <Bar dataKey="value" radius={[3, 3, 0, 0]}>
+                          {chart.map((_, i) => <Cell key={i} fill={i === chart.length - 1 ? c : `${c}55`} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 ))}
               </div>
+
+              <div className="mb-6">
+                <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Continue Research</div>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { key: 'quality', title: 'Quality Scorecard', desc: 'Is this a high-quality business?' },
+                    { key: 'financials', title: 'Financials', desc: 'Income, cash flow, balance sheet' },
+                    { key: 'dcf', title: 'DCF Valuation', desc: "What's it really worth?" },
+                  ].map(s => (
+                    <button key={s.key} onClick={() => setTab(s.key)}
+                      className="bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 rounded-xl p-4 text-left transition-colors group">
+                      <div className="text-sm font-medium group-hover:text-emerald-400 transition-colors">{s.title}</div>
+                      <div className="text-xs text-zinc-500 mt-1">{s.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-xs text-zinc-600">Source: SEC EDGAR (XBRL) + Alpha Vantage. Not investment advice.</p>
             </div>
           )}
 
-          {/* QUALITY */}
           {tab === 'quality' && (
             <div>
               <div className="flex items-center gap-6 mb-8 p-6 bg-zinc-900 rounded-xl border border-zinc-800">
                 <ScoreRing score={score} size={100} />
                 <div>
                   <div className="text-2xl font-medium mb-1">
-                    {score !== null ? (score >= 70 ? 'Negocio de calidad' : score >= 40 ? 'Calidad moderada' : 'Señales de alerta') : 'Completa el análisis'}
+                    {score !== null ? (score >= 70 ? 'High-quality business' : score >= 40 ? 'Moderate quality' : 'Red flags detected') : 'Complete the analysis'}
                   </div>
                   <p className="text-zinc-400 text-sm max-w-md">
-                    {score !== null ? `Score basado en ${answeredCount} de 15 preguntas desde filings SEC.` : 'Responde las preguntas para obtener el score de due diligence.'}
+                    {score !== null ? `Score based on ${answeredCount} of 15 questions answered from SEC filings.` : 'Answer the questions to get your due diligence score.'}
                   </p>
-                  <div className="text-xs text-zinc-600 mt-2">Heurísticas fundamentales · No es señal de compra/venta</div>
+                  <div className="text-xs text-zinc-600 mt-2">Fundamental heuristics · Not a buy/sell signal</div>
                 </div>
               </div>
-
               <div className="grid grid-cols-5 gap-3 mb-8">
                 {DIMS.map(dim => (
                   <div key={dim} className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
@@ -323,7 +480,6 @@ export default function StockPage({ params }) {
                   </div>
                 ))}
               </div>
-
               <div className="space-y-6">
                 {DIMS.map((dim, di) => (
                   <div key={dim}>
@@ -338,13 +494,13 @@ export default function StockPage({ params }) {
                     <div className="space-y-3">
                       {QUESTIONS.map((q, qi) => q.dim !== dim ? null : (
                         <div key={qi} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                          <p className="text-sm text-zinc-200 mb-3 leading-relaxed">P{qi + 1}. {q.text}</p>
+                          <p className="text-sm text-zinc-200 mb-3 leading-relaxed">Q{qi + 1}. {q.text}</p>
                           <div className="flex gap-2 mb-3">
-                            {['SI', 'NO', 'N/A'].map(opt => (
+                            {['YES', 'NO', 'N/A'].map(opt => (
                               <button key={opt} onClick={() => setAnswers(prev => ({ ...prev, [qi]: opt }))}
                                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
                                   answers[qi] === opt
-                                    ? opt === 'SI' ? 'bg-emerald-500 border-emerald-500 text-white'
+                                    ? opt === 'YES' ? 'bg-emerald-500 border-emerald-500 text-white'
                                     : opt === 'NO' ? 'bg-red-500 border-red-500 text-white'
                                     : 'bg-zinc-600 border-zinc-600 text-white'
                                     : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
@@ -356,7 +512,7 @@ export default function StockPage({ params }) {
                           {answers[qi] && (
                             <input
                               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500"
-                              placeholder="Evidencia del filing (cita exacta)..."
+                              placeholder="Evidence from filing (exact quote)..."
                               value={evidence[qi] || ''}
                               onChange={e => setEvidence(prev => ({ ...prev, [qi]: e.target.value }))}
                             />
@@ -370,7 +526,6 @@ export default function StockPage({ params }) {
             </div>
           )}
 
-          {/* FINANCIALS */}
           {tab === 'financials' && (
             <div>
               <h2 className="text-xl font-medium mb-6">Financials</h2>
@@ -378,7 +533,7 @@ export default function StockPage({ params }) {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-zinc-800">
-                      <th className="text-left px-5 py-3 text-zinc-500 font-medium">Métrica</th>
+                      <th className="text-left px-5 py-3 text-zinc-500 font-medium">Metric</th>
                       {data.revHistory.map(r => <th key={r.year} className="text-right px-4 py-3 text-zinc-500 font-medium">{r.year}</th>)}
                       <th className="text-right px-4 py-3 text-emerald-500 font-medium">TTM</th>
                     </tr>
@@ -387,7 +542,7 @@ export default function StockPage({ params }) {
                     {[
                       { label: 'Revenue', history: data.revHistory, latest: data.revVal },
                       { label: 'Net Income', history: data.niHistory, latest: data.niVal },
-                      { label: 'Cash Flow Op.', history: data.fcfHistory, latest: data.fcfVal },
+                      { label: 'Operating Cash Flow', history: data.fcfHistory, latest: data.fcfVal },
                     ].map(row => (
                       <tr key={row.label} className="border-b border-zinc-800/50 hover:bg-zinc-800/20">
                         <td className="px-5 py-3 text-zinc-400">{row.label}</td>
@@ -396,44 +551,30 @@ export default function StockPage({ params }) {
                       </tr>
                     ))}
                     {[
-                      { label: 'Gross Margin', values: [...data.revHistory.map(() => '—'), fmtP(data.grossMargin)] },
-                      { label: 'Op. Margin', values: [...data.revHistory.map(() => '—'), fmtP(data.opMargin)] },
-                      { label: 'Net Margin', values: [...data.revHistory.map(() => '—'), fmtP(data.netMargin)] },
+                      { label: 'Gross Margin', ttm: fmtP(data.grossMargin) },
+                      { label: 'Operating Margin', ttm: fmtP(data.opMargin) },
+                      { label: 'Net Margin', ttm: fmtP(data.netMargin) },
                     ].map(row => (
                       <tr key={row.label} className="border-b border-zinc-800/50 hover:bg-zinc-800/20">
                         <td className="px-5 py-3 text-zinc-400">{row.label}</td>
-                        {row.values.slice(0, -1).map((v, i) => <td key={i} className="text-right px-4 py-3 text-zinc-600">{v}</td>)}
-                        <td className="text-right px-4 py-3 text-emerald-400">{row.values[row.values.length - 1]}</td>
+                        {data.revHistory.map((_, i) => <td key={i} className="text-right px-4 py-3 text-zinc-600">—</td>)}
+                        <td className="text-right px-4 py-3 text-emerald-400">{row.ttm}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {[
-                  { title: 'Revenue', chart: revChart, c: '#10b981' },
-                  { title: 'Net Income', chart: niChart, c: '#3b82f6' },
-                  { title: 'Cash Flow Op.', chart: fcfChart, c: '#8b5cf6' },
-                ].map(({ title, chart, c }) => (
-                  <div key={title} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                    <div className="text-xs text-zinc-500 uppercase tracking-wide mb-3">{title}</div>
-                    <MiniChart data={chart} dataKey="value" color={c} />
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-zinc-600 mt-4">Fuente: SEC EDGAR (XBRL) + Alpha Vantage. No constituye asesoramiento de inversión.</p>
+              <p className="text-xs text-zinc-600">Source: SEC EDGAR (XBRL) + Alpha Vantage. Not investment advice.</p>
             </div>
           )}
 
-          {/* DCF */}
           {tab === 'dcf' && (
             <div>
               <h2 className="text-xl font-medium mb-6">Dynamic DCF</h2>
               <div className="bg-zinc-900 rounded-xl p-10 text-center border border-zinc-800">
                 <div className="text-5xl mb-4 text-zinc-700">$</div>
-                <p className="text-zinc-300 mb-2 font-medium">Valoración DCF automática</p>
-                <p className="text-zinc-500 text-sm max-w-sm mx-auto">Próximamente — se calculará usando los datos del 10-K más reciente.</p>
+                <p className="text-zinc-300 mb-2 font-medium">Automated DCF Valuation</p>
+                <p className="text-zinc-500 text-sm max-w-sm mx-auto">Coming soon — will be calculated automatically using the latest 10-K data.</p>
               </div>
             </div>
           )}
