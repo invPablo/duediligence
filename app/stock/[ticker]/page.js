@@ -172,7 +172,7 @@ export default function StockPage({ params }) {
           )}
         </div>
 
-        <div className="flex-1 p-6 max-w-5xl">
+        <div className="flex-1 p-6 max-w-none">
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
