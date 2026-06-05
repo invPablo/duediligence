@@ -36,10 +36,10 @@ export default function Screener() {
   const filtered = stocks
     .filter(s => sector === 'All' || s.sector === sector)
     .filter(s => !search || s.ticker.includes(search.toUpperCase()) || s.name?.toUpperCase().includes(search.toUpperCase()))
-    .filter(s => !filters.minMargin || (s.opMargin !== null && s.opMargin >= +filters.minMargin))
-    .filter(s => !filters.maxPE || (s.pe !== null && s.pe <= +filters.maxPE))
-    .filter(s => !filters.minFCFYield || (s.fcfYield !== null && s.fcfYield >= +filters.minFCFYield))
-    .filter(s => !filters.minRevGrowth || (s.revGrowth !== null && s.revGrowth >= +filters.minRevGrowth))
+    .filter(s => filters.minMargin === '' || (s.opMargin !== null && s.opMargin >= Number(filters.minMargin)))
+.filter(s => filters.maxPE === '' || (s.pe !== null && s.pe > 0 && s.pe <= Number(filters.maxPE)))
+.filter(s => filters.minFCFYield === '' || (s.fcfYield !== null && s.fcfYield >= Number(filters.minFCFYield)))
+.filter(s => filters.minRevGrowth === '' || (s.revGrowth !== null && s.revGrowth >= Number(filters.minRevGrowth)))
     .sort((a, b) => {
       const av = a[sortBy] ?? (sortDir === 'desc' ? -Infinity : Infinity);
       const bv = b[sortBy] ?? (sortDir === 'desc' ? -Infinity : Infinity);
