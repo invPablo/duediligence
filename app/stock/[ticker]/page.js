@@ -10,73 +10,79 @@ const fmt = (val) => {
   if (Math.abs(val) >= 1e6) return `$${(val / 1e6).toFixed(0)}M`;
   return `$${val.toLocaleString()}`;
 };
-const fmtP = (v) => v !== null && v !== undefined ? `${v}%` : '—';
-const fmtN = (v, d = 2) => v !== null && v !== undefined ? v.toFixed(d) : '—';
-const green = 'text-emerald-400';
-const red = 'text-red-400';
-const muted = 'text-zinc-400';
+const fmtP = (v) => v !== null && v !== undefined ? `${v}%` : 'N/A';
+const fmtN = (v, d = 2) => v !== null && v !== undefined ? v.toFixed(d) : 'N/A';
+
+const S = {
+  page: { background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace' },
+  topbar: { borderBottom: '1px solid var(--border)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10, fontSize: '11px' },
+  sidebar: { width: '160px', flexShrink: 0, borderRight: '1px solid var(--border)', minHeight: '100vh', padding: '16px 0', position: 'sticky', top: '33px', alignSelf: 'flex-start' },
+  navItem: (active) => ({ display: 'block', width: '100%', textAlign: 'left', padding: '8px 16px', fontSize: '11px', letterSpacing: '0.5px', background: 'none', border: 'none', cursor: 'pointer', color: active ? 'var(--accent)' : 'var(--text-3)', borderLeft: active ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'IBM Plex Mono, monospace' }),
+  content: { flex: 1, padding: '24px', overflow: 'hidden' },
+  card: { background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '16px', marginBottom: '1px' },
+  label: { color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '4px' },
+  val: { fontSize: '22px', fontWeight: 600, marginBottom: '2px' },
+  section: { color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px', marginTop: '24px' },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: '12px' },
+  tr: { borderBottom: '1px solid var(--border)' },
+  td: { padding: '6px 0', color: 'var(--text-3)' },
+  tdVal: { padding: '6px 0', textAlign: 'right', color: 'var(--text)' },
+};
 
 const NAV = [
-  { key: 'overview', label: 'Stock Overview' },
-  { key: 'quality', label: 'Quality Scorecard' },
-  { key: 'financials', label: 'Financials' },
-  { key: 'dcf', label: 'Dynamic DCF' },
+  { key: 'overview', label: 'OVERVIEW' },
+  { key: 'quality', label: 'QUALITY' },
+  { key: 'financials', label: 'FINANCIALS' },
+  { key: 'dcf', label: 'DCF' },
 ];
 
 const QUESTIONS = [
-  { dim: 'Management', text: 'Has the management team consistently met quarterly guidance?' },
-  { dim: 'Management', text: 'Is executive compensation aligned with long-term metrics?' },
-  { dim: 'Management', text: 'Were there significant C-suite changes in the last 12 months?' },
-  { dim: 'Concentration', text: 'Does the top-3 customers represent less than 30% of revenue?' },
-  { dim: 'Concentration', text: 'Does the company operate in more than one relevant geographic segment?' },
-  { dim: 'Concentration', text: 'Does the main product represent less than 50% of revenue?' },
-  { dim: 'Operational Trend', text: 'Did operating margin improve over the last 3 years?' },
-  { dim: 'Operational Trend', text: 'Did FCF/share grow at >8% CAGR over the last 5 years?' },
-  { dim: 'Operational Trend', text: 'Does ROIC exceed the estimated WACC?' },
-  { dim: 'Earnings Quality', text: 'Does the FCF/Net Income ratio exceed 0.8x on a 3-year average?' },
-  { dim: 'Earnings Quality', text: 'Are accruals as a % of assets below 5%?' },
-  { dim: 'Earnings Quality', text: 'Does receivables growth not exceed twice revenue growth?' },
+  { dim: 'Management', text: 'Has management consistently met quarterly guidance?' },
+  { dim: 'Management', text: 'Is exec compensation aligned with long-term metrics?' },
+  { dim: 'Management', text: 'Were there significant C-suite changes in 12 months?' },
+  { dim: 'Concentration', text: 'Does top-3 customers represent <30% of revenue?' },
+  { dim: 'Concentration', text: 'Does the company operate in multiple geographies?' },
+  { dim: 'Concentration', text: 'Does main product represent <50% of revenue?' },
+  { dim: 'Op. Trend', text: 'Did operating margin improve over last 3 years?' },
+  { dim: 'Op. Trend', text: 'Did FCF/share grow >8% CAGR over last 5 years?' },
+  { dim: 'Op. Trend', text: 'Does ROIC exceed estimated WACC?' },
+  { dim: 'Earn. Quality', text: 'Does FCF/Net Income exceed 0.8x on 3yr average?' },
+  { dim: 'Earn. Quality', text: 'Are accruals as % of assets below 5%?' },
+  { dim: 'Earn. Quality', text: 'Does receivables growth not exceed 2x revenue growth?' },
   { dim: 'Transparency', text: 'Does the company provide quantitative quarterly guidance?' },
-  { dim: 'Transparency', text: 'Does the 10-K include detailed business-specific material risks?' },
-  { dim: 'Transparency', text: 'Do reported segments allow margin calculation by business unit?' },
+  { dim: 'Transparency', text: 'Does the 10-K include specific material risk factors?' },
+  { dim: 'Transparency', text: 'Do segments allow margin calculation by business unit?' },
 ];
-const DIMS = ['Management', 'Concentration', 'Operational Trend', 'Earnings Quality', 'Transparency'];
+const DIMS = ['Management', 'Concentration', 'Op. Trend', 'Earn. Quality', 'Transparency'];
 
-const Pill = ({ label, value, good }) => (
-  <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 flex items-center justify-between">
-    <span className="text-xs text-zinc-500 uppercase tracking-widest">{label}</span>
-    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${good ? 'bg-emerald-500/15 text-emerald-400' : good === false ? 'bg-red-500/15 text-red-400' : 'bg-zinc-700/50 text-zinc-400'}`}>
-      {value}
-    </span>
-  </div>
+const MiniBar = ({ data, color = 'var(--accent)' }) => (
+  <ResponsiveContainer width="100%" height={60}>
+    <BarChart data={data} barSize={20}>
+      <XAxis dataKey="year" tick={{ fill: '#555', fontSize: 9 }} axisLine={false} tickLine={false} />
+      <Tooltip formatter={v => [`$${Math.abs(v)}B`]} contentStyle={{ background: 'var(--bg-2)', border: '1px solid var(--border)', fontSize: 10, fontFamily: 'IBM Plex Mono' }} />
+      <Bar dataKey="value" radius={[1, 1, 0, 0]}>
+        {data.map((_, i) => <Cell key={i} fill={i === data.length - 1 ? color : `${color}55`} />)}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
 );
 
-const MetricCard = ({ label, value, delta, deltaGood, dot }) => (
-  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-    <div className="flex items-center gap-2 mb-2">
-      {dot && <div className={`w-2 h-2 rounded-full ${dot}`}></div>}
-      <span className="text-xs text-zinc-500 uppercase tracking-wide">{label}</span>
-    </div>
-    <div className="text-2xl font-medium mb-1">{value}</div>
-    {delta && <div className={`text-xs ${deltaGood ? 'text-emerald-400' : 'text-red-400'}`}>{delta}</div>}
-  </div>
+const MiniLine = ({ data, color = 'var(--accent)' }) => (
+  <ResponsiveContainer width="100%" height={60}>
+    <LineChart data={data}>
+      <XAxis dataKey="year" tick={{ fill: '#555', fontSize: 9 }} axisLine={false} tickLine={false} />
+      <Tooltip contentStyle={{ background: 'var(--bg-2)', border: '1px solid var(--border)', fontSize: 10, fontFamily: 'IBM Plex Mono' }} />
+      <Line type="monotone" dataKey="value" stroke={color} strokeWidth={1.5} dot={{ fill: color, r: 2 }} />
+    </LineChart>
+  </ResponsiveContainer>
 );
 
-const ScoreRing = ({ score, size = 80 }) => {
-  const r = size / 2 - 6;
-  const circ = 2 * Math.PI * r;
-  const fill = score !== null ? circ * (1 - score / 100) : circ;
-  const c = score === null ? '#3f3f46' : score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444';
+const ScoreBox = ({ score, size = 48 }) => {
+  const c = score === null ? 'var(--text-3)' : score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--accent)' : 'var(--red)';
   return (
-    <svg width={size} height={size}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#27272a" strokeWidth="6"/>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={c} strokeWidth="6"
-        strokeDasharray={circ} strokeDashoffset={fill}
-        strokeLinecap="round" transform={`rotate(-90 ${size/2} ${size/2})`}/>
-      <text x={size/2} y={size/2+5} textAnchor="middle" fill={c} fontSize="16" fontWeight="500">
-        {score ?? '—'}
-      </text>
-    </svg>
+    <div style={{ width: size, height: size, border: `1px solid ${c}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size > 40 ? '16px' : '12px', fontWeight: 600, color: c }}>
+      {score ?? '—'}
+    </div>
   );
 };
 
@@ -111,736 +117,533 @@ export default function StockPage({ params }) {
   };
 
   if (loading) return (
-    <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <div className="text-emerald-400 mb-1">Loading data...</div>
-        <div className="text-zinc-500 text-sm">{ticker}</div>
+    <div style={{ ...S.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '2px', marginBottom: '8px' }}>LOADING SEC EDGAR DATA...</div>
+        <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>{ticker}</div>
       </div>
-    </main>
+    </div>
   );
 
   if (error) return (
-    <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-red-400 text-lg mb-4">{error}</div>
-        <a href="/" className="text-zinc-500 text-sm hover:text-white">← Back</a>
+    <div style={{ ...S.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ color: 'var(--red)', fontSize: '11px', marginBottom: '8px' }}>ERROR: {error}</div>
+        <a href="/" style={{ color: 'var(--text-3)', fontSize: '11px' }}>← BACK</a>
       </div>
-    </main>
+    </div>
   );
 
   const score = totalScore();
-  const answeredCount = Object.keys(answers).filter(k => answers[k]).length;
   const revChart = data.revHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
   const fcfChart = data.fcfHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
+  const marginChart = (data.marginHistory || []).filter(m => m.margin !== null).map(m => ({ year: m.year, value: m.margin }));
 
-  const profLabel = data.grossMargin > 50 ? 'Strong margins' : data.grossMargin > 30 ? 'Solid margins' : 'Thin margins';
-  const profGood = data.grossMargin > 40;
-  const growthLabel = data.revGrowth > 20 ? 'Accelerating' : data.revGrowth > 5 ? 'Steady growth' : 'Slow growth';
-  const growthGood = data.revGrowth > 10;
-  const cashLabel = data.fcfVal > 0 ? 'Positive FCF' : 'Negative FCF';
-  const cashGood = data.fcfVal > 0;
-  const fcfPerSharePill = data.fcfVal && data.sharesOutstanding ? data.fcfVal / data.sharesOutstanding : null;
-const intrinsicPill = fcfPerSharePill ? fcfPerSharePill * 20 : null;
-const currentPricePill = data.currentPrice;
-const valLabel = intrinsicPill && currentPricePill
-  ? intrinsicPill > currentPricePill * 1.2 ? 'Undervalued'
-  : intrinsicPill > currentPricePill ? 'Fair value'
-  : intrinsicPill > currentPricePill * 0.8 ? 'Slightly rich'
-  : 'Not cheap'
-  : data.pe > 40 ? 'Not cheap' : data.pe > 20 ? 'Fair value' : data.pe > 0 ? 'Attractive' : 'N/A';
-const valGood = intrinsicPill && currentPricePill ? intrinsicPill > currentPricePill : data.pe > 0 && data.pe < 25;
-
-  const Row52 = () => {
-    if (!data.low52 || !data.high52) return null;
-    const pct = Math.min(100, Math.max(0, ((data.analystTarget - data.low52) / (data.high52 - data.low52)) * 100));
-    return (
-      <div className="mt-4">
-        <div className="text-xs text-zinc-500 uppercase tracking-wide mb-2">52-Week Range</div>
-        <div className="relative h-1.5 bg-zinc-700 rounded-full mb-1">
-          <div className="absolute h-1.5 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }}></div>
-        </div>
-        <div className="flex justify-between text-xs text-zinc-500">
-          <span>${data.low52}</span>
-          <span>${data.high52}</span>
-        </div>
-      </div>
-    );
-  };
+  const price = data.currentPrice;
+  const change = data.priceChange;
+  const changePct = data.priceChangePct;
+  const fcfPerShare = data.fcfVal && data.sharesOutstanding ? data.fcfVal / data.sharesOutstanding : null;
+  const intrinsicValue = fcfPerShare ? +(fcfPerShare * 20).toFixed(2) : null;
+  const undervalued = intrinsicValue && price ? intrinsicValue > price : null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-      <div className="border-b border-zinc-800 px-6 py-3 flex items-center gap-4 sticky top-0 bg-zinc-950 z-10">
-  <a href="/" className="flex items-center gap-2 shrink-0">
-    <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center text-xs font-bold">DD</div>
-    <span className="text-sm font-medium">DueDiligence</span>
-  </a>
-  <span className="text-zinc-700">/</span>
-  <a href="/" className="text-zinc-500 text-sm hover:text-white shrink-0">Home</a>
-  <span className="text-zinc-700">/</span>
-  <span className="text-zinc-300 text-sm font-medium shrink-0">{ticker}</span>
-  <div className="flex-1 max-w-xs ml-4">
-    <form onSubmit={e => { e.preventDefault(); const t = e.target.search.value.toUpperCase().trim(); if (t) window.location.href = `/stock/${t}`; }}>
-      <input
-        name="search"
-        className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors"
-        placeholder="Search ticker: AAPL, MSFT..."
-      />
-    </form>
-  </div>
-</div>
+    <div style={S.page}>
+      {/* Topbar */}
+      <div style={S.topbar}>
+        <a href="/" style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '2px', textDecoration: 'none' }}>TERMINAL</a>
+        <span style={{ color: 'var(--border-2)' }}>/</span>
+        <a href="/" style={{ color: 'var(--text-3)', textDecoration: 'none' }}>HOME</a>
+        <span style={{ color: 'var(--border-2)' }}>/</span>
+        <span style={{ color: 'var(--text)' }}>{ticker}</span>
+        <div style={{ flex: 1 }}>
+          <form onSubmit={e => { e.preventDefault(); const t = e.target.search.value.toUpperCase().trim(); if (t) window.location.href = `/stock/${t}`; }}>
+            <input name="search" style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', padding: '4px 10px', width: '220px', outline: 'none', letterSpacing: '1px' }} placeholder="SEARCH TICKER..." />
+          </form>
+        </div>
+      </div>
 
-      <div className="flex">
-        <div className="w-52 shrink-0 border-r border-zinc-800 min-h-screen p-4 sticky top-12 self-start">
-          <div className="text-xs text-zinc-600 uppercase tracking-widest mb-3 px-2">Analysis</div>
-          <div className="space-y-0.5">
-            {NAV.map(n => (
-              <button key={n.key} onClick={() => setTab(n.key)}
-                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  tab === n.key ? 'bg-emerald-500/15 text-emerald-400 font-medium' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-                }`}>
-                {n.label}
-              </button>
-            ))}
-          </div>
+      <div style={{ display: 'flex' }}>
+        {/* Sidebar */}
+        <div style={S.sidebar}>
+          <div style={{ padding: '0 16px', marginBottom: '12px', color: 'var(--text-3)', fontSize: '9px', letterSpacing: '2px' }}>ANALYSIS</div>
+          {NAV.map(n => (
+            <button key={n.key} style={S.navItem(tab === n.key)} onClick={() => setTab(n.key)}>{n.label}</button>
+          ))}
           {score !== null && (
-            <div className="mt-6 p-4 bg-zinc-900 rounded-xl text-center border border-zinc-800">
-              <ScoreRing score={score} size={72} />
-              <div className="text-xs text-zinc-500 mt-2">DD Score</div>
-              <div className="text-xs text-zinc-600">{answeredCount}/15</div>
+            <div style={{ margin: '24px 16px 0', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <div style={{ color: 'var(--text-3)', fontSize: '9px', letterSpacing: '2px', marginBottom: '8px' }}>DD SCORE</div>
+              <ScoreBox score={score} size={56} />
             </div>
           )}
         </div>
 
-        <div className="flex-1 p-6">
-          {tab === 'overview' && (
-            <div>
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-zinc-700">
-  <img
-    src={`https://logo.clearbit.com/${data.name
-      .toLowerCase()
-      .replace(/\binc\b|\bcorp\b|\bltd\b|\bplc\b|\bco\b|\bllc\b|\bgroup\b|\bholdings\b|\binternational\b|\bthe\b/g, '')
-      .trim()
-      .split(/\s+/)[0]
-      .replace(/[^a-z0-9]/g, '')}.com`}
-    alt={data.name}
-    className="w-10 h-10 object-contain"
-    onError={e => {
-      e.target.style.display = 'none';
-      e.target.parentElement.innerHTML = `<span class="text-xl font-bold text-emerald-400">${ticker.slice(0, 2)}</span>`;
-      e.target.parentElement.classList.remove('bg-white');
-      e.target.parentElement.classList.add('bg-zinc-800');
-    }}
-  />
-</div>
-                  <div>
-                    <h1 className="text-2xl font-medium tracking-tight">{data.name}</h1>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-zinc-500 text-sm font-medium">{ticker}</span>
-                      {data.exchange && <span className="text-zinc-600 text-xs">/ {data.exchange}</span>}
-                      {data.sector && <span className="text-xs text-zinc-500">/ {data.sector}</span>}
-                    </div>
-                    {data.description && (
-                      <p className="text-zinc-400 text-sm mt-2 max-w-xl leading-relaxed">
-                        {data.description.slice(0, 200)}{data.description.length > 200 ? '...' : ''}
-                      </p>
-                    )}
-                    <div className="flex gap-2 mt-3">
-                      <a href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${data.cik}&type=10-K`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="text-xs border border-zinc-700 px-3 py-1 rounded-lg text-zinc-400 hover:border-emerald-500 hover:text-emerald-400 transition-colors">
-                        SEC Filings ↗
-                      </a>
-                    </div>
-                  </div>
+        {/* Main content */}
+        <div style={S.content}>
+
+          {/* Company header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+              <div style={{ width: '48px', height: '48px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                <img
+                  src={`https://logo.clearbit.com/${data.name.toLowerCase().replace(/\binc\b|\bcorp\b|\bltd\b|\bplc\b|\bco\b|\bllc\b|\bgroup\b|\bholdings\b|\binternational\b|\bthe\b/g, '').trim().split(/\s+/)[0].replace(/[^a-z0-9]/g, '')}.com`}
+                  alt={data.name}
+                  style={{ width: '32px', height: '32px', objectFit: 'contain' }}
+                  onError={e => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span style="color:var(--accent);font-weight:600;font-size:14px">${ticker.slice(0,2)}</span>`; e.target.parentElement.style.background = 'var(--bg-2)'; }}
+                />
+              </div>
+              <div>
+                <div style={{ fontSize: '18px', fontWeight: 600, letterSpacing: '-0.5px', marginBottom: '4px' }}>{data.name}</div>
+                <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '6px' }}>
+                  {ticker} {data.exchange && `· ${data.exchange}`} {data.sector && `· ${data.sector}`}
                 </div>
-                <div className="shrink-0 ml-8 flex items-start gap-6">
-  {(() => {
-    const price = data.currentPrice;
-    const change = data.priceChange;
-    const changePct = data.priceChangePct;
-    const fcfPerShare = data.fcfVal && data.sharesOutstanding ? data.fcfVal / data.sharesOutstanding : null;
-    const intrinsicValue = fcfPerShare ? +(fcfPerShare * 20).toFixed(2) : null;
-    const undervalued = intrinsicValue && price ? intrinsicValue > price : null;
-    return (
-      <>
-        {/* Precio actual — grande */}
-        <div className="text-right">
-          {price ? (
-            <>
-              <div className="text-5xl font-medium text-white tracking-tight">${price.toFixed(2)}</div>
-              {change !== null && (
-                <div className={`text-base mt-1 font-medium ${change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {change >= 0 ? '+' : ''}{change.toFixed(2)} ({changePct?.toFixed(2)}%)
+                {data.description && (
+                  <div style={{ color: 'var(--text-2)', fontSize: '11px', maxWidth: '560px', lineHeight: 1.6 }}>
+                    {data.description.slice(0, 180)}...
+                  </div>
+                )}
+                <a href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${data.cik}&type=10-K`}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', textDecoration: 'none', borderBottom: '1px solid var(--border)', paddingBottom: '1px', marginTop: '8px', display: 'inline-block' }}>
+                  SEC FILINGS ↗
+                </a>
+              </div>
+            </div>
+
+            {/* Price block */}
+            <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '24px' }}>
+              {price ? (
+                <>
+                  <div style={{ fontSize: '36px', fontWeight: 600, letterSpacing: '-1px' }}>${price.toFixed(2)}</div>
+                  <div style={{ color: change >= 0 ? 'var(--green)' : 'var(--red)', fontSize: '13px', marginBottom: '4px' }}>
+                    {change >= 0 ? '+' : ''}{change?.toFixed(2)} ({changePct?.toFixed(2)}%)
+                  </div>
+                  <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>LIVE · FINNHUB</div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: '28px', fontWeight: 600 }}>{fmt(data.marketCap)}</div>
+                  <div style={{ color: 'var(--text-3)', fontSize: '10px' }}>MARKET CAP</div>
+                </>
+              )}
+              {intrinsicValue && (
+                <div style={{ marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '12px', textAlign: 'right' }}>
+                  <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '4px' }}>INTRINSIC VALUE</div>
+                  <div style={{ color: undervalued ? 'var(--green)' : 'var(--red)', fontSize: '22px', fontWeight: 600 }}>${intrinsicValue}</div>
+                  <div style={{ color: 'var(--text-3)', fontSize: '10px' }}>20x FCF/SHARE</div>
+                  {price && (
+                    <div style={{ color: undervalued ? 'var(--green)' : 'var(--red)', fontSize: '11px', marginTop: '4px' }}>
+                      {undervalued ? '▲' : '▼'} {Math.abs(((intrinsicValue - price) / price) * 100).toFixed(1)}% {undervalued ? 'UPSIDE' : 'DOWNSIDE'}
+                    </div>
+                  )}
                 </div>
               )}
-              <div className="text-xs text-zinc-600 mt-1">Live price · Finnhub</div>
-            </>
-          ) : (
-            <>
-              <div className="text-4xl font-medium">{fmt(data.marketCap)}</div>
-              <div className="text-xs text-zinc-500 mt-1">Market Cap</div>
-            </>
-          )}
-        </div>
-
-        {/* Intrinsic Value — compacto al lado */}
-        {intrinsicValue && (
-          <div className="border-l border-zinc-800 pl-6 text-right">
-            <div className="text-xs text-zinc-500 uppercase tracking-wide mb-1">Intrinsic Value</div>
-            <div className={`text-3xl font-medium tracking-tight ${undervalued ? 'text-emerald-400' : 'text-red-400'}`}>
-              ${intrinsicValue}
             </div>
-            <div className="text-xs text-zinc-600 mt-0.5">20x FCF/share</div>
-            {price && (
-              <div className={`text-xs mt-2 font-medium px-2 py-0.5 rounded-full inline-block ${undervalued ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-                {undervalued
-                  ? `▲ +${(((intrinsicValue - price) / price) * 100).toFixed(1)}% upside`
-                  : `▼ ${(((intrinsicValue - price) / price) * 100).toFixed(1)}% downside`}
-              </div>
-            )}
           </div>
-        )}
-      </>
-    );
-  })()}
-</div>
+
+          {/* OVERVIEW TAB */}
+          {tab === 'overview' && (
+            <div>
+              {/* Status pills */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { label: 'PROFITABILITY', val: data.grossMargin > 50 ? 'STRONG MARGINS' : data.grossMargin > 30 ? 'SOLID MARGINS' : 'THIN MARGINS', good: data.grossMargin > 40 },
+                  { label: 'GROWTH', val: data.revGrowth > 20 ? 'ACCELERATING' : data.revGrowth > 5 ? 'STEADY' : 'SLOW', good: data.revGrowth > 10 },
+                  { label: 'CASH FLOW', val: data.fcfVal > 0 ? 'POSITIVE FCF' : 'NEGATIVE FCF', good: data.fcfVal > 0 },
+                  { label: 'VALUATION', val: data.pe > 40 ? 'NOT CHEAP' : data.pe > 20 ? 'FAIR VALUE' : data.pe > 0 ? 'ATTRACTIVE' : 'N/A', good: data.pe > 0 && data.pe < 25 },
+                ].map(p => (
+                  <div key={p.label} style={{ background: 'var(--bg-1)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>{p.label}</span>
+                    <span style={{ color: p.good ? 'var(--green)' : p.good === false ? 'var(--red)' : 'var(--accent)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.5px' }}>{p.val}</span>
+                  </div>
+                ))}
               </div>
 
-              <div className="flex gap-3 mb-6">
-                <Pill label="Profitability" value={profLabel} good={profGood} />
-                <Pill label="Growth" value={growthLabel} good={growthGood} />
-                <Pill label="Cash Flow" value={cashLabel} good={cashGood} />
-                <Pill label="Valuation" value={valLabel} good={valGood} />
+              {/* Insight boxes */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { label: 'WHAT STANDS OUT', color: 'var(--green)', text: data.grossMargin > 50 ? `Gross margin of ${data.grossMargin}% signals strong pricing power. Positive ROIC spread.` : `Revenue grew ${data.revGrowth}% YoY with operating margin of ${data.opMargin}%.` },
+                  { label: "WHAT'S CHANGING", color: 'var(--blue)', text: data.revGrowth > 0 ? `Revenue growing at ${data.revGrowth}% YoY. ${data.opMargin > 15 ? 'Operating margins remain solid.' : 'Margins showing expansion.'}` : `Revenue contracting ${data.revGrowth}% YoY. Monitor margin evolution closely.` },
+                  { label: 'WHAT DESERVES CAUTION', color: 'var(--accent)', text: data.pe > 35 ? `P/E of ${data.pe}x leaves limited room for execution misses or growth deceleration.` : data.debtToEquity > 2 ? `Debt/equity of ${data.debtToEquity}x warrants attention in high-rate environment.` : `Monitor margin evolution and free cash flow generation going forward.` },
+                  { label: 'VALUATION CONTEXT', color: '#a855f7', text: data.pe ? `${data.pe}x earnings. ${data.pe > 30 ? 'Quality is already priced in.' : 'Reasonable valuation given the business profile.'} ${data.analystTarget ? `Analyst target: $${data.analystTarget}.` : ''}` : `No P/E available. EV/EBITDA: ${fmtN(data.evEbitda)}x.` },
+                ].map(b => (
+                  <div key={b.label} style={{ background: 'var(--bg-1)', padding: '14px 16px' }}>
+                    <div style={{ color: b.color, fontSize: '10px', letterSpacing: '1.5px', marginBottom: '8px' }}>{b.label}</div>
+                    <div style={{ color: 'var(--text-2)', fontSize: '12px', lineHeight: 1.6 }}>{b.text}</div>
+                  </div>
+                ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                  <div className="text-xs text-emerald-400 uppercase tracking-widest mb-2">What stands out</div>
-                  <p className="text-sm text-zinc-300 leading-relaxed">
-                    {data.grossMargin > 50
-                      ? `Gross margin of ${data.grossMargin}% signals strong pricing power. Positive ROIC spread.`
-                      : `Revenue grew ${data.revGrowth}% YoY with an operating margin of ${data.opMargin}%.`}
-                  </p>
-                </div>
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                  <div className="text-xs text-blue-400 uppercase tracking-widest mb-2">What's changing</div>
-                  <p className="text-sm text-zinc-300 leading-relaxed">
-                    {data.revGrowth > 0
-                      ? `Revenue growing at ${data.revGrowth}% YoY. ${data.opMargin > 15 ? 'Operating margins remain solid.' : 'Margins showing expansion.'}`
-                      : `Revenue contracting ${data.revGrowth}% YoY. Monitor margin evolution closely.`}
-                  </p>
-                </div>
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                  <div className="text-xs text-amber-400 uppercase tracking-widest mb-2">What deserves caution</div>
-                  <p className="text-sm text-zinc-300 leading-relaxed">
-                    {data.pe > 35
-                      ? `P/E of ${data.pe}x leaves limited room for execution misses or growth deceleration.`
-                      : data.debtToEquity > 2
-                      ? `Debt/equity of ${data.debtToEquity}x warrants attention in a high-rate environment.`
-                      : `Monitor margin evolution and free cash flow generation going forward.`}
-                  </p>
-                </div>
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                  <div className="text-xs text-purple-400 uppercase tracking-widest mb-2">Valuation context</div>
-                  <p className="text-sm text-zinc-300 leading-relaxed">
-                    {data.pe
-                      ? `${data.pe}x earnings. ${data.pe > 30 ? 'Quality is already priced in.' : 'Reasonable valuation given the business profile.'} ${data.analystTarget ? `Analyst target: $${data.analystTarget}.` : ''}`
-                      : `No P/E available. Consider alternative valuation metrics such as EV/EBITDA (${fmtN(data.evEbitda)}x).`}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 mb-6">
-                <div className="flex-1 min-w-0">
+              {/* Chart + multiples */}
+              <div style={{ display: 'flex', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                <div style={{ flex: 1, background: 'var(--bg-1)' }}>
                   <PriceChart ticker={ticker} />
                 </div>
-                <div className="w-64 shrink-0 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                  <div className="text-xs text-zinc-500 uppercase tracking-wide mb-4">Valuation & Multiples</div>
-                  <table className="w-full text-sm">
+                <div style={{ width: '220px', background: 'var(--bg-1)', padding: '16px', flexShrink: 0 }}>
+                  <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>VALUATION & MULTIPLES</div>
+                  <table style={S.table}>
                     <tbody>
                       {[
                         { label: 'Market Cap', val: fmt(data.marketCap) },
-                        { label: 'EPS', val: data.eps ? `$${data.eps}` : '—' },
-                        { label: 'P/E', val: fmtN(data.pe), color: data.pe > 30 ? red : green },
-                        { label: 'P/FCF', val: data.fcfVal && data.marketCap ? fmtN(data.marketCap / data.fcfVal) : '—' },
+                        { label: 'EPS', val: data.eps ? `$${data.eps}` : 'N/A' },
+                        { label: 'P/E', val: fmtN(data.pe), color: data.pe > 30 ? 'var(--red)' : 'var(--green)' },
+                        { label: 'P/FCF', val: data.fcfVal && data.marketCap ? fmtN(data.marketCap / data.fcfVal) : 'N/A' },
                         { label: 'EV/EBITDA', val: fmtN(data.evEbitda) },
-                        { label: 'FCF Yield', val: data.fcfVal && data.marketCap ? `${((data.fcfVal / data.marketCap) * 100).toFixed(1)}%` : '—' },
+                        { label: 'FCF Yield', val: data.fcfVal && data.marketCap ? `${((data.fcfVal / data.marketCap) * 100).toFixed(1)}%` : 'N/A' },
                         { label: 'Div. Yield', val: fmtP(data.dividendYield) },
-                        { label: 'Net Debt/FCF', val: data.netDebt && data.fcfVal ? fmtN(data.netDebt / data.fcfVal) : '—', color: data.netDebt < 0 ? green : muted },
+                        { label: 'Beta', val: fmtN(data.beta) },
                       ].map(r => (
-                        <tr key={r.label} className="border-b border-zinc-800/50">
-                          <td className="py-2 text-zinc-500">{r.label}</td>
-                          <td className={`py-2 text-right font-medium ${r.color || 'text-white'}`}>{r.val}</td>
+                        <tr key={r.label} style={S.tr}>
+                          <td style={S.td}>{r.label}</td>
+                          <td style={{ ...S.tdVal, color: r.color || 'var(--text)' }}>{r.val}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  <Row52 />
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Profitability & Returns</div>
-                <div className="grid grid-cols-4 gap-3">
-                  <MetricCard label="Revenue (TTM)" value={fmt(data.revVal)}
-                    delta={data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}% YoY` : null}
-                    deltaGood={data.revGrowth > 0} dot="bg-emerald-500" />
-                  <MetricCard label="Net Income (TTM)" value={fmt(data.niVal)}
-                    delta={data.netMargin !== null ? `${data.netMargin}% net margin` : null}
-                    deltaGood={data.netMargin > 10} dot="bg-emerald-500" />
-                  <MetricCard label="Op. Margin" value={fmtP(data.opMargin)}
-                    delta={data.opMargin > 15 ? 'Above threshold' : 'Below threshold'}
-                    deltaGood={data.opMargin > 15} dot={data.opMargin > 15 ? 'bg-emerald-500' : 'bg-amber-500'} />
-                  <MetricCard label="ROE" value={fmtP(data.roe)}
-                    delta={data.roe > 15 ? 'Strong return' : 'Moderate return'}
-                    deltaGood={data.roe > 15} dot={data.roe > 15 ? 'bg-emerald-500' : 'bg-amber-500'} />
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Cash Flow & Balance Sheet</div>
-                <div className="grid grid-cols-4 gap-3">
-                  <MetricCard label="Free Cash Flow" value={fmt(data.fcfVal)}
-                    delta={data.fcfVal > 0 ? 'Positive FCF' : 'Negative FCF'}
-                    deltaGood={data.fcfVal > 0} dot={data.fcfVal > 0 ? 'bg-emerald-500' : 'bg-red-500'} />
-                  <MetricCard label="Op. Cash Flow (TTM)" value={fmt(data.fcfVal)}
-                    delta={data.fcfVal > 0 ? `${((data.fcfVal / (data.revVal || 1)) * 100).toFixed(1)}% conversion` : null}
-                    deltaGood={data.fcfVal > 0} dot="bg-emerald-500" />
-                  <MetricCard label="Net Debt" value={fmt(data.netDebt)}
-                    delta={data.netDebt < 0 ? 'Net Cash Position' : 'Net Debt Position'}
-                    deltaGood={data.netDebt < 0} dot={data.netDebt < 0 ? 'bg-emerald-500' : 'bg-amber-500'} />
-                  <MetricCard label="Cash & Equiv." value={fmt(data.cashVal)} dot="bg-emerald-500" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {[
-                  { title: 'Revenue', chart: revChart, c: '#10b981' },
-                  { title: 'Free Cash Flow', chart: fcfChart, c: '#8b5cf6' },
-                ].map(({ title, chart, c }) => (
-                  <div key={title} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                    <div className="text-sm font-medium mb-4">{title}</div>
-                    <ResponsiveContainer width="100%" height={140}>
-                      <BarChart data={chart} barSize={32}>
-                        <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}B`} />
-                        <Tooltip formatter={v => [`$${v}B`, title]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 12 }} />
-                        <Bar dataKey="value" radius={[3, 3, 0, 0]}>
-                          {chart.map((_, i) => <Cell key={i} fill={i === chart.length - 1 ? c : `${c}55`} />)}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mb-6">
-                <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Continue Research</div>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { key: 'quality', title: 'Quality Scorecard', desc: 'Is this a high-quality business?' },
-                    { key: 'financials', title: 'Financials', desc: 'Income, cash flow, balance sheet' },
-                    { key: 'dcf', title: 'DCF Valuation', desc: "What's it really worth?" },
-                  ].map(s => (
-                    <button key={s.key} onClick={() => setTab(s.key)}
-                      className="bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 rounded-xl p-4 text-left transition-colors group">
-                      <div className="text-sm font-medium group-hover:text-emerald-400 transition-colors">{s.title}</div>
-                      <div className="text-xs text-zinc-500 mt-1">{s.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <p className="text-xs text-zinc-600">Source: SEC EDGAR (XBRL) + Alpha Vantage. Not investment advice.</p>
-            </div>
-          )}
-
-          {tab === 'quality' && (
-  <div>
-    {/* Header score */}
-    <div className="flex items-center gap-6 mb-8 p-6 bg-zinc-900 rounded-xl border border-zinc-800">
-      <div className="relative">
-        <svg width="100" height="100" viewBox="0 0 100 100">
-          <polygon points="50,5 95,25 95,75 50,95 5,75 5,25"
-            fill="none" stroke={score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444'}
-            strokeWidth="3"/>
-          <text x="50" y="38" textAnchor="middle" fill={score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444'}
-            fontSize="9" fontWeight="500">QUALITY</text>
-          <text x="50" y="62" textAnchor="middle" fill={score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444'}
-            fontSize="22" fontWeight="600">{score ?? '—'}</text>
-        </svg>
-      </div>
-      <div>
-        <div className="text-xl font-medium mb-1">
-          {score !== null
-            ? score >= 70 ? 'High-quality business'
-            : score >= 40 ? 'Moderate quality'
-            : 'Red flags detected'
-            : 'Calculating score...'}
-        </div>
-        <p className="text-zinc-400 text-sm max-w-lg">
-          {score !== null
-            ? `Score based on ${answeredCount} of 15 questions from SEC filings.`
-            : 'Automated score based on SEC EDGAR fundamentals.'}
-        </p>
-        <div className="text-xs text-zinc-600 mt-1">Broad-market heuristics · Not a buy/sell signal</div>
-      </div>
-    </div>
-
-    {/* VALUATION section */}
-    <div className="mb-8">
-      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Valuation</div>
-      <div className="grid grid-cols-2 gap-4">
-        {/* Earnings Multiple */}
-        {(() => {
-          const s = data.pe ? data.pe < 15 ? 100 : data.pe < 20 ? 80 : data.pe < 25 ? 60 : data.pe < 35 ? 40 : 20 : null;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
-          const desc = data.pe < 15 ? 'Below 15x, attractively priced' : data.pe < 20 ? 'Below 20x, reasonably priced' : data.pe < 25 ? '20-25x, fair value range' : data.pe < 35 ? '25-35x, paying a growth premium' : 'Above 35x, expensive';
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Earnings Multiple</span>
-                </div>
-                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{data.pe ? `${data.pe}x` : 'N/A'}</div>
-              <p className="text-xs text-zinc-500 mb-3">{desc}</p>
-            </div>
-          );
-        })()}
-
-        {/* FCF Multiple */}
-        {(() => {
-          const pfcf = data.fcfVal && data.marketCap ? +(data.marketCap / data.fcfVal).toFixed(1) : null;
-          const s = pfcf ? pfcf < 15 ? 100 : pfcf < 20 ? 80 : pfcf < 25 ? 60 : pfcf < 35 ? 40 : 20 : null;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Cash Flow Multiple</span>
-                </div>
-                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{pfcf ? `${pfcf}x` : 'N/A'}</div>
-              <p className="text-xs text-zinc-500 mb-3">{pfcf < 15 ? 'Below 15x, strong FCF yield' : pfcf < 25 ? 'Reasonable cash flow multiple' : 'Above 25x, cash flow yield thin'}</p>
-            </div>
-          );
-        })()}
-      </div>
-    </div>
-
-    {/* GROWTH section */}
-    <div className="mb-8">
-      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Growth</div>
-      <div className="grid grid-cols-2 gap-4">
-        {/* Revenue Growth */}
-        {(() => {
-          const s = data.revGrowth > 20 ? 100 : data.revGrowth > 10 ? 80 : data.revGrowth > 5 ? 60 : data.revGrowth > 0 ? 40 : 20;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
-          const revChart = data.revHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Revenue Growth</span>
-                </div>
-                <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}%` : 'N/A'}</div>
-              <p className="text-xs text-zinc-500 mb-3">{data.revGrowth > 10 ? 'Above 10% CAGR, strong compounder' : data.revGrowth > 0 ? 'Positive but below 10% threshold' : 'Revenue declining'}</p>
-              <ResponsiveContainer width="100%" height={80}>
-                <BarChart data={revChart} barSize={24}>
-                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={v => [`$${v}B`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
-                  <Bar dataKey="value" radius={[2, 2, 0, 0]}>
-                    {revChart.map((_, i) => <Cell key={i} fill={i === revChart.length - 1 ? c : `${c}55`} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          );
-        })()}
-
-        {/* FCF Growth */}
-        {(() => {
-          const fcfChart = data.fcfHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
-          const fcfFirst = data.fcfHistory[0]?.val;
-          const fcfLast = data.fcfHistory[data.fcfHistory.length - 1]?.val;
-          const fcfGrowth = fcfFirst && fcfLast && data.fcfHistory.length > 1
-            ? +(((fcfLast - fcfFirst) / Math.abs(fcfFirst)) * 100).toFixed(1) : null;
-          const s = fcfGrowth > 20 ? 100 : fcfGrowth > 10 ? 80 : fcfGrowth > 0 ? 60 : fcfGrowth !== null ? 20 : null;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : s !== null ? '#ef4444' : '#52525b';
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Cash Flow Growth</span>
-                </div>
-                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{fcfGrowth !== null ? `${fcfGrowth > 0 ? '+' : ''}${fcfGrowth}%` : 'N/A'}</div>
-              <p className="text-xs text-zinc-500 mb-3">{fcfGrowth > 10 ? 'Above 10% CAGR, healthy generation' : fcfGrowth > 0 ? 'Growing but below threshold' : 'FCF declining or negative'}</p>
-              <ResponsiveContainer width="100%" height={80}>
-                <BarChart data={fcfChart} barSize={24}>
-                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={v => [`$${v}B`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
-                  <Bar dataKey="value" radius={[2, 2, 0, 0]}>
-                    {fcfChart.map((_, i) => <Cell key={i} fill={i === fcfChart.length - 1 ? c : `${c}55`} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          );
-        })()}
-      </div>
-    </div>
-
-    {/* BUSINESS QUALITY section */}
-    <div className="mb-8">
-      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Business Quality & Capital Allocation</div>
-      <div className="grid grid-cols-2 gap-4">
-
-        {/* Share Dilution */}
-        {(() => {
-          const d = data.shareDilution;
-          const s = d === null ? null : d < -2 ? 100 : d < 0 ? 80 : d < 2 ? 60 : d < 5 ? 40 : 0;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : s !== null ? '#ef4444' : '#52525b';
-          const sharesChart = data.sharesHistory?.map(r => ({ year: r.year, value: +(r.val / 1e6).toFixed(0) })) || [];
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Share Dilution</span>
-                </div>
-                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{d !== null ? `${d > 0 ? '+' : ''}${d}%` : 'N/A'}</div>
-              <p className="text-xs text-zinc-500 mb-3">{d < -2 ? 'Shrinking >2%, active buybacks' : d < 0 ? 'Mild buybacks' : d < 2 ? 'Mild dilution, mostly stock comp' : d < 5 ? 'Moderate dilution' : 'Heavy dilution above 5%'}</p>
-              <ResponsiveContainer width="100%" height={80}>
-                <BarChart data={sharesChart} barSize={24}>
-                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={v => [`${v}M shares`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
-                  <Bar dataKey="value" radius={[2, 2, 0, 0]}>
-                    {sharesChart.map((_, i) => <Cell key={i} fill={i === sharesChart.length - 1 ? '#f59e0b' : '#f59e0b55'} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          );
-        })()}
-
-        {/* Margin Trend */}
-        {(() => {
-          const margins = data.marginHistory?.filter(m => m.margin !== null) || [];
-          const first = margins[0]?.margin;
-          const last = margins[margins.length - 1]?.margin;
-          const trend = first !== null && last !== null ? +(last - first).toFixed(1) : null;
-          const s = trend > 5 ? 100 : trend > 2 ? 80 : trend > 0 ? 60 : trend > -2 ? 40 : 20;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Margin Trend</span>
-                </div>
-                {trend !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{trend !== null ? `${trend > 0 ? '+' : ''}${trend}pp` : 'N/A'}</div>
-              <p className="text-xs text-zinc-500 mb-3">{trend > 3 ? 'Expanded 3+pp, strong improvement' : trend > 0 ? 'Slight margin expansion' : trend > -3 ? 'Margins stable to slightly compressed' : 'Significant margin compression'}</p>
-              <ResponsiveContainer width="100%" height={80}>
-                <LineChart data={margins}>
-                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={v => [`${v}%`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
-                  <Line type="monotone" dataKey="margin" stroke={c} strokeWidth={2} dot={{ fill: c, r: 3 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          );
-        })()}
-
-        {/* Capital Structure */}
-        {(() => {
-          const nd = data.netDebt;
-          const fcf = data.fcfVal;
-          const ratio = nd && fcf && fcf > 0 ? +(nd / fcf).toFixed(1) : null;
-          const s = nd < 0 ? 100 : ratio < 1 ? 80 : ratio < 2 ? 60 : ratio < 3 ? 40 : 20;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
-          const debtChart = data.revHistory.map((r, i) => ({
-            year: r.year,
-            cash: data.fcfHistory[i] ? +(data.fcfHistory[i].val / 1e9).toFixed(1) : 0,
-            debt: data.debtVal ? +(data.debtVal / 1e9 / data.revHistory.length).toFixed(1) : 0,
-          }));
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Capital Structure</span>
-                </div>
-                <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{fmt(nd)}</div>
-              <p className="text-xs text-zinc-500 mb-3">{nd < 0 ? 'Net cash position, no leverage concern' : ratio < 2 ? `Net debt/FCF of ${ratio}x, manageable` : 'High leverage, monitor closely'}</p>
-              <div className="space-y-2 mt-2">
-                {[
-                  { label: 'Cash', val: data.cashVal, color: '#10b981' },
-                  { label: 'LT Debt', val: data.debtVal, color: '#ef4444' },
-                ].map(item => (
-                  <div key={item.label} className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-500">{item.label}</span>
-                    <span style={{ color: item.color }} className="font-medium">{fmt(item.val)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Return on Capital */}
-        {(() => {
-          const roic = data.roe;
-          const s = roic > 25 ? 100 : roic > 20 ? 80 : roic > 15 ? 60 : roic > 10 ? 40 : 20;
-          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
-                  <span className="text-sm text-zinc-300">Return on Capital</span>
-                </div>
-                {roic !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
-              </div>
-              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{roic !== null ? `${roic}%` : 'N/A'}</div>
-              <p className="text-xs text-zinc-500">{roic > 20 ? 'Above 20%, exceptional capital efficiency' : roic > 15 ? '15-20%, strong returns' : roic > 10 ? '10-15%, respectable returns' : 'Below 10%, weak capital allocation'}</p>
-            </div>
-          );
-        })()}
-      </div>
-    </div>
-
-    {/* DD Questions */}
-    <div className="border-t border-zinc-800 pt-8">
-      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-6">Due Diligence Checklist</div>
-      <div className="grid grid-cols-5 gap-3 mb-8">
-        {DIMS.map(dim => (
-          <div key={dim} className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-            <ScoreRing score={getDimScore(dim)} size={60} />
-            <div className="text-xs text-zinc-500 mt-2 leading-tight">{dim}</div>
-          </div>
-        ))}
-      </div>
-      <div className="space-y-6">
-        {DIMS.map((dim, di) => (
-          <div key={dim}>
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-800">
-              <div className="text-xs uppercase tracking-widest text-zinc-500">{di + 1}. {dim}</div>
-              {getDimScore(dim) !== null && (
-                <div className={`text-sm font-medium ${getDimScore(dim) >= 70 ? 'text-emerald-400' : getDimScore(dim) >= 40 ? 'text-amber-400' : 'text-red-400'}`}>
-                  {getDimScore(dim)}/100
-                </div>
-              )}
-            </div>
-            <div className="space-y-3">
-              {QUESTIONS.map((q, qi) => q.dim !== dim ? null : (
-                <div key={qi} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                  <p className="text-sm text-zinc-200 mb-3 leading-relaxed">Q{qi + 1}. {q.text}</p>
-                  <div className="flex gap-2 mb-3">
-                    {['YES', 'NO', 'N/A'].map(opt => (
-                      <button key={opt} onClick={() => setAnswers(prev => ({ ...prev, [qi]: opt }))}
-                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
-                          answers[qi] === opt
-                            ? opt === 'YES' ? 'bg-emerald-500 border-emerald-500 text-white'
-                            : opt === 'NO' ? 'bg-red-500 border-red-500 text-white'
-                            : 'bg-zinc-600 border-zinc-600 text-white'
-                            : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
-                        }`}>
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                  {answers[qi] && (
-                    <input
-                      className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500"
-                      placeholder="Evidence from filing (exact quote)..."
-                      value={evidence[qi] || ''}
-                      onChange={e => setEvidence(prev => ({ ...prev, [qi]: e.target.value }))}
-                    />
+                  {data.low52 && data.high52 && (
+                    <div style={{ marginTop: '16px' }}>
+                      <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '6px' }}>52W RANGE</div>
+                      <div style={{ height: '3px', background: 'var(--border-2)', position: 'relative', marginBottom: '4px' }}>
+                        <div style={{ position: 'absolute', height: '3px', background: 'var(--accent)', width: `${Math.min(100, Math.max(0, ((data.analystTarget - data.low52) / (data.high52 - data.low52)) * 100))}%` }}></div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-3)', fontSize: '10px' }}>
+                        <span>${data.low52}</span><span>${data.high52}</span>
+                      </div>
+                    </div>
                   )}
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-)}
+              </div>
 
+              {/* Metrics grid */}
+              <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px' }}>PROFITABILITY & RETURNS</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { label: 'REVENUE (TTM)', val: fmt(data.revVal), sub: data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}% YOY` : null, good: data.revGrowth > 0 },
+                  { label: 'NET INCOME (TTM)', val: fmt(data.niVal), sub: data.netMargin !== null ? `${data.netMargin}% NET MARGIN` : null, good: data.netMargin > 10 },
+                  { label: 'OP. MARGIN', val: fmtP(data.opMargin), sub: data.opMargin > 15 ? 'ABOVE THRESHOLD' : 'BELOW THRESHOLD', good: data.opMargin > 15 },
+                  { label: 'ROE', val: fmtP(data.roe), sub: data.roe > 15 ? 'STRONG RETURN' : 'MODERATE RETURN', good: data.roe > 15 },
+                ].map(m => (
+                  <div key={m.label} style={{ background: 'var(--bg-1)', padding: '14px' }}>
+                    <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '6px' }}>{m.label}</div>
+                    <div style={{ fontSize: '20px', fontWeight: 600, marginBottom: '4px' }}>{m.val}</div>
+                    {m.sub && <div style={{ color: m.good ? 'var(--green)' : 'var(--red)', fontSize: '10px', letterSpacing: '0.5px' }}>{m.sub}</div>}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px' }}>CASH FLOW & BALANCE SHEET</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { label: 'FREE CASH FLOW', val: fmt(data.fcfVal), sub: data.fcfVal > 0 ? 'POSITIVE FCF' : 'NEGATIVE FCF', good: data.fcfVal > 0 },
+                  { label: 'OP. CASH FLOW', val: fmt(data.fcfVal), sub: data.fcfVal && data.revVal ? `${((data.fcfVal / data.revVal) * 100).toFixed(1)}% CONVERSION` : null, good: data.fcfVal > 0 },
+                  { label: 'NET DEBT', val: fmt(data.netDebt), sub: data.netDebt < 0 ? 'NET CASH POSITION' : 'NET DEBT POSITION', good: data.netDebt < 0 },
+                  { label: 'CASH & EQUIV.', val: fmt(data.cashVal), sub: null },
+                ].map(m => (
+                  <div key={m.label} style={{ background: 'var(--bg-1)', padding: '14px' }}>
+                    <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '6px' }}>{m.label}</div>
+                    <div style={{ fontSize: '20px', fontWeight: 600, marginBottom: '4px' }}>{m.val}</div>
+                    {m.sub && <div style={{ color: m.good ? 'var(--green)' : 'var(--red)', fontSize: '10px', letterSpacing: '0.5px' }}>{m.sub}</div>}
+                  </div>
+                ))}
+              </div>
+
+              {/* Charts */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { title: 'REVENUE', chart: revChart, color: 'var(--green)', type: 'bar' },
+                  { title: 'FREE CASH FLOW', chart: fcfChart, color: '#8b5cf6', type: 'bar' },
+                ].map(({ title, chart, color, type }) => (
+                  <div key={title} style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                    <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>{title}</div>
+                    <MiniBar data={chart} color={color} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Continue research */}
+              <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px' }}>CONTINUE RESEARCH</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { key: 'quality', title: 'QUALITY SCORECARD', desc: 'Is this a high-quality business?' },
+                  { key: 'financials', title: 'FINANCIALS', desc: 'Income, cash flow, balance sheet' },
+                  { key: 'dcf', title: 'DCF VALUATION', desc: "What's it really worth?" },
+                ].map(s => (
+                  <button key={s.key} onClick={() => setTab(s.key)}
+                    style={{ background: 'var(--bg-1)', border: 'none', padding: '14px 16px', textAlign: 'left', cursor: 'pointer', fontFamily: 'IBM Plex Mono, monospace' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-1)'}>
+                    <div style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '1px', marginBottom: '4px' }}>{s.title}</div>
+                    <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>{s.desc}</div>
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>
+                SOURCE: SEC EDGAR (XBRL) · ALPHA VANTAGE · FINNHUB · NOT INVESTMENT ADVICE
+              </div>
+            </div>
+          )}
+
+          {/* QUALITY TAB */}
+          {tab === 'quality' && (
+            <div>
+              {/* Score header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '20px', background: 'var(--bg-1)', border: '1px solid var(--border)', marginBottom: '24px' }}>
+                <ScoreBox score={score} size={72} />
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '4px' }}>
+                    {score !== null ? score >= 70 ? 'HIGH-QUALITY BUSINESS' : score >= 40 ? 'MODERATE QUALITY' : 'RED FLAGS DETECTED' : 'AUTOMATED QUALITY SCORE'}
+                  </div>
+                  <div style={{ color: 'var(--text-2)', fontSize: '11px', marginBottom: '4px' }}>
+                    {score !== null ? `Score based on ${Object.keys(answers).filter(k => answers[k]).length} of 15 questions from SEC filings.` : 'Score calculated from SEC EDGAR fundamentals.'}
+                  </div>
+                  <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>BROAD-MARKET HEURISTICS · NOT A BUY/SELL SIGNAL</div>
+                </div>
+              </div>
+
+              {/* Valuation section */}
+              <div style={S.section}>VALUATION</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { label: 'EARNINGS MULTIPLE', val: data.pe ? `${data.pe}x` : 'N/A', score: data.pe ? data.pe < 15 ? 100 : data.pe < 20 ? 80 : data.pe < 25 ? 60 : data.pe < 35 ? 40 : 20 : null, desc: data.pe < 15 ? 'Below 15x, attractively priced' : data.pe < 20 ? 'Below 20x, reasonably priced' : data.pe < 25 ? 'Fair value range' : data.pe < 35 ? 'Paying a growth premium' : 'Above 35x, expensive' },
+                  { label: 'CASH FLOW MULTIPLE', val: data.fcfVal && data.marketCap ? `${(data.marketCap / data.fcfVal).toFixed(1)}x` : 'N/A', score: data.fcfVal && data.marketCap ? (data.marketCap / data.fcfVal) < 15 ? 100 : (data.marketCap / data.fcfVal) < 25 ? 60 : 20 : null, desc: 'Price to free cash flow ratio' },
+                ].map(m => {
+                  const c = m.score >= 80 ? 'var(--green)' : m.score >= 60 ? 'var(--accent)' : m.score !== null ? 'var(--red)' : 'var(--text-3)';
+                  return (
+                    <div key={m.label} style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>{m.label}</span>
+                        {m.score !== null && <span style={{ color: c, fontSize: '10px' }}>{m.score}/100</span>}
+                      </div>
+                      <div style={{ color: c, fontSize: '28px', fontWeight: 600, marginBottom: '4px' }}>{m.val}</div>
+                      <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>{m.desc}</div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Growth section */}
+              <div style={S.section}>GROWTH</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {[
+                  { label: 'REVENUE GROWTH', val: data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}%` : 'N/A', score: data.revGrowth > 20 ? 100 : data.revGrowth > 10 ? 80 : data.revGrowth > 5 ? 60 : data.revGrowth > 0 ? 40 : 20, chart: revChart, desc: data.revGrowth > 10 ? 'Above 10% CAGR, strong compounder' : 'Below 10% threshold' },
+                  { label: 'CASH FLOW GROWTH', val: (() => { const f = data.fcfHistory[0]?.val; const l = data.fcfHistory[data.fcfHistory.length-1]?.val; return f && l ? `${(((l-f)/Math.abs(f))*100).toFixed(1)}%` : 'N/A'; })(), score: (() => { const f = data.fcfHistory[0]?.val; const l = data.fcfHistory[data.fcfHistory.length-1]?.val; const g = f && l ? ((l-f)/Math.abs(f))*100 : null; return g > 20 ? 100 : g > 10 ? 80 : g > 0 ? 60 : 20; })(), chart: fcfChart, color: '#8b5cf6', desc: 'Free cash flow growth trend' },
+                ].map(m => {
+                  const c = m.score >= 80 ? 'var(--green)' : m.score >= 60 ? 'var(--accent)' : 'var(--red)';
+                  return (
+                    <div key={m.label} style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>{m.label}</span>
+                        <span style={{ color: c, fontSize: '10px' }}>{m.score}/100</span>
+                      </div>
+                      <div style={{ color: c, fontSize: '28px', fontWeight: 600, marginBottom: '4px' }}>{m.val}</div>
+                      <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '8px' }}>{m.desc}</div>
+                      <MiniBar data={m.chart} color={m.color || 'var(--green)'} />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Business Quality section */}
+              <div style={S.section}>BUSINESS QUALITY & CAPITAL ALLOCATION</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {/* Margin Trend */}
+                {(() => {
+                  const margins = (data.marginHistory || []).filter(m => m.margin !== null);
+                  const first = margins[0]?.margin;
+                  const last = margins[margins.length - 1]?.margin;
+                  const trend = first !== null && last !== null ? +(last - first).toFixed(1) : null;
+                  const score = trend > 5 ? 100 : trend > 2 ? 80 : trend > 0 ? 60 : trend > -2 ? 40 : 20;
+                  const c = score >= 80 ? 'var(--green)' : score >= 60 ? 'var(--accent)' : 'var(--red)';
+                  return (
+                    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>MARGIN TREND</span>
+                        {trend !== null && <span style={{ color: c, fontSize: '10px' }}>{score}/100</span>}
+                      </div>
+                      <div style={{ color: c, fontSize: '28px', fontWeight: 600, marginBottom: '4px' }}>{trend !== null ? `${trend > 0 ? '+' : ''}${trend}pp` : 'N/A'}</div>
+                      <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '8px' }}>{trend > 3 ? 'Expanded 3+pp, strong improvement' : trend > 0 ? 'Slight expansion' : 'Compressed'}</div>
+                      <MiniLine data={marginChart} color={c} />
+                    </div>
+                  );
+                })()}
+
+                {/* Capital Structure */}
+                {(() => {
+                  const nd = data.netDebt;
+                  const fcf = data.fcfVal;
+                  const ratio = nd && fcf && fcf > 0 ? +(nd / fcf).toFixed(1) : null;
+                  const score = nd < 0 ? 100 : ratio < 1 ? 80 : ratio < 2 ? 60 : ratio < 3 ? 40 : 20;
+                  const c = score >= 80 ? 'var(--green)' : score >= 60 ? 'var(--accent)' : 'var(--red)';
+                  return (
+                    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>CAPITAL STRUCTURE</span>
+                        <span style={{ color: c, fontSize: '10px' }}>{score}/100</span>
+                      </div>
+                      <div style={{ color: c, fontSize: '28px', fontWeight: 600, marginBottom: '4px' }}>{fmt(nd)}</div>
+                      <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '12px' }}>{nd < 0 ? 'Net cash position' : `Net debt/FCF: ${ratio}x`}</div>
+                      <table style={{ ...S.table, fontSize: '11px' }}>
+                        <tbody>
+                          <tr><td style={S.td}>Cash</td><td style={{ ...S.tdVal, color: 'var(--green)' }}>{fmt(data.cashVal)}</td></tr>
+                          <tr><td style={S.td}>LT Debt</td><td style={{ ...S.tdVal, color: 'var(--red)' }}>{fmt(data.debtVal)}</td></tr>
+                          <tr><td style={S.td}>D/E Ratio</td><td style={S.tdVal}>{fmtN(data.debtToEquity)}</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })()}
+
+                {/* Return on Capital */}
+                {(() => {
+                  const roic = data.roe;
+                  const score = roic > 25 ? 100 : roic > 20 ? 80 : roic > 15 ? 60 : roic > 10 ? 40 : 20;
+                  const c = score >= 80 ? 'var(--green)' : score >= 60 ? 'var(--accent)' : 'var(--red)';
+                  return (
+                    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>RETURN ON CAPITAL</span>
+                        {roic !== null && <span style={{ color: c, fontSize: '10px' }}>{score}/100</span>}
+                      </div>
+                      <div style={{ color: c, fontSize: '28px', fontWeight: 600, marginBottom: '4px' }}>{roic !== null ? `${roic}%` : 'N/A'}</div>
+                      <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>{roic > 20 ? 'Above 20%, exceptional efficiency' : roic > 15 ? 'Strong returns' : roic > 10 ? 'Respectable returns' : 'Weak capital allocation'}</div>
+                    </div>
+                  );
+                })()}
+
+                {/* Share Dilution */}
+                {(() => {
+                  const d = data.shareDilution;
+                  const score = d === null ? null : d < -2 ? 100 : d < 0 ? 80 : d < 2 ? 60 : d < 5 ? 40 : 0;
+                  const c = score >= 80 ? 'var(--green)' : score >= 60 ? 'var(--accent)' : score !== null ? 'var(--red)' : 'var(--text-3)';
+                  const sharesChart = (data.sharesHistory || []).map(r => ({ year: r.year, value: +(r.val / 1e6).toFixed(0) }));
+                  return (
+                    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>SHARE DILUTION</span>
+                        {score !== null && <span style={{ color: c, fontSize: '10px' }}>{score}/100</span>}
+                      </div>
+                      <div style={{ color: c, fontSize: '28px', fontWeight: 600, marginBottom: '4px' }}>{d !== null ? `${d > 0 ? '+' : ''}${d}%` : 'N/A'}</div>
+                      <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '8px' }}>{d < -2 ? 'Active buybacks' : d < 0 ? 'Mild buybacks' : d < 2 ? 'Mild dilution' : 'Heavy dilution'}</div>
+                      {sharesChart.length > 0 && <MiniBar data={sharesChart} color='var(--accent)' />}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* DD Checklist */}
+              <div style={S.section}>DUE DILIGENCE CHECKLIST</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+                {DIMS.map(dim => (
+                  <div key={dim} style={{ background: 'var(--bg-1)', padding: '12px', textAlign: 'center' }}>
+                    <ScoreBox score={getDimScore(dim)} size={40} />
+                    <div style={{ color: 'var(--text-3)', fontSize: '9px', letterSpacing: '1px', marginTop: '6px' }}>{dim.toUpperCase()}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: 'var(--border)' }}>
+                {QUESTIONS.map((q, qi) => (
+                  <div key={qi} style={{ background: 'var(--bg-1)', padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ color: 'var(--text-3)', fontSize: '10px', minWidth: '20px' }}>Q{qi + 1}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ color: 'var(--text-2)', fontSize: '11px', marginBottom: '8px' }}>{q.text}</div>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          {['YES', 'NO', 'N/A'].map(opt => (
+                            <button key={opt} onClick={() => setAnswers(prev => ({ ...prev, [qi]: opt }))}
+                              style={{
+                                padding: '3px 10px', fontSize: '10px', letterSpacing: '1px', cursor: 'pointer', fontFamily: 'IBM Plex Mono, monospace',
+                                background: answers[qi] === opt ? (opt === 'YES' ? 'var(--green)' : opt === 'NO' ? 'var(--red)' : 'var(--text-3)') : 'none',
+                                color: answers[qi] === opt ? '#000' : 'var(--text-3)',
+                                border: `1px solid ${answers[qi] === opt ? 'transparent' : 'var(--border-2)'}`,
+                              }}>
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                        {answers[qi] && (
+                          <input
+                            style={{ marginTop: '6px', width: '100%', background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text-2)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', padding: '4px 8px', outline: 'none' }}
+                            placeholder="Evidence from filing (exact quote)..."
+                            value={evidence[qi] || ''}
+                            onChange={e => setEvidence(prev => ({ ...prev, [qi]: e.target.value }))}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* FINANCIALS TAB */}
           {tab === 'financials' && (
             <div>
-              <h2 className="text-xl font-medium mb-6">Financials</h2>
-              <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden mb-6">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-zinc-800">
-                      <th className="text-left px-5 py-3 text-zinc-500 font-medium">Metric</th>
-                      {data.revHistory.map(r => <th key={r.year} className="text-right px-4 py-3 text-zinc-500 font-medium">{r.year}</th>)}
-                      <th className="text-right px-4 py-3 text-emerald-500 font-medium">TTM</th>
+              <div style={S.section}>INCOME STATEMENT</div>
+              <table style={{ ...S.table, marginBottom: '24px' }}>
+                <thead>
+                  <tr style={S.tr}>
+                    <th style={{ ...S.td, textAlign: 'left', fontWeight: 400, letterSpacing: '1px', fontSize: '10px' }}>METRIC</th>
+                    {data.revHistory.map(r => <th key={r.year} style={{ ...S.tdVal, fontWeight: 400, fontSize: '10px', letterSpacing: '1px' }}>{r.year}</th>)}
+                    <th style={{ ...S.tdVal, color: 'var(--accent)', fontWeight: 400, fontSize: '10px', letterSpacing: '1px' }}>TTM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: 'Revenue', history: data.revHistory, latest: data.revVal },
+                    { label: 'Net Income', history: data.niHistory, latest: data.niVal },
+                    { label: 'Op. Cash Flow', history: data.fcfHistory, latest: data.fcfVal },
+                  ].map(row => (
+                    <tr key={row.label} style={S.tr}>
+                      <td style={S.td}>{row.label}</td>
+                      {row.history.map((r, i) => <td key={i} style={S.tdVal}>{fmt(r.val)}</td>)}
+                      <td style={{ ...S.tdVal, color: 'var(--accent)' }}>{fmt(row.latest)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { label: 'Revenue', history: data.revHistory, latest: data.revVal },
-                      { label: 'Net Income', history: data.niHistory, latest: data.niVal },
-                      { label: 'Operating Cash Flow', history: data.fcfHistory, latest: data.fcfVal },
-                    ].map(row => (
-                      <tr key={row.label} className="border-b border-zinc-800/50 hover:bg-zinc-800/20">
-                        <td className="px-5 py-3 text-zinc-400">{row.label}</td>
-                        {row.history.map((r, i) => <td key={i} className="text-right px-4 py-3 text-white">{fmt(r.val)}</td>)}
-                        <td className="text-right px-4 py-3 text-emerald-400 font-medium">{fmt(row.latest)}</td>
-                      </tr>
-                    ))}
-                    {[
-                      { label: 'Gross Margin', ttm: fmtP(data.grossMargin) },
-                      { label: 'Operating Margin', ttm: fmtP(data.opMargin) },
-                      { label: 'Net Margin', ttm: fmtP(data.netMargin) },
-                    ].map(row => (
-                      <tr key={row.label} className="border-b border-zinc-800/50 hover:bg-zinc-800/20">
-                        <td className="px-5 py-3 text-zinc-400">{row.label}</td>
-                        {data.revHistory.map((_, i) => <td key={i} className="text-right px-4 py-3 text-zinc-600">—</td>)}
-                        <td className="text-right px-4 py-3 text-emerald-400">{row.ttm}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  ))}
+                  {[
+                    { label: 'Gross Margin', ttm: fmtP(data.grossMargin) },
+                    { label: 'Op. Margin', ttm: fmtP(data.opMargin) },
+                    { label: 'Net Margin', ttm: fmtP(data.netMargin) },
+                  ].map(row => (
+                    <tr key={row.label} style={S.tr}>
+                      <td style={S.td}>{row.label}</td>
+                      {data.revHistory.map((_, i) => <td key={i} style={{ ...S.tdVal, color: 'var(--text-3)' }}>—</td>)}
+                      <td style={{ ...S.tdVal, color: 'var(--accent)' }}>{row.ttm}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)' }}>
+                {[
+                  { title: 'REVENUE', chart: revChart, color: 'var(--green)' },
+                  { title: 'NET INCOME', chart: data.niHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) })), color: 'var(--blue)' },
+                  { title: 'CASH FLOW', chart: fcfChart, color: '#8b5cf6' },
+                ].map(({ title, chart, color }) => (
+                  <div key={title} style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                    <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '8px' }}>{title}</div>
+                    <MiniBar data={chart} color={color} />
+                  </div>
+                ))}
               </div>
-              <p className="text-xs text-zinc-600">Source: SEC EDGAR (XBRL) + Alpha Vantage. Not investment advice.</p>
+              <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginTop: '16px' }}>SOURCE: SEC EDGAR (XBRL) · ALPHA VANTAGE · NOT INVESTMENT ADVICE</div>
             </div>
           )}
 
+          {/* DCF TAB */}
           {tab === 'dcf' && (
             <div>
-              <h2 className="text-xl font-medium mb-6">Dynamic DCF</h2>
-              <div className="bg-zinc-900 rounded-xl p-10 text-center border border-zinc-800">
-                <div className="text-5xl mb-4 text-zinc-700">$</div>
-                <p className="text-zinc-300 mb-2 font-medium">Automated DCF Valuation</p>
-                <p className="text-zinc-500 text-sm max-w-sm mx-auto">Coming soon — will be calculated automatically using the latest 10-K data.</p>
+              <div style={S.section}>DYNAMIC DCF VALUATION</div>
+              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '40px', textAlign: 'center' }}>
+                <div style={{ color: 'var(--accent)', fontSize: '32px', fontWeight: 600, letterSpacing: '4px', marginBottom: '8px' }}>$__.__</div>
+                <div style={{ color: 'var(--text-2)', fontSize: '12px', marginBottom: '4px', letterSpacing: '1px' }}>AUTOMATED DCF VALUATION</div>
+                <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>COMING SOON — Will use latest 10-K data automatically.</div>
               </div>
             </div>
           )}
+
         </div>
       </div>
-    </main>
+    </div>
   );
 }

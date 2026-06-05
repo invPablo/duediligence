@@ -13,147 +13,155 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white overflow-hidden">
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-zinc-800/50">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center text-xs font-bold">DD</div>
-          <span className="font-medium tracking-tight">DueDiligence</span>
-        </div>
-        <div className="hidden md:flex items-center gap-6 text-sm text-zinc-400">
-          <a href="#how" className="hover:text-white transition-colors">How it works</a>
-          <a href="#methodology" className="hover:text-white transition-colors">Methodology</a>
-        </div>
-      </nav>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)' }}>
 
-      <section className="relative flex flex-col items-center justify-center text-center px-4 pt-24 pb-20">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-3xl"></div>
+      {/* Topbar */}
+      <div style={{ borderBottom: '1px solid var(--border)', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '2px', fontSize: '13px' }}>TERMINAL</span>
+          <span style={{ color: 'var(--text-3)' }}>|</span>
+          <span style={{ color: 'var(--text-3)', fontSize: '11px' }}>FUNDAMENTAL ANALYSIS SYSTEM v1.0</span>
         </div>
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-sm text-emerald-400 mb-8">
-            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
-            Real-time data · SEC EDGAR + Alpha Vantage
+        <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>
+          {new Date().toISOString().slice(0, 10)} · SEC EDGAR · FINNHUB
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '80px 24px 60px' }}>
+
+        {/* ASCII-style header */}
+        <div style={{ marginBottom: '48px' }}>
+          <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '8px', letterSpacing: '1px' }}>
+            ┌─────────────────────────────────────────┐
           </div>
-          <h1 className="text-5xl md:text-7xl font-medium tracking-tight leading-tight mb-6">
+          <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '4px' }}>
+            │ &nbsp;STOCK ANALYSIS TERMINAL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│
+          </div>
+          <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '8px' }}>
+            └─────────────────────────────────────────┘
+          </div>
+          <h1 style={{ fontSize: '42px', fontWeight: 600, letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '16px', fontFamily: 'IBM Plex Mono, monospace' }}>
             Fundamental analysis<br />
-            <span className="text-emerald-400">without opinions</span>
+            <span style={{ color: 'var(--accent)' }}>without opinions.</span>
           </h1>
-          <p className="text-zinc-400 text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
-            15 questions. 5 dimensions. Evidence directly from SEC filings.
-            The verdict is yours.
+          <p style={{ color: 'var(--text-2)', fontSize: '14px', maxWidth: '480px', lineHeight: 1.7 }}>
+            15 questions. 5 dimensions. Evidence from SEC filings only.
+            No recommendations. No noise. Just data.
           </p>
-          <div className="flex gap-3 max-w-md mx-auto mb-6">
+        </div>
+
+        {/* Search */}
+        <div style={{ marginBottom: '48px' }}>
+          <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '8px', letterSpacing: '1px' }}>
+            ENTER TICKER SYMBOL_
+          </div>
+          <div style={{ display: 'flex', gap: '8px', maxWidth: '480px' }}>
             <input
-              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-5 py-4 text-white uppercase placeholder:normal-case placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 text-base transition-colors"
-              placeholder="Ticker: AAPL, MSFT, NVDA..."
+              style={{
+                flex: 1,
+                background: 'var(--bg-2)',
+                border: '1px solid var(--border-2)',
+                color: 'var(--accent)',
+                fontFamily: 'IBM Plex Mono, monospace',
+                fontSize: '20px',
+                fontWeight: 600,
+                padding: '12px 16px',
+                outline: 'none',
+                letterSpacing: '4px',
+              }}
+              placeholder="AAPL_"
               value={ticker}
               onChange={e => setTicker(e.target.value.toUpperCase())}
               onKeyDown={e => e.key === 'Enter' && go()}
               maxLength={6}
+              onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+              onBlur={e => e.target.style.borderColor = 'var(--border-2)'}
             />
-            <button onClick={() => go()}
-              className="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-4 rounded-xl font-medium transition-colors text-base whitespace-nowrap">
-              Analyze →
+            <button
+              onClick={() => go()}
+              style={{
+                background: 'var(--accent)',
+                color: '#000',
+                border: 'none',
+                padding: '12px 24px',
+                fontFamily: 'IBM Plex Mono, monospace',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                letterSpacing: '1px',
+              }}
+              onMouseEnter={e => e.target.style.opacity = '0.85'}
+              onMouseLeave={e => e.target.style.opacity = '1'}
+            >
+              ANALYZE →
             </button>
           </div>
-          <div className="flex gap-2 justify-center flex-wrap">
+          <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
             {['AAPL', 'MSFT', 'NVDA', 'ASML', 'VISA', 'GOOGL'].map(t => (
               <button key={t} onClick={() => go(t)}
-                className="px-3 py-1.5 border border-zinc-800 rounded-lg text-sm text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors">
+                style={{
+                  background: 'none',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-3)',
+                  padding: '4px 10px',
+                  fontFamily: 'IBM Plex Mono, monospace',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  letterSpacing: '1px',
+                }}
+                onMouseEnter={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.color = 'var(--accent)'; }}
+                onMouseLeave={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.color = 'var(--text-3)'; }}
+              >
                 {t}
               </button>
             ))}
           </div>
         </div>
-      </section>
 
-      <section className="border-y border-zinc-800/50 py-10">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 px-8 text-center">
+        {/* Stats grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '48px' }}>
           {[
-            { val: '8,000+', label: 'US Companies' },
-            { val: '15', label: 'DD Questions' },
-            { val: '5', label: 'Dimensions' },
-            { val: '100%', label: 'Primary Data' },
+            { val: '8,000+', label: 'US COMPANIES' },
+            { val: '15', label: 'DD QUESTIONS' },
+            { val: '5', label: 'DIMENSIONS' },
+            { val: '100%', label: 'PRIMARY DATA' },
           ].map(s => (
-            <div key={s.label}>
-              <div className="text-3xl font-medium text-emerald-400 mb-1">{s.val}</div>
-              <div className="text-sm text-zinc-500">{s.label}</div>
+            <div key={s.label} style={{ background: 'var(--bg-1)', padding: '20px', textAlign: 'center' }}>
+              <div style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 600, marginBottom: '4px' }}>{s.val}</div>
+              <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px' }}>{s.label}</div>
             </div>
           ))}
         </div>
-      </section>
 
-      <section id="how" className="py-24 px-8 max-w-5xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">How it works</h2>
-          <p className="text-zinc-400 max-w-lg mx-auto">Three steps from ticker to a well-grounded verdict.</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { step: '01', title: 'Enter a ticker', desc: 'Type any US stock symbol. We automatically load data from SEC EDGAR and Alpha Vantage.', icon: '⌨' },
-            { step: '02', title: 'Review the metrics', desc: 'Market Cap, P/E, margins, growth, debt, ROE, historical FCF and price chart. All in one screen.', icon: '📊' },
-            { step: '03', title: 'Complete due diligence', desc: '15 questions across 5 dimensions. Each answer requires evidence cited from the filing. No external opinions.', icon: '✓' },
-          ].map(s => (
-            <div key={s.step} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 relative overflow-hidden">
-              <div className="text-6xl font-bold text-zinc-800 absolute top-4 right-4">{s.step}</div>
-              <div className="text-3xl mb-4">{s.icon}</div>
-              <h3 className="text-lg font-medium mb-2">{s.title}</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="methodology" className="py-24 px-8 bg-zinc-900/30 border-y border-zinc-800/50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">The 5 dimensions</h2>
-            <p className="text-zinc-400 max-w-lg mx-auto">Every company is analyzed through the same framework. No exceptions.</p>
+        {/* Dimensions */}
+        <div style={{ marginBottom: '48px' }}>
+          <div style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '2px', marginBottom: '16px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+            ANALYSIS FRAMEWORK // 5 DIMENSIONS
           </div>
-          <div className="grid md:grid-cols-5 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1px', background: 'var(--border)' }}>
             {[
-              { num: '1', name: 'Management', desc: 'Guidance compliance, compensation alignment and leadership team stability.' },
-              { num: '2', name: 'Concentration', desc: 'Customer, geographic and product line diversification.' },
-              { num: '3', name: 'Operational Trend', desc: 'Margin evolution, FCF per share and return on capital over time.' },
-              { num: '4', name: 'Earnings Quality', desc: 'Cash conversion, accruals and accounting quality.' },
-              { num: '5', name: 'Transparency', desc: 'Quantitative guidance, risk disclosure and segment reporting.' },
+              { num: '01', name: 'MANAGEMENT', desc: 'Guidance, compensation, C-suite stability' },
+              { num: '02', name: 'CONCENTRATION', desc: 'Customers, geographies, products' },
+              { num: '03', name: 'OP. TREND', desc: 'Margins, FCF/share, ROIC over time' },
+              { num: '04', name: 'EARN. QUALITY', desc: 'Cash conversion, accruals, accounting' },
+              { num: '05', name: 'TRANSPARENCY', desc: 'Guidance, risk disclosure, segments' },
             ].map(d => (
-              <div key={d.num} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <div className="w-8 h-8 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400 text-sm font-medium mb-3">{d.num}</div>
-                <h3 className="font-medium mb-2 text-sm">{d.name}</h3>
-                <p className="text-zinc-500 text-xs leading-relaxed">{d.desc}</p>
+              <div key={d.num} style={{ background: 'var(--bg-1)', padding: '16px 12px' }}>
+                <div style={{ color: 'var(--accent)', fontSize: '10px', marginBottom: '6px' }}>{d.num}</div>
+                <div style={{ color: 'var(--text)', fontSize: '11px', fontWeight: 600, marginBottom: '6px', letterSpacing: '0.5px' }}>{d.name}</div>
+                <div style={{ color: 'var(--text-3)', fontSize: '10px', lineHeight: 1.5 }}>{d.desc}</div>
               </div>
             ))}
           </div>
         </div>
-      </section>
 
-      <section className="py-24 px-8 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">Start your analysis now</h2>
-          <p className="text-zinc-400 mb-8">No account. No credit card. Just the ticker.</p>
-          <div className="flex gap-3 max-w-sm mx-auto">
-            <input
-              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white uppercase placeholder:normal-case placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors"
-              placeholder="Ticker..."
-              onKeyDown={e => { if (e.key === 'Enter') { const tk = e.target.value.toUpperCase().trim(); if (tk) router.push(`/stock/${tk}`); }}}
-              maxLength={6}
-            />
-            <button onClick={() => go()}
-              className="bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-3 rounded-xl font-medium transition-colors">
-              Go →
-            </button>
-          </div>
+        {/* Footer */}
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', color: 'var(--text-3)', fontSize: '11px' }}>
+          <span>DATA: SEC EDGAR (XBRL) · ALPHA VANTAGE · FINNHUB</span>
+          <span>NOT INVESTMENT ADVICE</span>
         </div>
-      </section>
-
-      <footer className="border-t border-zinc-800/50 px-8 py-6 flex items-center justify-between text-sm text-zinc-600">
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-emerald-500 rounded flex items-center justify-center text-xs font-bold text-white">DD</div>
-          <span>DueDiligence</span>
-        </div>
-        <div>Data from SEC EDGAR and Alpha Vantage · Not investment advice</div>
-      </footer>
+      </div>
     </main>
   );
 }
