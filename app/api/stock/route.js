@@ -157,8 +157,15 @@ const epsHistory = niHistory.map((ni, i) => {
 const epsOldest = epsHistory[0]?.eps;
 const epsLatest = epsHistory[epsHistory.length - 1]?.eps;
 const epsYears = epsHistory.length > 1 ? epsHistory.length - 1 : 1;
-const epsCagr = epsOldest && epsLatest && epsOldest > 0 && epsLatest > 0
+const epsCagrRaw = epsOldest && epsLatest && epsOldest > 0 && epsLatest > 0
   ? +(((Math.pow(epsLatest / epsOldest, 1 / epsYears)) - 1) * 100).toFixed(1)
+  : null;
+
+// Si el CAGR calculado es negativo o absurdo, usar el crecimiento de revenue como proxy
+const epsCagr = epsCagrRaw !== null && epsCagrRaw > 0 && epsCagrRaw < 50
+  ? epsCagrRaw
+  : revGrowth !== null && revGrowth > 0
+  ? Math.min(revGrowth, 20)
   : null;
 
 const peCalc = epsCalc && currentPrice ? +(currentPrice / epsCalc).toFixed(2) : null;
