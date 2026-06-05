@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import PriceChart from './chart';
 
 const fmt = (val) => {
   if (val === null || val === undefined) return 'N/A';
@@ -198,6 +199,9 @@ export default function StockPage({ params }) {
           {/* OVERVIEW */}
           {tab === 'overview' && (
             <div>
+                <div className="mb-6">
+  <PriceChart ticker={ticker} />
+</div>
               {data.description && (
                 <p className="text-zinc-400 text-sm leading-relaxed mb-6 max-w-3xl border-l-2 border-emerald-500/30 pl-4">
                   {data.description.slice(0, 300)}{data.description.length > 300 ? '...' : ''}
