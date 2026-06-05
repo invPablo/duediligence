@@ -39,6 +39,21 @@ export async function GET(request) {
       return null;
     };
 
+   const getEPS = () => {
+  const keys = ['EarningsPerShareDiluted', 'EarningsPerShareBasic'];
+  for (const key of keys) {
+    const metric = usgaap[key];
+    if (!metric) continue;
+    const units = metric.units?.USD || metric.units?.pure || metric.units?.['USD/shares'];
+    if (!units) continue;
+    const annual = units
+      .filter(u => u.form === '10-K')
+      .sort((a, b) => b.end.localeCompare(a.end));
+    if (annual.length > 0) return annual[0].val;
+  }
+  return null;
+};
+
     const revenues = getMetric(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet']);
     const netIncomes = getMetric(['NetIncomeLoss']);
     const operatingIncomes = getMetric(['OperatingIncomeLoss']);
@@ -47,7 +62,12 @@ export async function GET(request) {
     const equity = getMetric(['StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest']);
     const debt = getMetric(['LongTermDebt', 'LongTermDebtNoncurrent']);
     const cash = getMetric(['CashAndCashEquivalentsAtCarryingValue', 'CashCashEquivalentsAndShortTermInvestments']);
-    const shares = getMetric(['CommonStockSharesOutstanding']);
+    const shares = getMetric([
+  'CommonStockSharesOutstanding',
+  'CommonStockSharesIssued',
+  'WeightedAverageNumberOfSharesOutstandingBasic',
+  'WeightedAverageNumberOfDilutedSharesOutstanding',
+]);
     const grossProfit = getMetric(['GrossProfit']);
     const rd = getMetric(['ResearchAndDevelopmentExpense']);
 
@@ -110,13 +130,29 @@ export async function GET(request) {
     const low52 = fh.l || null;
 
     // Calcular EPS y P/E desde SEC EDGAR + Finnhub (sin Alpha Vantage)
-    const epsCalc = niVal && sharesVal ? +(niVal / sharesVal).toFixed(2) : null;
-    // EPS histórico y CAGR a 5 años para Graham
-    const epsHistory = niHistory.map((ni, i) => {
-    const sh = sharesHistory[i];
-    if (!ni || !sh || !sh.val) return null;
-    return { year: ni.year, eps: +(ni.val / sh.val).toFixed(2) };
-    }).filter(Boolean);
+    // EPS directo desde SEC EDGAR
+const epsDirect = getEPS();
+
+// Finnhub basic financials como fallback para EPS y shares
+let fhBasic = {};
+try {
+  const fhBasicRes = await fetch(
+    `https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=all&token=${FH_KEY}`,
+    { signal: AbortSignal.timeout(5000) }
+  );
+  fhBasic = await fhBasicRes.json();
+} catch(e) { fhBasic = {}; }
+
+const epsFinnhub = fhBasic?.metric?.epsAnnual || fhBasic?.metric?.epsTTM || null;
+const sharesFinnhub = fhBasic?.metric?.sharesOutstanding ? fhBasic.metric.sharesOutstanding * 1e6 : null;
+const epsCalc = epsDirect || epsFinnhub || (niVal && (sharesVal || sharesFinnhub) ? +(niVal / (sharesVal || sharesFinnhub)).toFixed(2) : null);
+const sharesForCalc = sharesVal || sharesFinnhub;
+
+const epsHistory = niHistory.map((ni, i) => {
+  const sh = sharesHistory[i];
+  if (!ni || !sh || !sh.val) return null;
+  return { year: ni.year, eps: +(ni.val / sh.val).toFixed(2) };
+}).filter(Boolean);
 
 const epsOldest = epsHistory[0]?.eps;
 const epsLatest = epsHistory[epsHistory.length - 1]?.eps;
@@ -124,13 +160,14 @@ const epsYears = epsHistory.length > 1 ? epsHistory.length - 1 : 1;
 const epsCagr = epsOldest && epsLatest && epsOldest > 0 && epsLatest > 0
   ? +(((Math.pow(epsLatest / epsOldest, 1 / epsYears)) - 1) * 100).toFixed(1)
   : null;
-    const peCalc = epsCalc && currentPrice ? +(currentPrice / epsCalc).toFixed(2) : null;
-    const marketCapCalc = currentPrice && sharesVal ? currentPrice * sharesVal : null;
-    const pfcfCalc = marketCapCalc && fcfVal && fcfVal > 0 ? +(marketCapCalc / fcfVal).toFixed(1) : null;
-    const fcfYield = marketCapCalc && fcfVal ? +((fcfVal / marketCapCalc) * 100).toFixed(2) : null;
-    const roic = equityVal && debtVal && oiVal
-      ? +((oiVal / (equityVal + debtVal)) * 100).toFixed(1)
-      : null;
+
+const peCalc = epsCalc && currentPrice ? +(currentPrice / epsCalc).toFixed(2) : null;
+const marketCapCalc = currentPrice && sharesForCalc ? currentPrice * sharesForCalc : null;
+const pfcfCalc = marketCapCalc && fcfVal && fcfVal > 0 ? +(marketCapCalc / fcfVal).toFixed(1) : null;
+const fcfYield = marketCapCalc && fcfVal ? +((fcfVal / marketCapCalc) * 100).toFixed(2) : null;
+const roic = equityVal && debtVal && oiVal
+  ? +((oiVal / (equityVal + debtVal)) * 100).toFixed(1)
+  : null;
 
     // Alpha Vantage — solo para datos que no podemos calcular (sector, descripcion, beta)
     // Con rate limit bajo, intentamos pero no fallamos si no responde
