@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, use } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import PriceChart from './chart';
 
 const fmt = (val) => {
@@ -459,72 +459,333 @@ const valGood = intrinsicPill && currentPricePill ? intrinsicPill > currentPrice
           )}
 
           {tab === 'quality' && (
-            <div>
-              <div className="flex items-center gap-6 mb-8 p-6 bg-zinc-900 rounded-xl border border-zinc-800">
-                <ScoreRing score={score} size={100} />
-                <div>
-                  <div className="text-2xl font-medium mb-1">
-                    {score !== null ? (score >= 70 ? 'High-quality business' : score >= 40 ? 'Moderate quality' : 'Red flags detected') : 'Complete the analysis'}
-                  </div>
-                  <p className="text-zinc-400 text-sm max-w-md">
-                    {score !== null ? `Score based on ${answeredCount} of 15 questions answered from SEC filings.` : 'Answer the questions to get your due diligence score.'}
-                  </p>
-                  <div className="text-xs text-zinc-600 mt-2">Fundamental heuristics · Not a buy/sell signal</div>
+  <div>
+    {/* Header score */}
+    <div className="flex items-center gap-6 mb-8 p-6 bg-zinc-900 rounded-xl border border-zinc-800">
+      <div className="relative">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <polygon points="50,5 95,25 95,75 50,95 5,75 5,25"
+            fill="none" stroke={score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444'}
+            strokeWidth="3"/>
+          <text x="50" y="38" textAnchor="middle" fill={score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444'}
+            fontSize="9" fontWeight="500">QUALITY</text>
+          <text x="50" y="62" textAnchor="middle" fill={score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444'}
+            fontSize="22" fontWeight="600">{score ?? '—'}</text>
+        </svg>
+      </div>
+      <div>
+        <div className="text-xl font-medium mb-1">
+          {score !== null
+            ? score >= 70 ? 'High-quality business'
+            : score >= 40 ? 'Moderate quality'
+            : 'Red flags detected'
+            : 'Calculating score...'}
+        </div>
+        <p className="text-zinc-400 text-sm max-w-lg">
+          {score !== null
+            ? `Score based on ${answeredCount} of 15 questions from SEC filings.`
+            : 'Automated score based on SEC EDGAR fundamentals.'}
+        </p>
+        <div className="text-xs text-zinc-600 mt-1">Broad-market heuristics · Not a buy/sell signal</div>
+      </div>
+    </div>
+
+    {/* VALUATION section */}
+    <div className="mb-8">
+      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Valuation</div>
+      <div className="grid grid-cols-2 gap-4">
+        {/* Earnings Multiple */}
+        {(() => {
+          const s = data.pe ? data.pe < 15 ? 100 : data.pe < 20 ? 80 : data.pe < 25 ? 60 : data.pe < 35 ? 40 : 20 : null;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
+          const desc = data.pe < 15 ? 'Below 15x, attractively priced' : data.pe < 20 ? 'Below 20x, reasonably priced' : data.pe < 25 ? '20-25x, fair value range' : data.pe < 35 ? '25-35x, paying a growth premium' : 'Above 35x, expensive';
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Earnings Multiple</span>
                 </div>
+                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
               </div>
-              <div className="grid grid-cols-5 gap-3 mb-8">
-                {DIMS.map(dim => (
-                  <div key={dim} className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-                    <ScoreRing score={getDimScore(dim)} size={60} />
-                    <div className="text-xs text-zinc-500 mt-2 leading-tight">{dim}</div>
-                  </div>
-                ))}
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{data.pe ? `${data.pe}x` : 'N/A'}</div>
+              <p className="text-xs text-zinc-500 mb-3">{desc}</p>
+            </div>
+          );
+        })()}
+
+        {/* FCF Multiple */}
+        {(() => {
+          const pfcf = data.fcfVal && data.marketCap ? +(data.marketCap / data.fcfVal).toFixed(1) : null;
+          const s = pfcf ? pfcf < 15 ? 100 : pfcf < 20 ? 80 : pfcf < 25 ? 60 : pfcf < 35 ? 40 : 20 : null;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Cash Flow Multiple</span>
+                </div>
+                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
               </div>
-              <div className="space-y-6">
-                {DIMS.map((dim, di) => (
-                  <div key={dim}>
-                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-800">
-                      <div className="text-xs uppercase tracking-widest text-zinc-500">{di + 1}. {dim}</div>
-                      {getDimScore(dim) !== null && (
-                        <div className={`text-sm font-medium ${getDimScore(dim) >= 70 ? 'text-emerald-400' : getDimScore(dim) >= 40 ? 'text-amber-400' : 'text-red-400'}`}>
-                          {getDimScore(dim)}/100
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-3">
-                      {QUESTIONS.map((q, qi) => q.dim !== dim ? null : (
-                        <div key={qi} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                          <p className="text-sm text-zinc-200 mb-3 leading-relaxed">Q{qi + 1}. {q.text}</p>
-                          <div className="flex gap-2 mb-3">
-                            {['YES', 'NO', 'N/A'].map(opt => (
-                              <button key={opt} onClick={() => setAnswers(prev => ({ ...prev, [qi]: opt }))}
-                                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
-                                  answers[qi] === opt
-                                    ? opt === 'YES' ? 'bg-emerald-500 border-emerald-500 text-white'
-                                    : opt === 'NO' ? 'bg-red-500 border-red-500 text-white'
-                                    : 'bg-zinc-600 border-zinc-600 text-white'
-                                    : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
-                                }`}>
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                          {answers[qi] && (
-                            <input
-                              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500"
-                              placeholder="Evidence from filing (exact quote)..."
-                              value={evidence[qi] || ''}
-                              onChange={e => setEvidence(prev => ({ ...prev, [qi]: e.target.value }))}
-                            />
-                          )}
-                        </div>
-                      ))}
-                    </div>
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{pfcf ? `${pfcf}x` : 'N/A'}</div>
+              <p className="text-xs text-zinc-500 mb-3">{pfcf < 15 ? 'Below 15x, strong FCF yield' : pfcf < 25 ? 'Reasonable cash flow multiple' : 'Above 25x, cash flow yield thin'}</p>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+
+    {/* GROWTH section */}
+    <div className="mb-8">
+      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Growth</div>
+      <div className="grid grid-cols-2 gap-4">
+        {/* Revenue Growth */}
+        {(() => {
+          const s = data.revGrowth > 20 ? 100 : data.revGrowth > 10 ? 80 : data.revGrowth > 5 ? 60 : data.revGrowth > 0 ? 40 : 20;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
+          const revChart = data.revHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Revenue Growth</span>
+                </div>
+                <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>
+              </div>
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}%` : 'N/A'}</div>
+              <p className="text-xs text-zinc-500 mb-3">{data.revGrowth > 10 ? 'Above 10% CAGR, strong compounder' : data.revGrowth > 0 ? 'Positive but below 10% threshold' : 'Revenue declining'}</p>
+              <ResponsiveContainer width="100%" height={80}>
+                <BarChart data={revChart} barSize={24}>
+                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip formatter={v => [`$${v}B`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
+                  <Bar dataKey="value" radius={[2, 2, 0, 0]}>
+                    {revChart.map((_, i) => <Cell key={i} fill={i === revChart.length - 1 ? c : `${c}55`} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
+
+        {/* FCF Growth */}
+        {(() => {
+          const fcfChart = data.fcfHistory.map(r => ({ year: r.year, value: +(r.val / 1e9).toFixed(1) }));
+          const fcfFirst = data.fcfHistory[0]?.val;
+          const fcfLast = data.fcfHistory[data.fcfHistory.length - 1]?.val;
+          const fcfGrowth = fcfFirst && fcfLast && data.fcfHistory.length > 1
+            ? +(((fcfLast - fcfFirst) / Math.abs(fcfFirst)) * 100).toFixed(1) : null;
+          const s = fcfGrowth > 20 ? 100 : fcfGrowth > 10 ? 80 : fcfGrowth > 0 ? 60 : fcfGrowth !== null ? 20 : null;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : s !== null ? '#ef4444' : '#52525b';
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Cash Flow Growth</span>
+                </div>
+                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
+              </div>
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{fcfGrowth !== null ? `${fcfGrowth > 0 ? '+' : ''}${fcfGrowth}%` : 'N/A'}</div>
+              <p className="text-xs text-zinc-500 mb-3">{fcfGrowth > 10 ? 'Above 10% CAGR, healthy generation' : fcfGrowth > 0 ? 'Growing but below threshold' : 'FCF declining or negative'}</p>
+              <ResponsiveContainer width="100%" height={80}>
+                <BarChart data={fcfChart} barSize={24}>
+                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip formatter={v => [`$${v}B`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
+                  <Bar dataKey="value" radius={[2, 2, 0, 0]}>
+                    {fcfChart.map((_, i) => <Cell key={i} fill={i === fcfChart.length - 1 ? c : `${c}55`} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+
+    {/* BUSINESS QUALITY section */}
+    <div className="mb-8">
+      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Business Quality & Capital Allocation</div>
+      <div className="grid grid-cols-2 gap-4">
+
+        {/* Share Dilution */}
+        {(() => {
+          const d = data.shareDilution;
+          const s = d === null ? null : d < -2 ? 100 : d < 0 ? 80 : d < 2 ? 60 : d < 5 ? 40 : 0;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : s !== null ? '#ef4444' : '#52525b';
+          const sharesChart = data.sharesHistory?.map(r => ({ year: r.year, value: +(r.val / 1e6).toFixed(0) })) || [];
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Share Dilution</span>
+                </div>
+                {s !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
+              </div>
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{d !== null ? `${d > 0 ? '+' : ''}${d}%` : 'N/A'}</div>
+              <p className="text-xs text-zinc-500 mb-3">{d < -2 ? 'Shrinking >2%, active buybacks' : d < 0 ? 'Mild buybacks' : d < 2 ? 'Mild dilution, mostly stock comp' : d < 5 ? 'Moderate dilution' : 'Heavy dilution above 5%'}</p>
+              <ResponsiveContainer width="100%" height={80}>
+                <BarChart data={sharesChart} barSize={24}>
+                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip formatter={v => [`${v}M shares`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
+                  <Bar dataKey="value" radius={[2, 2, 0, 0]}>
+                    {sharesChart.map((_, i) => <Cell key={i} fill={i === sharesChart.length - 1 ? '#f59e0b' : '#f59e0b55'} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
+
+        {/* Margin Trend */}
+        {(() => {
+          const margins = data.marginHistory?.filter(m => m.margin !== null) || [];
+          const first = margins[0]?.margin;
+          const last = margins[margins.length - 1]?.margin;
+          const trend = first !== null && last !== null ? +(last - first).toFixed(1) : null;
+          const s = trend > 5 ? 100 : trend > 2 ? 80 : trend > 0 ? 60 : trend > -2 ? 40 : 20;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Margin Trend</span>
+                </div>
+                {trend !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
+              </div>
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{trend !== null ? `${trend > 0 ? '+' : ''}${trend}pp` : 'N/A'}</div>
+              <p className="text-xs text-zinc-500 mb-3">{trend > 3 ? 'Expanded 3+pp, strong improvement' : trend > 0 ? 'Slight margin expansion' : trend > -3 ? 'Margins stable to slightly compressed' : 'Significant margin compression'}</p>
+              <ResponsiveContainer width="100%" height={80}>
+                <LineChart data={margins}>
+                  <XAxis dataKey="year" tick={{ fill: '#52525b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip formatter={v => [`${v}%`]} contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }} />
+                  <Line type="monotone" dataKey="margin" stroke={c} strokeWidth={2} dot={{ fill: c, r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
+
+        {/* Capital Structure */}
+        {(() => {
+          const nd = data.netDebt;
+          const fcf = data.fcfVal;
+          const ratio = nd && fcf && fcf > 0 ? +(nd / fcf).toFixed(1) : null;
+          const s = nd < 0 ? 100 : ratio < 1 ? 80 : ratio < 2 ? 60 : ratio < 3 ? 40 : 20;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
+          const debtChart = data.revHistory.map((r, i) => ({
+            year: r.year,
+            cash: data.fcfHistory[i] ? +(data.fcfHistory[i].val / 1e9).toFixed(1) : 0,
+            debt: data.debtVal ? +(data.debtVal / 1e9 / data.revHistory.length).toFixed(1) : 0,
+          }));
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Capital Structure</span>
+                </div>
+                <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>
+              </div>
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{fmt(nd)}</div>
+              <p className="text-xs text-zinc-500 mb-3">{nd < 0 ? 'Net cash position, no leverage concern' : ratio < 2 ? `Net debt/FCF of ${ratio}x, manageable` : 'High leverage, monitor closely'}</p>
+              <div className="space-y-2 mt-2">
+                {[
+                  { label: 'Cash', val: data.cashVal, color: '#10b981' },
+                  { label: 'LT Debt', val: data.debtVal, color: '#ef4444' },
+                ].map(item => (
+                  <div key={item.label} className="flex items-center justify-between text-xs">
+                    <span className="text-zinc-500">{item.label}</span>
+                    <span style={{ color: item.color }} className="font-medium">{fmt(item.val)}</span>
                   </div>
                 ))}
               </div>
             </div>
-          )}
+          );
+        })()}
+
+        {/* Return on Capital */}
+        {(() => {
+          const roic = data.roe;
+          const s = roic > 25 ? 100 : roic > 20 ? 80 : roic > 15 ? 60 : roic > 10 ? 40 : 20;
+          const c = s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
+          return (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: c }}></div>
+                  <span className="text-sm text-zinc-300">Return on Capital</span>
+                </div>
+                {roic !== null && <span className="text-sm font-medium" style={{ color: c }}>{s}<span className="text-zinc-600 text-xs">/100</span></span>}
+              </div>
+              <div className="text-3xl font-medium mt-2 mb-1" style={{ color: c }}>{roic !== null ? `${roic}%` : 'N/A'}</div>
+              <p className="text-xs text-zinc-500">{roic > 20 ? 'Above 20%, exceptional capital efficiency' : roic > 15 ? '15-20%, strong returns' : roic > 10 ? '10-15%, respectable returns' : 'Below 10%, weak capital allocation'}</p>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+
+    {/* DD Questions */}
+    <div className="border-t border-zinc-800 pt-8">
+      <div className="text-xs text-zinc-500 uppercase tracking-widest mb-6">Due Diligence Checklist</div>
+      <div className="grid grid-cols-5 gap-3 mb-8">
+        {DIMS.map(dim => (
+          <div key={dim} className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
+            <ScoreRing score={getDimScore(dim)} size={60} />
+            <div className="text-xs text-zinc-500 mt-2 leading-tight">{dim}</div>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-6">
+        {DIMS.map((dim, di) => (
+          <div key={dim}>
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-800">
+              <div className="text-xs uppercase tracking-widest text-zinc-500">{di + 1}. {dim}</div>
+              {getDimScore(dim) !== null && (
+                <div className={`text-sm font-medium ${getDimScore(dim) >= 70 ? 'text-emerald-400' : getDimScore(dim) >= 40 ? 'text-amber-400' : 'text-red-400'}`}>
+                  {getDimScore(dim)}/100
+                </div>
+              )}
+            </div>
+            <div className="space-y-3">
+              {QUESTIONS.map((q, qi) => q.dim !== dim ? null : (
+                <div key={qi} className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
+                  <p className="text-sm text-zinc-200 mb-3 leading-relaxed">Q{qi + 1}. {q.text}</p>
+                  <div className="flex gap-2 mb-3">
+                    {['YES', 'NO', 'N/A'].map(opt => (
+                      <button key={opt} onClick={() => setAnswers(prev => ({ ...prev, [qi]: opt }))}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
+                          answers[qi] === opt
+                            ? opt === 'YES' ? 'bg-emerald-500 border-emerald-500 text-white'
+                            : opt === 'NO' ? 'bg-red-500 border-red-500 text-white'
+                            : 'bg-zinc-600 border-zinc-600 text-white'
+                            : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                        }`}>
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                  {answers[qi] && (
+                    <input
+                      className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500"
+                      placeholder="Evidence from filing (exact quote)..."
+                      value={evidence[qi] || ''}
+                      onChange={e => setEvidence(prev => ({ ...prev, [qi]: e.target.value }))}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
 
           {tab === 'financials' && (
             <div>
