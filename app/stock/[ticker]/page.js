@@ -111,7 +111,9 @@ export default function StockPage({ params }) {
 const [sparklineData, setSparklineData] = useState(null);
 const [usage, setUsage] = useState(null);
   const [usageLimited, setUsageLimited] = useState(false);
+const [isPro, setIsPro] = useState(false);
   const { isSignedIn } = useUser();
+const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
     fetch(`/api/stock?ticker=${ticker}`)
@@ -131,6 +133,11 @@ const [usage, setUsage] = useState(null);
         setUsage(d);
         if (d.limited) setUsageLimited(true);
       })
+      .catch(() => {});
+
+    fetch('/api/subscription')
+      .then(r => r.json())
+      .then(d => setIsPro(d.isPro))
       .catch(() => {});
   }, [ticker]);
 
@@ -820,14 +827,14 @@ const [usage, setUsage] = useState(null);
 )}
 
           {/* FINANCIALS TAB */}
-          {tab === 'financials' && !isSignedIn && (
+          {tab === 'financials' && !isPro && (
             <div style={{ textAlign: 'center', padding: '80px 24px' }}>
               <div style={{ color: 'var(--accent)', fontSize: '13px', letterSpacing: '2px', marginBottom: '12px' }}>🔒 SIGN IN REQUIRED</div>
               <div style={{ color: 'var(--text-2)', fontSize: '12px', marginBottom: '24px' }}>Create a free account to access Financial Statements.</div>
               <a href="/sign-in" style={{ background: 'var(--accent)', color: '#000', padding: '10px 24px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textDecoration: 'none' }}>CREATE FREE ACCOUNT →</a>
             </div>
           )}
-          {tab === 'financials' && isSignedIn && (
+          {tab === 'financials' && isPro && (
   <div>
     {/* Fin tabs */}
     <div style={{ display: 'flex', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
@@ -995,14 +1002,14 @@ const [usage, setUsage] = useState(null);
 )}
 
           {/* DCF TAB */}
-          {tab === 'dcf' && !isSignedIn && (
+          {tab === 'dcf' && !isPro && (
             <div style={{ textAlign: 'center', padding: '80px 24px' }}>
               <div style={{ color: 'var(--accent)', fontSize: '13px', letterSpacing: '2px', marginBottom: '12px' }}>🔒 SIGN IN REQUIRED</div>
               <div style={{ color: 'var(--text-2)', fontSize: '12px', marginBottom: '24px' }}>Create a free account to access DCF Valuation.</div>
               <a href="/sign-in" style={{ background: 'var(--accent)', color: '#000', padding: '10px 24px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textDecoration: 'none' }}>CREATE FREE ACCOUNT →</a>
             </div>
           )}
-          {tab === 'dcf' && isSignedIn && (
+          {tab === 'dcf' && isPro && (
             <div>
               <div style={S.section}>GRAHAM INTRINSIC VALUE — V = EPS × (8.5 + 2g)</div>
 

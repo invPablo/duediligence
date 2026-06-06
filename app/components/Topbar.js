@@ -1,6 +1,22 @@
 'use client';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
+
+function ProBadge() {
+  const [isPro, setIsPro] = useState(false);
+  useEffect(() => {
+    fetch('/api/subscription')
+      .then(r => r.json())
+      .then(d => setIsPro(d.isPro))
+      .catch(() => {});
+  }, []);
+
+  if (!isPro) return null;
+  return (
+    <span style={{ background: 'var(--accent)', color: '#000', fontSize: '9px', fontWeight: 700, padding: '2px 6px', letterSpacing: '1px' }}>PRO</span>
+  );
+}
 
 export default function Topbar() {
   const path = usePathname();
@@ -33,7 +49,10 @@ export default function Topbar() {
         {navItem('/pricing', 'PRICING')}
         <span style={{ color: 'var(--text-3)', fontSize: '11px' }}>{new Date().toISOString().slice(0, 10)} · SEC EDGAR · FINNHUB</span>
         {useUser().isSignedIn ? (
-          <UserButton afterSignOutUrl="/" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ProBadge />
+            <UserButton afterSignOutUrl="/" />
+          </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', borderRight: '1px solid var(--border)', paddingRight: '12px' }}>
