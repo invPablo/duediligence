@@ -212,6 +212,9 @@ const inventoryTurnover = cogsVal && inventoryVal ? +(cogsVal / inventoryVal).to
     const epsCalc = epsDirect || epsFinnhub || (niVal && sharesForCalc ? +(niVal / sharesForCalc).toFixed(2) : null);
     const peCalc = epsCalc && currentPrice ? +(currentPrice / epsCalc).toFixed(2) : null;
     const marketCapCalc = currentPrice && sharesForCalc ? currentPrice * sharesForCalc : null;
+    // Fallback: market cap desde Finnhub profile si no hay shares
+const marketCapFinnhub = fhProfile?.marketCapitalization ? fhProfile.marketCapitalization * 1e6 : null;
+const marketCapFinal = marketCapCalc || marketCapFinnhub;
     const pfcfCalc = marketCapCalc && fcfVal && fcfVal > 0 ? +(marketCapCalc / fcfVal).toFixed(1) : null;
     const fcfYield = marketCapCalc && fcfVal ? +((fcfVal / marketCapCalc) * 100).toFixed(2) : null;
 
@@ -258,7 +261,8 @@ const inventoryTurnover = cogsVal && inventoryVal ? +(cogsVal / inventoryVal).to
       capexHistory, operatingCFHistory, investingCFHistory, financingCFHistory,
       epsCagr, epsHistory,
       currentPrice, priceChange, priceChangePct, prevClose,
-      eps: epsCalc, pe: peCalc, marketCap: marketCapCalc, pfcf: pfcfCalc, fcfYield,
+      eps: epsCalc, pe: peCalc, marketCap: marketCapFinal, pfcf: fcfVal && marketCapFinal && fcfVal > 0 ? +(marketCapFinal / fcfVal).toFixed(1) : null,
+fcfYield: marketCapFinal && fcfVal ? +((fcfVal / marketCapFinal) * 100).toFixed(2) : null,
       high52, low52, beta,
       sharesOutstanding: sharesForCalc,
       dividendYield: fhBasic?.metric?.dividendYieldIndicatedAnnual || null,
