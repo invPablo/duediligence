@@ -113,7 +113,7 @@ const [usage, setUsage] = useState(null);
   const [usageLimited, setUsageLimited] = useState(false);
 const [isPro, setIsPro] = useState(false);
   const { isSignedIn } = useUser();
-const [isPro, setIsPro] = useState(false);
+
 
   useEffect(() => {
     fetch(`/api/stock?ticker=${ticker}`)
