@@ -47,7 +47,7 @@ export default function Topbar() {
         {navItem('/screener', 'SCREENER')}
         {navItem('/compare', 'COMPARE')}
         {navItem('/pricing', 'PRICING')}
-        <span style={{ color: 'var(--text-3)', fontSize: '11px' }}>{new Date().toISOString().slice(0, 10)} · SEC EDGAR · FINNHUB</span>
+        {navItem('/about', 'ABOUT')}
         {useUser().isSignedIn ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ProBadge />
