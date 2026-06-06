@@ -1,4 +1,5 @@
 import "./globals.css";
+import { ClerkProvider } from '@clerk/nextjs';
 
 export const metadata = {
   title: "Traqcker — Fundamental Stock Analysis",
@@ -11,12 +12,12 @@ export const viewport = {
   initialScale: 1,
 };
 
-
-
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

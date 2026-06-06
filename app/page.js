@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import MarketBar from './components/MarketBar';
+import Topbar from './components/Topbar';
 
 const fmt = (val) => {
   if (val === null || val === undefined) return '—';
@@ -64,8 +65,7 @@ const RankRow = ({ s, rank, metric, suffix = '', router }) => (
     <span style={{ color: 'var(--border-2)', fontSize: '9px', width: 16, flexShrink: 0 }}>#{rank}</span>
     <img src={logoUrl(s.name)} alt="" style={{ width: 16, height: 16, objectFit: 'contain', background: 'white', padding: 1, flexShrink: 0 }}
       onError={e => e.target.style.display = 'none'} />
-    <span style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 700, width: 48, flexShrink: 0 }}>{s.ticker}</span>
-    <span style={{ color: 'var(--text-3)', fontSize: '11px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
+    <span style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 700, flex: 1 }}>{s.ticker}</span>
     <span style={{ color: 'var(--green)', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
       {s[metric]?.toFixed(1)}{suffix}
     </span>
@@ -99,20 +99,7 @@ export default function Home() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace' }}>
 
-      {/* Topbar */}
-      <div style={{ borderBottom: '1px solid var(--border)', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/logo.png" alt="Traqcker" style={{ height: '24px', objectFit: 'contain' }} />
-          <span style={{ color: 'var(--text-3)' }}>|</span>
-          <span style={{ color: 'var(--text-3)', fontSize: '11px' }}>FUNDAMENTAL ANALYSIS SYSTEM v1.0</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '11px' }}>
-          <a href="/screener" style={{ color: 'var(--text-3)', textDecoration: 'none', letterSpacing: '1px' }}
-            onMouseEnter={e => e.target.style.color = 'var(--accent)'}
-            onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>SCREENER</a>
-          <span style={{ color: 'var(--text-3)' }}>{new Date().toISOString().slice(0, 10)} · SEC EDGAR · FINNHUB</span>
-        </div>
-      </div>
+      <Topbar />
 
       <MarketBar />
 
@@ -192,7 +179,7 @@ export default function Home() {
         </div>
 
         {/* Rankings */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '48px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '48px' }}>
           {movers && [
             { title: 'TOP ROIC', data: movers.topRoic, metric: 'roic', suffix: '%' },
             { title: 'TOP FCF YIELD', data: movers.topFcfYield, metric: 'fcfYield', suffix: '%' },

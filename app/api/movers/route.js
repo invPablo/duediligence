@@ -49,14 +49,17 @@ export async function GET() {
     };
 
     const withScore = stocks.map(s => ({ ...s, score: calcScore(s) }));
-    const sorted = (arr, key, dir = 'desc') => [...arr].filter(s => s[key] != null).sort((a, b) => dir === 'desc' ? b[key] - a[key] : a[key] - b[key]);
+    const sorted = (arr, key, dir = 'desc', max = null) => [...arr]
+  .filter(s => s[key] != null)
+  .filter(s => max === null || Math.abs(s[key]) <= max)
+  .sort((a, b) => dir === 'desc' ? b[key] - a[key] : a[key] - b[key]);
 
     return Response.json({
       gainers: sorted(withScore, 'priceChangePct').slice(0, 20),
       losers: sorted(withScore, 'priceChangePct', 'asc').slice(0, 20),
-      topRoic: sorted(withScore, 'roic').slice(0, 10),
-      topFcfYield: sorted(withScore, 'fcfYield').slice(0, 10),
-      topRevGrowth: sorted(withScore, 'revGrowth').slice(0, 10),
+      topRoic: sorted(withScore, 'roic', 'desc', 200).slice(0, 10),
+      topFcfYield: sorted(withScore, 'fcfYield', 'desc', 50).slice(0, 10),
+      topRevGrowth: sorted(withScore, 'revGrowth', 'desc', 300).slice(0, 10),
       topScore: sorted(withScore, 'score').slice(0, 10),
     });
   } catch (e) {

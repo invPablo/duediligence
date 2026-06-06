@@ -206,12 +206,13 @@ export async function GET(request) {
     const epsDirect  = getEPS();
     const epsFinnhub = fhBasic?.metric?.epsAnnual || fhBasic?.metric?.epsTTM || null;
     const sharesFinnhub = fhBasic?.metric?.sharesOutstanding ? fhBasic.metric.sharesOutstanding * 1e6 : null;
-    const sharesForCalc = sharesVal || sharesFinnhub;
+const sharesValAdj = sharesVal && sharesVal < 1e6 ? sharesVal * 1e6 : sharesVal;
+const sharesForCalc = sharesValAdj || sharesFinnhub;
     const epsCalc    = epsDirect || epsFinnhub || (niVal && sharesForCalc ? +(niVal / sharesForCalc).toFixed(2) : null);
     const peCalc     = epsCalc && currentPrice ? +(currentPrice / epsCalc).toFixed(2) : null;
     const marketCapCalc = currentPrice && sharesForCalc ? currentPrice * sharesForCalc : null;
     const marketCapFinnhub = fhProfile?.marketCapitalization ? fhProfile.marketCapitalization * 1e6 : null;
-    const marketCapFinal = marketCapCalc || marketCapFinnhub;
+    const marketCapFinal = marketCapFinnhub || marketCapCalc;
 
     const epsHistory = niHistory.map((ni, i) => {
       const sh = sharesHistory[i];

@@ -13,7 +13,7 @@ export async function GET() {
     const data = await res.json();
     const earnings = (data.earningsCalendar || [])
       .filter(e => e.symbol && e.date)
-      .slice(0, 20)
+      .slice(0, 10)
       .map(e => ({
         ticker: e.symbol,
         date: e.date,

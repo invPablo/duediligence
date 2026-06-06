@@ -5,6 +5,7 @@ import PriceChart from './chart';
 import StockChart from '../../components/StockChart';
 import Sparkline from '../../components/Sparkline';
 import SparklineHeader from '../../components/SparklineHeader';
+import Topbar from '../../components/Topbar';
 
 const fmt = (val) => {
   if (val === null || val === undefined) return 'N/A';
@@ -33,11 +34,11 @@ const S = {
 };
 
 const NAV = [
-  { key: 'overview', label: 'OVERVIEW' },
-  { key: 'quality', label: 'QUALITY' },
-  { key: 'financials', label: 'FINANCIALS' },
-  { key: 'dcf', label: 'DCF' },
-];
+    { key: 'overview', label: 'OVERVIEW' },
+    { key: 'quality', label: 'QUALITY' },
+    { key: 'financials', label: 'FINANCIALS', pro: true },
+    { key: 'dcf', label: 'DCF', pro: true },
+  ];
 
 const QUESTIONS = [
   { dim: 'Management', text: 'Has management consistently met quarterly guidance?' },
@@ -107,6 +108,8 @@ export default function StockPage({ params }) {
   const [finTab, setFinTab] = useState('income');
   const [evidence, setEvidence] = useState({});
 const [sparklineData, setSparklineData] = useState(null);
+const [usage, setUsage] = useState(null);
+const [usageLimited, setUsageLimited] = useState(false);
 
   useEffect(() => {
     fetch(`/api/stock?ticker=${ticker}`)
@@ -118,6 +121,14 @@ const [sparklineData, setSparklineData] = useState(null);
     fetch(`/api/sparkline?ticker=${ticker}`)
       .then(r => r.json())
       .then(d => setSparklineData(d.candles || null))
+      .catch(() => {});
+
+    fetch('/api/usage', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        setUsage(d);
+        if (d.count > d.limit) setUsageLimited(true);
+      })
       .catch(() => {});
   }, [ticker]);
 
@@ -168,12 +179,17 @@ const [sparklineData, setSparklineData] = useState(null);
       {/* Topbar */}
       <div style={S.topbar}>
         <a href="/" style={{ textDecoration: 'none' }}>
-  <img src="/logo.png" alt="Traqcker" style={{ height: '20px', objectFit: 'contain' }} />
-</a>
-        <span style={{ color: 'var(--border-2)' }}>/</span>
-        <a href="/" style={{ color: 'var(--text-3)', textDecoration: 'none' }}>HOME</a>
-        <span style={{ color: 'var(--border-2)' }}>/</span>
-        <span style={{ color: 'var(--text)' }}>{ticker}</span>
+          <img src="/logo.png" alt="Traqcker" style={{ height: '20px', objectFit: 'contain' }} />
+        </a>
+        <span style={{ color: 'var(--border-2)' }}>|</span>
+        <a href="/screener" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
+          onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+          onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>SCREENER</a>
+        <a href="/compare" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
+          onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+          onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>COMPARE</a>
+        <span style={{ color: 'var(--border-2)' }}>·</span>
+        <span style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '1px' }}>{ticker}</span>
         <div style={{ flex: 1 }}>
           <form onSubmit={e => { e.preventDefault(); const t = e.target.search.value.toUpperCase().trim(); if (t) window.location.href = `/stock/${t}`; }}>
             <input name="search" style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', padding: '4px 10px', width: '220px', outline: 'none', letterSpacing: '1px' }} placeholder="SEARCH TICKER..." />
@@ -186,7 +202,14 @@ const [sparklineData, setSparklineData] = useState(null);
         <div style={S.sidebar}>
           <div style={{ padding: '0 16px', marginBottom: '12px', color: 'var(--text-3)', fontSize: '9px', letterSpacing: '2px' }}>ANALYSIS</div>
           {NAV.map(n => (
-            <button key={n.key} style={S.navItem(tab === n.key)} onClick={() => setTab(n.key)}>{n.label}</button>
+            <button key={n.key}
+              style={{ ...S.navItem(tab === n.key), opacity: n.pro && usageLimited ? 0.4 : 1 }}
+              onClick={() => {
+                if (n.pro && usageLimited) return;
+                setTab(n.key);
+              }}>
+              {n.label}{n.pro && usageLimited ? ' 🔒' : ''}
+            </button>
           ))}
           {score !== null && (
             <div style={{ margin: '24px 16px 0', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
@@ -198,15 +221,26 @@ const [sparklineData, setSparklineData] = useState(null);
 
         {/* Main content */}
         <div style={S.content}>
+          {usageLimited && (
+            <div style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent)', padding: '12px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 600, letterSpacing: '1px' }}>FREE LIMIT REACHED</span>
+                <span style={{ color: 'var(--text-2)', fontSize: '11px', marginLeft: '12px' }}>You've used {usage?.count}/{usage?.limit} free analyses today. Upgrade to Pro for unlimited access.</span>
+              </div>
+              <button style={{ background: 'var(--accent)', color: '#000', border: 'none', padding: '6px 16px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px' }}>
+                UPGRADE →
+              </button>
+            </div>
+          )}
 
           {/* Company header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border)', gap: '24px' }}>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexShrink: 0 }}>
-              <div style={{ width: '48px', height: '48px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+              <div style={{ width: '80px', height: '80px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                 <img
                   src={`https://img.logo.dev/${data.name.toLowerCase().replace(/\binc\b|\bcorp\b|\bltd\b|\bplc\b|\bco\b|\bllc\b|\bgroup\b|\bholdings\b|\binternational\b|\bthe\b/g, '').trim().split(/\s+/)[0].replace(/[^a-z0-9]/g, '')}.com?token=pk_B4aaLZF6S4G1YbCgqZq2Ug`}
                   alt={data.name}
-                  style={{ width: '32px', height: '32px', objectFit: 'contain' }}
+                  style={{ width: '60px', height: '60px', objectFit: 'contain' }}
                   onError={e => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span style="color:var(--accent);font-weight:600;font-size:14px">${ticker.slice(0,2)}</span>`; e.target.parentElement.style.background = 'var(--bg-2)'; }}
                 />
               </div>

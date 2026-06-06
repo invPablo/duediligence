@@ -82,13 +82,18 @@ const PAGE_SIZE = 50;
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace' }}>
+
       {/* Topbar */}
       <div style={{ borderBottom: '1px solid var(--border)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10, fontSize: '11px' }}>
         <a href="/" style={{ textDecoration: 'none' }}>
   <img src="/logo.png" alt="Traqcker" style={{ height: '20px', objectFit: 'contain' }} />
 </a>
-        <span style={{ color: 'var(--border-2)' }}>/</span>
-        <span style={{ color: 'var(--text)' }}>SCREENER</span>
+        <span style={{ color: 'var(--border-2)' }}>|</span>
+        <a href="/screener" style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}>SCREENER</a>
+        <span style={{ color: 'var(--border-2)' }}>·</span>
+        <a href="/compare" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
+          onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+          onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>COMPARE</a>
         <div style={{ flex: 1 }}>
           <input
             style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', padding: '4px 10px', width: '220px', outline: 'none', letterSpacing: '1px' }}

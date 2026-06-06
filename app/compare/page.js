@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Sparkline from '../components/Sparkline';
+import Topbar from '../components/Topbar';
 
 const fmt = (val) => {
   if (val === null || val === undefined) return '—';
@@ -141,16 +142,7 @@ export default function Compare() {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace' }}>
 
-      {/* Topbar */}
-      <div style={{ borderBottom: '1px solid var(--border)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10, fontSize: '11px' }}>
-        <a href="/" style={{ textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Traqcker" style={{ height: '20px', objectFit: 'contain' }} />
-        </a>
-        <span style={{ color: 'var(--border-2)' }}>/</span>
-        <a href="/" style={{ color: 'var(--text-3)', textDecoration: 'none' }}>HOME</a>
-        <span style={{ color: 'var(--border-2)' }}>/</span>
-        <span style={{ color: 'var(--text)' }}>COMPARE</span>
-      </div>
+      <Topbar />
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
 
