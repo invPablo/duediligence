@@ -1053,8 +1053,8 @@ export default function StockPage({ params }) {
                     <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '20px', marginBottom: '24px' }}>
                       <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '32px' }}>PRICE VS INTRINSIC VALUE RANGE</div>
                       {(() => {
-                        const gCons = Math.max(0, Math.min(data.revGrowth !== null ? data.revGrowth * 0.5 : 3, 25));
-                        const gOpt = Math.max(0, Math.min(data.revGrowth !== null ? data.revGrowth * 1.5 : 12, 25));
+                        const gCons = Math.max(0, Math.min(data.epsCagr !== null ? data.epsCagr * 0.5 : 3, 15));
+const gOpt = Math.max(0, Math.min(data.epsCagr !== null ? data.epsCagr * 1.5 : 12, 25));
                         const low = +(data.eps * (8.5 + 2 * gCons)).toFixed(2);
                         const high = +(data.eps * (8.5 + 2 * gOpt)).toFixed(2);
                         const rangeMin = Math.min(low, high, price) * 0.9;
