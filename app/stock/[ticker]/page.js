@@ -136,11 +136,13 @@ export default function StockPage({ params }) {
       })
       .catch(() => {});
 
-    fetch('/api/subscription')
-      .then(r => r.json())
-      .then(d => setIsPro(d.isPro))
-      .catch(() => {});
-  }, [ticker]);
+    if (isSignedIn) {
+      fetch('/api/subscription')
+        .then(r => r.json())
+        .then(d => setIsPro(d.isPro))
+        .catch(() => {});
+    }
+  }, [ticker, isSignedIn]);
 
   fetch('/api/watchlist')
       .then(r => r.json())

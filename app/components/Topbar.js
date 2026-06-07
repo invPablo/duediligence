@@ -35,8 +35,6 @@ export default function Topbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <>
       <div style={{ borderBottom: '1px solid var(--border)', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10 }}>
@@ -52,7 +50,6 @@ export default function Topbar() {
           {navItem('/pricing', 'PRICING')}
           {navItem('/watchlist', 'WATCHLIST')}
           {navItem('/about', 'ABOUT')}
-          <span style={{ color: 'var(--text-3)', fontSize: '11px' }}>{new Date().toISOString().slice(0, 10)}</span>
           {useUser().isSignedIn ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ProBadge />
@@ -72,18 +69,6 @@ export default function Topbar() {
 
         {/* Mobile menu button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {useUser().isSignedIn ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ProBadge />
-              <UserButton afterSignOutUrl="/" />
-            </div>
-          ) : (
-            <SignInButton mode="modal">
-              <button style={{ background: 'var(--accent)', color: '#000', border: 'none', padding: '4px 12px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px' }}>
-                SIGN IN
-              </button>
-            </SignInButton>
-          )}
           <button className="mobile-menu-btn"
             onClick={() => setMenuOpen(!menuOpen)}
             style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text)', padding: '4px 8px', cursor: 'pointer', fontFamily: 'IBM Plex Mono, monospace', fontSize: '16px' }}>
