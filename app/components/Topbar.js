@@ -61,6 +61,36 @@ export default function Topbar() {
 
         {/* Desktop nav */}
         <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {/* Search */}
+          <div style={{ position: 'relative' }}>
+            <div style={{ display: 'flex', gap: '0' }}>
+              <input
+                value={searchQ}
+                onChange={e => { setSearchQ(e.target.value.toUpperCase()); setShowSuggestions(true); }}
+                onKeyDown={e => { if (e.key === 'Enter' && searchQ) { router.push(`/stock/${searchQ}`); setSearchQ(''); setShowSuggestions(false); } if (e.key === 'Escape') setShowSuggestions(false); }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onFocus={() => searchQ && setShowSuggestions(true)}
+                style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', padding: '4px 10px', width: '160px', outline: 'none', letterSpacing: '1px' }}
+                placeholder="SEARCH TICKER..."
+              />
+            </div>
+            {showSuggestions && suggestions.length > 0 && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, background: 'var(--bg-1)', border: '1px solid var(--border)', minWidth: '280px', zIndex: 100, marginTop: '2px' }}>
+                {suggestions.map(s => (
+                  <div key={s.ticker}
+                    onMouseDown={() => { router.push(`/stock/${s.ticker}`); setSearchQ(''); setShowSuggestions(false); }}
+                    style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <span style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 700, width: 52, flexShrink: 0 }}>{s.ticker}</span>
+                    <span style={{ color: 'var(--text-2)', fontSize: '11px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
+                    <span style={{ color: 'var(--text-3)', fontSize: '9px', flexShrink: 0 }}>{s.exchange}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {navItem('/', 'HOME')}
           {navItem('/screener', 'SCREENER')}
           {navItem('/compare', 'COMPARE')}
