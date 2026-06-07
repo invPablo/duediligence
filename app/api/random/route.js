@@ -4,7 +4,14 @@ export async function GET() {
   try {
     const res = await fetch(`https://finnhub.io/api/v1/stock/symbol?exchange=US&token=${FH_KEY}`);
     const data = await res.json();
-    const tickers = data.filter(s => s.type === 'Common Stock' && s.symbol && !s.symbol.includes('.')).map(s => s.symbol);
+    const tickers = data.filter(s =>
+      s.type === 'Common Stock' &&
+      s.symbol &&
+      !s.symbol.includes('.') &&
+      !s.symbol.includes('-') &&
+      s.symbol.length <= 5 &&
+      s.mic === 'XNYS' || s.mic === 'XNAS'
+    ).map(s => s.symbol);
     const random = tickers[Math.floor(Math.random() * tickers.length)];
     return Response.json({ ticker: random });
   } catch (e) {
