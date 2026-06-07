@@ -34,6 +34,7 @@ export default function Topbar() {
   };
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isSignedIn } = useUser();
 
   return (
     <>
@@ -50,7 +51,7 @@ export default function Topbar() {
           {navItem('/pricing', 'PRICING')}
           {navItem('/watchlist', 'WATCHLIST')}
           {navItem('/about', 'ABOUT')}
-          {useUser().isSignedIn ? (
+          {isSignedIn ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ProBadge />
               <UserButton afterSignOutUrl="/" />
@@ -90,7 +91,7 @@ export default function Topbar() {
               </a>
             );
           })}
-          {!useUser().isSignedIn ? (
+          {!isSignedIn ? (
             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
               <SignInButton mode="modal">
                 <button style={{ width: '100%', background: 'var(--accent)', color: '#000', border: 'none', padding: '8px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px' }}>
