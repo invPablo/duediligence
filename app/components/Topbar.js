@@ -91,7 +91,15 @@ export default function Topbar() {
             )}
           </div>
 
-          {navItem('/', 'HOME')}
+          <button onClick={async () => {
+  const res = await fetch('/api/random');
+  const { ticker } = await res.json();
+  window.location.href = `/stock/${ticker}`;
+}} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-3)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', padding: '4px 10px', cursor: 'pointer', letterSpacing: '1px' }}
+  onMouseEnter={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.color = 'var(--accent)'; }}
+  onMouseLeave={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.color = 'var(--text-3)'; }}>
+  ⚡ DISCOVER
+</button>
           {navItem('/screener', 'SCREENER')}
           {navItem('/compare', 'COMPARE')}
           {navItem('/pricing', 'PRICING')}
