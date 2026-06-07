@@ -176,7 +176,17 @@ export async function GET(request) {
 
     const latest = (arr) => arr?.[0]?.val ?? null;
     const prev   = (arr) => arr?.[1]?.val ?? null;
-    const buildHistory = (arr) => arr?.slice(0, 6).reverse().map(r => ({ year: r.end.slice(0, 4), val: r.val })) || [];
+    const buildHistory = (arr) => {
+  if (!arr) return [];
+  const seen = new Set();
+  const deduped = arr.filter(r => {
+    const y = r.end.slice(0, 4);
+    if (seen.has(y)) return false;
+    seen.add(y);
+    return true;
+  });
+  return deduped.slice(0, 6).reverse().map(r => ({ year: r.end.slice(0, 4), val: r.val }));
+};
 
     const revVal   = latest(revenues);
     const revPrev  = prev(revenues);
