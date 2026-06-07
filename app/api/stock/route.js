@@ -306,14 +306,15 @@ const sharesForCalc = sharesValAdj || sharesFinnhub;
       : revGrowth !== null && revGrowth > 0 ? Math.min(revGrowth, 20) : null;
 
       // Finnhub fallback para campos vacíos de SEC EDGAR
-    const grossMarginFinal = grossMargin ?? (fhBasic?.metric?.grossMarginTTM || null);
-    const opMarginFinal = opMargin ?? (fhBasic?.metric?.operatingMarginTTM || null);
-    const netMarginFinal = netMargin ?? (fhBasic?.metric?.netProfitMarginTTM || null);
-    const roeFinal = roe ?? (fhBasic?.metric?.roeTTM ? +(fhBasic.metric.roeTTM * 100).toFixed(1) : null);
-    const roaFinal = roa ?? (fhBasic?.metric?.roaTTM ? +(fhBasic.metric.roaTTM * 100).toFixed(1) : null);
-    const roicFinal = roic ?? (fhBasic?.metric?.roicTTM ? +(fhBasic.metric.roicTTM * 100).toFixed(1) : null);
-    const revGrowthFinal = revGrowth ?? (fhBasic?.metric?.revenueGrowthTTMYoy ? +(fhBasic.metric.revenueGrowthTTMYoy * 100).toFixed(1) : null);
-    const debtToEquityFinal = debtToEquity ?? (fhBasic?.metric?.totalDebt_totalEquityAnnual || null);
+    const fhm = fhBasic?.metric || {};
+    const grossMarginFinal = grossMargin ?? (fhm.grossMarginTTM != null ? fhm.grossMarginTTM : null);
+    const opMarginFinal = opMargin ?? (fhm.operatingMarginTTM != null ? fhm.operatingMarginTTM : null);
+    const netMarginFinal = netMargin ?? (fhm.netProfitMarginTTM != null ? fhm.netProfitMarginTTM : null);
+    const roeFinal = roe ?? (fhm.roeTTM != null ? +(fhm.roeTTM * 100).toFixed(1) : null);
+    const roaFinal = roa ?? (fhm.roaTTM != null ? +(fhm.roaTTM * 100).toFixed(1) : null);
+    const roicFinal = roic ?? (fhm.roicTTM != null ? +(fhm.roicTTM * 100).toFixed(1) : null);
+    const revGrowthFinal = revGrowth ?? (fhm.revenueGrowthTTMYoy != null ? +(fhm.revenueGrowthTTMYoy * 100).toFixed(1) : null);
+    const debtToEquityFinal = debtToEquity ?? (fhm.totalDebt_totalEquityAnnual != null ? fhm.totalDebt_totalEquityAnnual : null);
 
     const result = {
       name: company.title,
