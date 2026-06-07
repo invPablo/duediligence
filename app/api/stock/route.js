@@ -366,6 +366,7 @@ const sharesForCalc = sharesValAdj || sharesFinnhub;
       high52, low52, beta,
       sharesOutstanding: sharesForCalc,
       dividendYield: fhBasic?.metric?.dividendYieldIndicatedAnnual || null,
+      netDebt,
       analystTarget: null,
       operatingCFVal: fcfVal,
       finnhubFallback: false,
