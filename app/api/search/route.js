@@ -9,19 +9,20 @@ export async function GET(request) {
   try {
     const { data } = await supabase
       .from('stock_cache')
-      .select('ticker, data->name, data->sector, data->exchange')
-      .or(`ticker.ilike.${q}%,data->name.ilike.%${q}%`)
+      .select('ticker, data')
+      .or(`ticker.ilike.${q}%,data->>name.ilike.%${q}%`)
       .limit(8);
 
     const results = (data || []).map(r => ({
       ticker: r.ticker,
-      name: r.name,
-      sector: r.sector,
-      exchange: r.exchange,
+      name: r.data?.name,
+      sector: r.data?.sector,
+      exchange: r.data?.exchange,
     }));
 
     return Response.json({ results });
   } catch (e) {
+    console.error(e);
     return Response.json({ results: [] });
   }
 }
