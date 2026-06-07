@@ -213,12 +213,21 @@ export default function StockPage({ params }) {
           <img src="/logo.png" alt="Traqcker" style={{ height: '20px', objectFit: 'contain' }} />
         </a>
         <span style={{ color: 'var(--border-2)' }}>|</span>
+        <a href="/" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
+          onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+          onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>HOME</a>
         <a href="/screener" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
           onMouseEnter={e => e.target.style.color = 'var(--accent)'}
           onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>SCREENER</a>
         <a href="/compare" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
           onMouseEnter={e => e.target.style.color = 'var(--accent)'}
           onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>COMPARE</a>
+        <a href="/pricing" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
+          onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+          onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>PRICING</a>
+        <a href="/watchlist" style={{ color: 'var(--text-3)', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}
+          onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+          onMouseLeave={e => e.target.style.color = 'var(--text-3)'}>WATCHLIST</a>
         <span style={{ color: 'var(--border-2)' }}>·</span>
         <span style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '1px' }}>{ticker}</span>
         <div style={{ flex: 1 }}>

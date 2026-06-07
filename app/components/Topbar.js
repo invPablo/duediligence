@@ -33,40 +33,80 @@ export default function Topbar() {
     );
   };
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <div style={{ borderBottom: '1px solid var(--border)', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <>
+      <div style={{ borderBottom: '1px solid var(--border)', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10 }}>
         <a href="/" style={{ textDecoration: 'none' }}>
           <img src="/logo.png" alt="Traqcker" style={{ height: '20px', objectFit: 'contain' }} />
         </a>
-        <span style={{ color: 'var(--border-2)' }}>|</span>
-        <span style={{ color: 'var(--text-3)', fontSize: '11px' }}>FUNDAMENTAL ANALYSIS SYSTEM v1.0</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        {navItem('/', 'HOME')}
-        {navItem('/screener', 'SCREENER')}
-        {navItem('/compare', 'COMPARE')}
-        {navItem('/pricing', 'PRICING')}
-        {navItem('/watchlist', 'WATCHLIST')}
-        {navItem('/about', 'ABOUT')}
-        {useUser().isSignedIn ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ProBadge />
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', borderRight: '1px solid var(--border)', paddingRight: '12px' }}>
-              🔒 SIGN IN TO SEE FULL DATA
-            </span>
+
+        {/* Desktop nav */}
+        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {navItem('/', 'HOME')}
+          {navItem('/screener', 'SCREENER')}
+          {navItem('/compare', 'COMPARE')}
+          {navItem('/pricing', 'PRICING')}
+          {navItem('/watchlist', 'WATCHLIST')}
+          {navItem('/about', 'ABOUT')}
+          <span style={{ color: 'var(--text-3)', fontSize: '11px' }}>{new Date().toISOString().slice(0, 10)}</span>
+          {useUser().isSignedIn ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ProBadge />
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', borderRight: '1px solid var(--border)', paddingRight: '12px' }}>🔒 SIGN IN TO SEE FULL DATA</span>
+              <SignInButton mode="modal">
+                <button style={{ background: 'var(--accent)', color: '#000', border: 'none', padding: '4px 12px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px' }}>
+                  SIGN IN
+                </button>
+              </SignInButton>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile menu button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {useUser().isSignedIn ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ProBadge />
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          ) : (
             <SignInButton mode="modal">
               <button style={{ background: 'var(--accent)', color: '#000', border: 'none', padding: '4px 12px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px' }}>
                 SIGN IN
               </button>
             </SignInButton>
-          </div>
-        )}
+          )}
+          <button className="mobile-menu-btn"
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text)', padding: '4px 8px', cursor: 'pointer', fontFamily: 'IBM Plex Mono, monospace', fontSize: '16px' }}>
+            {menuOpen ? '✕' : '☰'}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile dropdown menu */}
+      {menuOpen && (
+        <div className="mobile-menu" style={{ display: 'flex', flexDirection: 'column', background: 'var(--bg-1)', borderBottom: '1px solid var(--border)', position: 'sticky', top: '41px', zIndex: 9 }}>
+          {['/', '/screener', '/compare', '/pricing', '/watchlist', '/about'].map((href, i) => {
+            const labels = ['HOME', 'SCREENER', 'COMPARE', 'PRICING', 'WATCHLIST', 'ABOUT'];
+            const active = path === href || path.startsWith(href + '/');
+            return (
+              <a key={href} href={href} onClick={() => setMenuOpen(false)}
+                style={{ padding: '12px 16px', color: active ? 'var(--accent)' : 'var(--text-3)', textDecoration: 'none', fontSize: '12px', letterSpacing: '1px', borderBottom: '1px solid var(--border)' }}>
+                {labels[i]}
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
