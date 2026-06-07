@@ -94,7 +94,8 @@ export async function GET(request) {
         taxHistory: [], sharesBasicHistory: [], sharesDilutedHistory: [],
         capexHistory: [], operatingCFHistory: [], investingCFHistory: [], financingCFHistory: [],
         epsCagr: null, epsHistory: [],
-        analystTarget: null,
+        netDebt,
+      analystTarget: null,
         finnhubFallback: true,
       };
 
