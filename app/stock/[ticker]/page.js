@@ -1049,41 +1049,7 @@ export default function StockPage({ params }) {
                     })}
                   </div>
 
-                  {price && (
-                    <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '20px', marginBottom: '24px' }}>
-                      <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '32px' }}>PRICE VS INTRINSIC VALUE RANGE</div>
-                      {(() => {
-                        const gCons = Math.max(0, Math.min(data.epsCagr !== null ? data.epsCagr * 0.5 : 3, 15));
-const gOpt = Math.max(0, Math.min(data.epsCagr !== null ? data.epsCagr * 1.5 : 12, 25));
-                        const low = +(data.eps * (8.5 + 2 * gCons)).toFixed(2);
-                        const high = +(data.eps * (8.5 + 2 * gOpt)).toFixed(2);
-                        const rangeMin = Math.min(low, high, price) * 0.9;
-                        const rangeMax = Math.max(low, high, price) * 1.1;
-                        const pct = v => ((v - rangeMin) / (rangeMax - rangeMin)) * 100;
-                        return (
-                          <div style={{ position: 'relative', height: '48px' }}>
-                            <div style={{ position: 'absolute', top: '18px', left: `${Math.min(pct(low), pct(high))}%`, width: `${Math.abs(pct(high) - pct(low))}%`, height: '12px', background: 'var(--accent)', opacity: 0.25 }}></div>
-                            {[
-                              { val: low, label: `$${low}`, color: 'var(--green)', top: true },
-                              { val: high, label: `$${high}`, color: 'var(--green)', top: true },
-                              { val: price, label: `$${price.toFixed(2)}`, color: 'var(--text)', top: false },
-                            ].map((m, i) => (
-                              <div key={i} style={{ position: 'absolute', left: `${pct(m.val)}%`, transform: 'translateX(-50%)', top: 0 }}>
-                                {m.top && <div style={{ color: m.color, fontSize: '10px', whiteSpace: 'nowrap', textAlign: 'center', marginBottom: '4px' }}>{m.label}</div>}
-                                <div style={{ width: '1px', height: m.top ? '24px' : '48px', background: m.color, margin: '0 auto', marginTop: m.top ? '0' : '-48px' }}></div>
-                                {!m.top && <div style={{ color: m.color, fontSize: '10px', whiteSpace: 'nowrap', textAlign: 'center', marginTop: '2px' }}>{m.label}</div>}
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      })()}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-3)', fontSize: '10px', marginTop: '8px' }}>
-                        <span>CONSERVATIVE</span>
-                        <span>CURRENT PRICE</span>
-                        <span>OPTIMISTIC</span>
-                      </div>
-                    </div>
-                  )}
+                  
 
                   <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>
                     GRAHAM FORMULA (1962) · EPS FROM ALPHA VANTAGE · GROWTH FROM SEC EDGAR · NOT INVESTMENT ADVICE
