@@ -278,6 +278,11 @@ export default function StockPage({ params }) {
                     style={{ background: 'none', border: `1px solid ${inWatchlist ? 'var(--accent)' : 'var(--border)'}`, color: inWatchlist ? 'var(--accent)' : 'var(--text-3)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', padding: '2px 10px', cursor: 'pointer', letterSpacing: '1px' }}>
                     {inWatchlist ? '★ WATCHLIST' : '☆ WATCHLIST'}
                   </button>
+                  <button onClick={() => { window.location.href = `/stock/${ticker}?refresh=true`; }}
+                    style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-3)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', padding: '2px 10px', cursor: 'pointer', letterSpacing: '1px' }}
+                    title="Refresh data">
+                    ↻ REFRESH
+                  </button>
                 </div>
               </div>
             </div>

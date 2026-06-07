@@ -18,7 +18,8 @@ export async function GET(request) {
       .eq('ticker', ticker)
       .single();
 
-    if (cached) {
+    const forceRefresh = searchParams.get('refresh') === 'true';
+    if (cached && !forceRefresh) {
       const hoursOld = (Date.now() - new Date(cached.updated_at).getTime()) / (1000 * 60 * 60);
       if (hoursOld < CACHE_HOURS) {
         return Response.json({ ...cached.data, cached: true });
