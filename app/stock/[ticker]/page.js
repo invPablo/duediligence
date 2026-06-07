@@ -109,8 +109,6 @@ export default function StockPage({ params }) {
   const [finTab, setFinTab] = useState('income');
   const [evidence, setEvidence] = useState({});
   const [sparklineData, setSparklineData] = useState(null);
-  const [usage, setUsage] = useState(null);
-  const [usageLimited, setUsageLimited] = useState(false);
   const [isPro, setIsPro] = useState(false);
   const [checkingPro, setCheckingPro] = useState(true);
   console.log('RENDER isPro:', isPro, 'checkingPro:', checkingPro);
@@ -144,38 +142,12 @@ export default function StockPage({ params }) {
         .then(d => {
           setIsPro(d.isPro);
           setCheckingPro(false);
-          if (!d.isPro) {
-            fetch('/api/usage', { method: 'POST' })
-              .then(r => r.json())
-              .then(u => {
-                setUsage(u);
-                if (u.limited) setUsageLimited(true);
-              })
-              .catch(() => {});
-          }
         })
-        .catch(() => {});
+        .catch(() => setCheckingPro(false));
     } else {
       setCheckingPro(false);
-      fetch('/api/usage', { method: 'POST' })
-        .then(r => r.json())
-        .then(d => {
-          setUsage(d);
-          if (d.limited) setUsageLimited(true);
-        })
-        .catch(() => {});
     }
   }, [ticker, isSignedIn]);
-
-  fetch('/api/watchlist')
-      .then(r => r.json())
-      .then(d => {
-        const tickers = d.tickers?.map(t => t.ticker) || [];
-        setInWatchlist(tickers.includes(ticker));
-      })
-      .catch(() => {});
-
-  
 
   const getDimScore = (dim) => {
     const indices = QUESTIONS.map((q, i) => q.dim === dim ? i : -1).filter(i => i >= 0);
@@ -249,12 +221,9 @@ export default function StockPage({ params }) {
           <div style={{ padding: '0 16px', marginBottom: '12px', color: 'var(--text-3)', fontSize: '9px', letterSpacing: '2px' }}>ANALYSIS</div>
           {NAV.map(n => (
             <button key={n.key}
-              style={{ ...S.navItem(tab === n.key), opacity: n.pro && usageLimited ? 0.4 : 1 }}
-              onClick={() => {
-                if (n.pro && usageLimited) return;
-                setTab(n.key);
-              }}>
-              {n.label}{n.pro && usageLimited ? ' 🔒' : ''}
+              style={{ ...S.navItem(tab === n.key) }}
+              onClick={() => setTab(n.key)}>
+              {n.label}{n.pro && !isPro && !checkingPro ? ' 🔒' : ''}
             </button>
           ))}
           {score !== null && (
@@ -267,17 +236,6 @@ export default function StockPage({ params }) {
 
         {/* Main content */}
         <div style={S.content}>
-          {usageLimited && !isPro && !checkingPro && (
-            <div style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent)', padding: '12px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <span style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 600, letterSpacing: '1px' }}>FREE LIMIT REACHED</span>
-                <span style={{ color: 'var(--text-2)', fontSize: '11px', marginLeft: '12px' }}>You've used {usage?.count}/{usage?.limit} free analyses today. Upgrade to Pro for unlimited access.</span>
-              </div>
-              <button style={{ background: 'var(--accent)', color: '#000', border: 'none', padding: '6px 16px', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px' }}>
-                UPGRADE →
-              </button>
-            </div>
-          )}
 
           {/* Company header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border)', gap: '24px' }}>
