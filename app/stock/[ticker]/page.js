@@ -361,11 +361,22 @@ export default function StockPage({ params }) {
 </div>
           </div>
 
-          {data.description && (
-            <div style={{ color: 'var(--text-3)', fontSize: '11px', lineHeight: 1.7, marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
-              {data.description.slice(0, 400)}...
-            </div>
-          )}
+          {data.description && (() => {
+            const [expanded, setExpanded] = useState(false);
+            const short = data.description.slice(0, 200);
+            const full = data.description;
+            return (
+              <div style={{ color: 'var(--text-3)', fontSize: '11px', lineHeight: 1.7, marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+                {expanded ? full : `${short}...`}
+                {data.description.length > 200 && (
+                  <span onClick={() => setExpanded(!expanded)}
+                    style={{ color: 'var(--accent)', cursor: 'pointer', marginLeft: '6px', letterSpacing: '0.5px' }}>
+                    {expanded ? 'COLLAPSE ↑' : 'READ MORE ↓'}
+                  </span>
+                )}
+              </div>
+            );
+          })()}
 
           {/* OVERVIEW TAB */}
           {tab === 'overview' && (
