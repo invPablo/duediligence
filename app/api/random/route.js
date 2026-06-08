@@ -10,7 +10,7 @@ export async function GET() {
       !s.symbol.includes('.') &&
       !s.symbol.includes('-') &&
       s.symbol.length <= 5 &&
-      s.mic === 'XNYS' || s.mic === 'XNAS'
+      (s.mic === 'XNYS' || s.mic === 'XNAS')
     ).map(s => s.symbol);
     const random = tickers[Math.floor(Math.random() * tickers.length)];
     return Response.json({ ticker: random });
