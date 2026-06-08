@@ -389,12 +389,6 @@ const sharesForCalc = sharesValAdj || sharesFinnhub;
     const dataQuality = [revVal, niVal, oiVal, fcfVal, assetsVal, equityVal, debtVal, cashVal].filter(v => v !== null).length;
     if (dataQuality < 3) result.finnhubFallback = true;
 
-    try {
-      await supabase
-        .from('stock_cache')
-        .upsert({ ticker, data: result, updated_at: new Date().toISOString() });
-    } catch (e) {}
-
     // Wikipedia description
     try {
       const searchName = fhProfile?.name || company.title;
@@ -406,6 +400,14 @@ const sharesForCalc = sharesValAdj || sharesFinnhub;
     } catch (e) {}
 
     return Response.json(result);
+
+    try {
+      await supabase
+        .from('stock_cache')
+        .upsert({ ticker, data: result, updated_at: new Date().toISOString() });
+    } catch (e) {}
+
+    
 
   } catch (e) {
     console.error(e);
