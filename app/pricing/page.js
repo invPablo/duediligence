@@ -76,7 +76,7 @@ export default function Pricing() {
               ))}
             </div>
             <button disabled style={{ width: '100%', padding: '10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-3)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', letterSpacing: '1px', cursor: 'default' }}>
-              CURRENT PLAN
+              FREE PLAN
             </button>
           </div>
 
