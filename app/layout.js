@@ -2,6 +2,7 @@ import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs';
 import CookieBanner from './components/CookieBanner';
 import WatchlistWidget from './components/WatchlistWidget';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: "Traqcker — Fundamental Stock Analysis",
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
           {children}
           <WatchlistWidget />
           <CookieBanner />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
