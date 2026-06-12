@@ -302,7 +302,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Stock of the Week - DESKTOP ONLY - after ticker tape */}
+      {/* Stock of the Week - after ticker, inside desktop block */}
       {sotw && (
         <div style={{ padding: '0 24px', marginBottom: '24px', maxWidth: '1400px', margin: '0 auto' }}>
           <div onClick={() => router.push(`/stock/${sotw}`)} style={{ background: 'linear-gradient(135deg, var(--accent-dim), transparent)', border: '1.5px solid var(--accent)', borderRadius: '20px', padding: '24px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.transform = 'scale(1.01)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.transform = 'scale(1)'; }}>
