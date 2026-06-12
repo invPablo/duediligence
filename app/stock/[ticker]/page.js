@@ -118,6 +118,7 @@ export default function StockPage({ params }) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [userVote, setUserVote] = useState(null);
   const [expanded, setExpanded] = useState(false);
+  const [sotw, setSotw] = useState(null);
   const { isSignedIn } = useUser();
 
 
@@ -163,6 +164,13 @@ export default function StockPage({ params }) {
     } catch {}
   }, [ticker, isSignedIn]);
 
+  // Load stock of the week
+  useEffect(() => {
+    fetch('/api/stock-of-week')
+      .then(r => r.json())
+      .then(d => setSotw(d.ticker))
+      .catch(() => {});
+  }, []);
 
   const getDimScore = (dim) => {
     const indices = QUESTIONS.map((q, i) => q.dim === dim ? i : -1).filter(i => i >= 0);
@@ -459,6 +467,17 @@ export default function StockPage({ params }) {
                   </div>
                   <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '13px', color: 'var(--text-2)' }}>
                     Trading at <b style={{ color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' }}>${price?.toFixed(2)}</b> — our estimate is <b style={{ color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' }}>${fairValue.estimate.toFixed(2)}</b>
+                  </div>
+                </div>
+              )}\n
+
+              {/* Stock of the Week - only if this is this week's pick */}
+              {sotw === ticker && (
+                <div style={{ background: 'linear-gradient(135deg, var(--accent-dim), transparent)', border: '1px solid var(--accent)', borderRadius: '18px', padding: '16px 18px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🔥</div>
+                  <div>
+                    <div style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--accent)', fontWeight: 600, fontSize: '12px', letterSpacing: '0.5px' }}>STOCK OF THE WEEK</div>
+                    <div style={{ color: 'var(--text-2)', fontSize: '12px', marginTop: '2px' }}>{ticker} is this week's community pick.</div>
                   </div>
                 </div>
               )}
