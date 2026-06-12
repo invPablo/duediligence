@@ -86,7 +86,15 @@ export default function Home() {
   const [searchQ, setSearchQ] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [sotw, setSotw] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/stock-of-week')
+      .then(r => r.json())
+      .then(d => setSotw(d.ticker))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (searchQ.length < 1) { setSuggestions([]); return; }
@@ -178,7 +186,7 @@ export default function Home() {
                 STOCK OF THE WEEK
               </div>
               <div style={{ color: 'var(--text-2)', fontSize: '12px', marginTop: '2px' }}>
-                Every week, one stock. Vote Buy, Hold, or Sell — and see what everyone else thinks.
+                {sotw ? `${sotw} is this week's community pick. Vote Buy, Hold, or Sell.` : 'Every week, one stock. Vote Buy, Hold, or Sell — and see what everyone else thinks.'}
               </div>
             </div>
           </div>

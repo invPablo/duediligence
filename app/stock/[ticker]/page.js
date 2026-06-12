@@ -117,6 +117,7 @@ export default function StockPage({ params }) {
   const [checkingPro, setCheckingPro] = useState(true);
   const [inWatchlist, setInWatchlist] = useState(false);
   const [userVote, setUserVote] = useState(null);
+  const [voteConsensus, setVoteConsensus] = useState({ BUY: 0, HOLD: 0, SELL: 0, total: 0 });
   const [expanded, setExpanded] = useState(false);
   const [sotw, setSotw] = useState(null);
   const { isSignedIn } = useUser();
@@ -156,13 +157,16 @@ export default function StockPage({ params }) {
   }, [ticker, isSignedIn]);
 
   // Load persisted vote (per ticker) from localStorage, only when signed in.
+  // Load user vote and consensus from API
   useEffect(() => {
-    if (!isSignedIn || typeof window === 'undefined') return;
-    try {
-      const saved = localStorage.getItem(`vote_${ticker}`);
-      if (saved) setUserVote(saved);
-    } catch {}
-  }, [ticker, isSignedIn]);
+    fetch(`/api/votes?ticker=${ticker}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.userVote) setUserVote(d.userVote);
+        setVoteConsensus({ ...d.percentages, total: d.total });
+      })
+      .catch(() => {});
+  }, [ticker]);
 
   // Load stock of the week
   useEffect(() => {
@@ -412,10 +416,21 @@ export default function StockPage({ params }) {
                     const activeColor = v === 'BUY' ? 'var(--green)' : v === 'SELL' ? 'var(--red)' : 'var(--amber)';
                     const activeDim = v === 'BUY' ? 'var(--green-dim)' : v === 'SELL' ? 'var(--red-dim)' : 'var(--amber-dim)';
                     return (
-                      <button key={v} onClick={() => {
+                      <button key={v} onClick={async () => {
                         if (!isSignedIn) { window.location.href = '/sign-in'; return; }
                         setUserVote(v);
-                        try { localStorage.setItem(`vote_${ticker}`, v); } catch {}
+                        // Save to API
+                        fetch('/api/votes', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ ticker, vote: v }),
+                        }).then(r => r.json()).then(() => {
+                          // Refetch consensus to update percentages
+                          fetch(`/api/votes?ticker=${ticker}`)
+                            .then(r => r.json())
+                            .then(d => setVoteConsensus({ ...d.percentages, total: d.total }))
+                            .catch(() => {});
+                        }).catch(() => {});
                       }}
                         style={{
                           borderRadius: '14px', padding: '14px 8px', textAlign: 'center',
@@ -429,6 +444,23 @@ export default function StockPage({ params }) {
                       </button>
                     );
                   })}
+                </div>
+                <div style={{ marginTop: '16px' }}>
+                  <div style={{ display: 'flex', height: '10px', borderRadius: '6px', overflow: 'hidden' }}>
+                    <div style={{ background: 'var(--green)', width: `${voteConsensus.BUY}%` }} />
+                    <div style={{ background: 'var(--amber)', width: `${voteConsensus.HOLD}%` }} />
+                    <div style={{ background: 'var(--red)', width: `${voteConsensus.SELL}%` }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <span style={{ color: 'var(--green)' }}>● {voteConsensus.BUY}% Buy</span>
+                    <span style={{ color: 'var(--amber)' }}>● {voteConsensus.HOLD}% Hold</span>
+                    <span style={{ color: 'var(--red)' }}>● {voteConsensus.SELL}% Sell</span>
+                  </div>
+                  {voteConsensus.total > 0 && (
+                    <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--text-3)', textAlign: 'center' }}>
+                      {voteConsensus.total} {voteConsensus.total === 1 ? 'person' : 'people'} voted
+                    </div>
+                  )}
                 </div>
               </div>
 
