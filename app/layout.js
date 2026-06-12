@@ -9,7 +9,7 @@ import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: "Traqcker — Fundamental Stock Analysis",
-  description: "Deep fundamental analysis for serious investors. SEC filings, proprietary scoring, Graham DCF.",
+  description: "Easy Mode score and plain-English verdict for any stock. Free access to 260+ companies with SEC data.",
   icons: {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',
