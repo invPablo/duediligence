@@ -257,9 +257,9 @@ export default function StockPage({ params }) {
         <div style={S.content} className="stock-content">
 
           {/* Company header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border)', gap: '24px' }}>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexShrink: 0 }}>
-              <div style={{ width: '80px', height: '80px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+          <div className="stock-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border)', gap: '24px' }}>
+            <div className="stock-header-id" style={{ display: 'flex', gap: '16px', alignItems: 'center', flexShrink: 0 }}>
+              <div className="stock-logo" style={{ width: '80px', height: '80px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                 <img
                   src={`https://img.logo.dev/ticker/${ticker}?token=pk_B4aaLZF6S4G1YbCgqZq2Ug`}
                   alt={data.name}
@@ -302,12 +302,12 @@ export default function StockPage({ params }) {
             </div>
 
            {/* Sparkline central */}
-<div style={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
+<div className="stock-sparkline" style={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
   <SparklineHeader ticker={ticker} />
 </div>
 
            {/* Price block */}
-<div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', flexShrink: 0 }}>
+<div className="stock-price-block" style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', flexShrink: 0 }}>
   {price ? (
     <>
       <div style={{ textAlign: 'right' }}>
