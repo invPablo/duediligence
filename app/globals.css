@@ -114,6 +114,9 @@ html, body {
   .grid-3 {
     grid-template-columns: repeat(1, 1fr) !important;
   }
+  .per-share-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 
   /* Stock page compact header - logo sizing on mobile */
   .stock-logo img {

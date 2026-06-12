@@ -778,60 +778,60 @@ export default function StockPage({ params }) {
 
           {/* FINANCIALS TAB */}
           {tab === 'financials' && !isPro && !checkingPro && (
-            <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+            <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '20px' }}>
               <div style={{ color: 'var(--accent)', fontSize: '13px', letterSpacing: '2px', marginBottom: '12px' }}>🔒 SIGN IN REQUIRED</div>
-              <div style={{ color: 'var(--text-2)', fontSize: '12px', marginBottom: '24px' }}>Create a free account to access Financial Statements.</div>
-              <a href="/sign-in" style={{ background: 'var(--accent)', color: '#000', padding: '10px 24px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textDecoration: 'none' }}>CREATE FREE ACCOUNT →</a>
+              <div style={{ color: 'var(--text-2)', fontSize: '13px', marginBottom: '24px' }}>Create a free account to access Financial Statements.</div>
+              <a href="/sign-in" style={{ display: 'inline-block', background: 'var(--accent)', color: '#0B0E14', padding: '12px 28px', borderRadius: '12px', fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 700, letterSpacing: '0.3px', textDecoration: 'none' }}>Create free account →</a>
             </div>
           )}
           {tab === 'financials' && isPro && (
   <div>
     {/* Fin tabs */}
-    <div style={{ display: 'flex', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
-      {[['income', 'INCOME STATEMENT'], ['balance', 'BALANCE SHEET'], ['cashflow', 'CASH FLOW']].map(([key, label]) => (
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+      {[['income', 'INCOME'], ['balance', 'BALANCE'], ['cashflow', 'CASH FLOW']].map(([key, label]) => (
         <button key={key} onClick={() => setFinTab(key)}
-          style={{ padding: '8px 20px', fontSize: '11px', letterSpacing: '1px', background: finTab === key ? 'var(--accent)' : 'var(--bg-1)', color: finTab === key ? '#000' : 'var(--text-3)', border: 'none', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontWeight: finTab === key ? 600 : 400 }}>
+          style={{ flex: 1, padding: '10px 8px', fontSize: '10px', letterSpacing: '0.5px', borderRadius: '12px', background: finTab === key ? 'var(--accent)' : 'var(--bg-1)', color: finTab === key ? '#0B0E14' : 'var(--text-2)', border: finTab === key ? 'none' : '1px solid var(--border)', cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif', fontWeight: finTab === key ? 700 : 500 }}>
           {label}
         </button>
       ))}
     </div>
 
               {/* Status pills */}
-              <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+              <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '16px' }}>
                 {[
                   { label: 'PROFITABILITY', val: data.grossMargin > 50 ? 'STRONG MARGINS' : data.grossMargin > 30 ? 'SOLID MARGINS' : 'THIN MARGINS', good: data.grossMargin > 40 },
                   { label: 'GROWTH', val: data.revGrowth > 20 ? 'ACCELERATING' : data.revGrowth > 5 ? 'STEADY' : 'SLOW', good: data.revGrowth > 10 },
                   { label: 'CASH FLOW', val: data.fcfVal > 0 ? 'POSITIVE FCF' : 'NEGATIVE FCF', good: data.fcfVal > 0 },
                   { label: 'VALUATION', val: data.pe > 40 ? 'NOT CHEAP' : data.pe > 20 ? 'FAIR VALUE' : data.pe > 0 ? 'ATTRACTIVE' : 'N/A', good: data.pe > 0 && data.pe < 25 },
                 ].map(p => (
-                  <div key={p.label} style={{ background: 'var(--bg-1)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div key={p.label} style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <span style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px' }}>{p.label}</span>
-                    <span style={{ color: !isSignedIn ? 'var(--accent)' : p.good ? 'var(--green)' : p.good === false ? 'var(--red)' : 'var(--accent)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.5px', filter: !isSignedIn ? 'blur(4px)' : 'none', userSelect: !isSignedIn ? 'none' : 'auto' }}>{p.val}</span>
+                    <span style={{ color: !isSignedIn ? 'var(--accent)' : p.good ? 'var(--green)' : p.good === false ? 'var(--red)' : 'var(--accent)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.5px', filter: !isSignedIn ? 'blur(4px)' : 'none', userSelect: !isSignedIn ? 'none' : 'auto' }}>{p.val}</span>
                   </div>
                 ))}
               </div>
 
               {/* Insight boxes */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
                 {[
                   { label: 'WHAT STANDS OUT', color: 'var(--green)', text: data.grossMargin > 50 ? `Gross margin of ${data.grossMargin}% signals strong pricing power. Positive ROIC spread.` : `Revenue grew ${data.revGrowth}% YoY with operating margin of ${data.opMargin}%.` },
                   { label: "WHAT'S CHANGING", color: 'var(--blue)', text: data.revGrowth > 0 ? `Revenue growing at ${data.revGrowth}% YoY. ${data.opMargin > 15 ? 'Operating margins remain solid.' : 'Margins showing expansion.'}` : `Revenue contracting ${data.revGrowth}% YoY. Monitor margin evolution closely.` },
-                  { label: 'WHAT DESERVES CAUTION', color: 'var(--accent)', text: data.pe > 35 ? `P/E of ${data.pe}x leaves limited room for execution misses or growth deceleration.` : data.debtToEquity > 2 ? `Debt/equity of ${data.debtToEquity}x warrants attention in high-rate environment.` : `Monitor margin evolution and free cash flow generation going forward.` },
+                  { label: 'WHAT DESERVES CAUTION', color: 'var(--amber)', text: data.pe > 35 ? `P/E of ${data.pe}x leaves limited room for execution misses or growth deceleration.` : data.debtToEquity > 2 ? `Debt/equity of ${data.debtToEquity}x warrants attention in high-rate environment.` : `Monitor margin evolution and free cash flow generation going forward.` },
                   { label: 'VALUATION CONTEXT', color: '#a855f7', text: data.pe ? `${data.pe}x earnings. ${data.pe > 30 ? 'Quality is already priced in.' : 'Reasonable valuation given the business profile.'} ${data.analystTarget ? `Analyst target: $${data.analystTarget}.` : ''}` : `No P/E available. EV/EBITDA: ${fmtN(data.evEbitda)}x.` },
                 ].map(b => (
-                  <div key={b.label} style={{ background: 'var(--bg-1)', padding: '14px 16px' }}>
-                    <div style={{ color: b.color, fontSize: '10px', letterSpacing: '1.5px', marginBottom: '8px' }}>{b.label}</div>
+                  <div key={b.label} style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '14px 16px' }}>
+                    <div style={{ color: b.color, fontSize: '10px', letterSpacing: '1.5px', marginBottom: '8px', fontWeight: 600 }}>{b.label}</div>
                     <div style={{ color: 'var(--text-2)', fontSize: '12px', lineHeight: 1.6, filter: !isSignedIn ? 'blur(5px)' : 'none', userSelect: !isSignedIn ? 'none' : 'auto' }}>{b.text}</div>
                   </div>
                 ))}
               </div>
 
               {/* Metrics Table */}
-<div style={{ marginBottom: '24px' }}>
-  <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)' }}>
+<div style={{ marginBottom: '16px' }}>
+  <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
 
     {/* VALUATION */}
-    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+    <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px' }}>
       <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>VALUATION</div>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
         <tbody>
@@ -854,7 +854,7 @@ export default function StockPage({ params }) {
     </div>
 
     {/* PROFITABILITY */}
-    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+    <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px' }}>
       <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>PROFITABILITY</div>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
         <tbody>
@@ -878,7 +878,7 @@ export default function StockPage({ params }) {
     </div>
 
     {/* BALANCE SHEET */}
-    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+    <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px' }}>
       <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>BALANCE SHEET</div>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
         <tbody>
@@ -902,7 +902,7 @@ export default function StockPage({ params }) {
     </div>
 
     {/* EFFICIENCY + PER SHARE */}
-    <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+    <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px' }}>
       <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>EFFICIENCY</div>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
         <tbody>
@@ -926,10 +926,10 @@ export default function StockPage({ params }) {
 </div>
 
 {/* PER SHARE */}
-<div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
-  <div style={{ background: 'var(--bg-1)', padding: '16px' }}>
+<div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', marginBottom: '16px' }}>
+  <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px' }}>
     <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>PER SHARE & MARKET DATA</div>
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1px', background: 'var(--border)' }}>
+    <div className="per-share-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
       {[
         { label: 'EPS (TTM)', val: data.eps ? `$${data.eps}` : 'N/A' },
         { label: 'Shs Outstanding', val: data.sharesOutstanding ? `${(data.sharesOutstanding / 1e6).toFixed(0)}M` : 'N/A' },
@@ -937,7 +937,7 @@ export default function StockPage({ params }) {
         { label: '52W High', val: data.high52 ? `$${data.high52}` : 'N/A' },
         { label: '52W Low', val: data.low52 ? `$${data.low52}` : 'N/A' },
       ].map(r => (
-        <div key={r.label} style={{ background: 'var(--bg-2)', padding: '12px' }}>
+        <div key={r.label} style={{ background: 'var(--bg-2)', borderRadius: '10px', padding: '12px' }}>
           <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '6px' }}>{r.label}</div>
           <div style={{ color: 'var(--text)', fontSize: '13px', fontWeight: 600 }}>{r.val}</div>
         </div>
@@ -947,7 +947,7 @@ export default function StockPage({ params }) {
 </div>
 
               {/* Chart + multiples */}
-              <div style={{ display: 'flex', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
                 <div style={{ flex: 1, background: 'var(--bg-1)' }}>
                   <StockChart ticker={ticker} />
                 </div>
@@ -955,14 +955,14 @@ export default function StockPage({ params }) {
 
               {/* Metrics grid */}
               <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px' }}>PROFITABILITY & RETURNS</div>
-              <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+              <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '16px' }}>
                 {[
                   { label: 'REVENUE (TTM)', val: fmt(data.revVal), sub: data.revGrowth !== null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}% YOY` : null, good: data.revGrowth > 0 },
                   { label: 'NET INCOME (TTM)', val: fmt(data.niVal), sub: data.netMargin !== null ? `${data.netMargin}% NET MARGIN` : null, good: data.netMargin > 10 },
                   { label: 'OP. MARGIN', val: fmtP(data.opMargin), sub: data.opMargin > 15 ? 'ABOVE THRESHOLD' : 'BELOW THRESHOLD', good: data.opMargin > 15 },
                   { label: 'ROE', val: fmtP(data.roe), sub: data.roe > 15 ? 'STRONG RETURN' : 'MODERATE RETURN', good: data.roe > 15 },
                 ].map(m => (
-                  <div key={m.label} style={{ background: 'var(--bg-1)', padding: '14px' }}>
+                  <div key={m.label} style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '14px' }}>
                     <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '6px' }}>{m.label}</div>
                     <div style={{ fontSize: '20px', fontWeight: 600, marginBottom: '4px' }}>{m.val}</div>
                     {m.sub && <div style={{ color: m.good ? 'var(--green)' : 'var(--red)', fontSize: '10px', letterSpacing: '0.5px' }}>{m.sub}</div>}
@@ -971,14 +971,14 @@ export default function StockPage({ params }) {
               </div>
 
               <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px' }}>CASH FLOW & BALANCE SHEET</div>
-              <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+              <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '16px' }}>
                 {[
                   { label: 'FREE CASH FLOW', val: fmt(data.fcfVal), sub: data.fcfVal > 0 ? 'POSITIVE FCF' : 'NEGATIVE FCF', good: data.fcfVal > 0 },
                   { label: 'OP. CASH FLOW', val: fmt(data.fcfVal), sub: data.fcfVal && data.revVal ? `${((data.fcfVal / data.revVal) * 100).toFixed(1)}% CONVERSION` : null, good: data.fcfVal > 0 },
                   { label: 'NET DEBT', val: fmt(data.netDebt), sub: data.netDebt < 0 ? 'NET CASH POSITION' : 'NET DEBT POSITION', good: data.netDebt < 0 },
                   { label: 'CASH & EQUIV.', val: fmt(data.cashVal), sub: null },
                 ].map(m => (
-                  <div key={m.label} style={{ background: 'var(--bg-1)', padding: '14px' }}>
+                  <div key={m.label} style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '14px' }}>
                     <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '6px' }}>{m.label}</div>
                     <div style={{ fontSize: '20px', fontWeight: 600, marginBottom: '4px' }}>{m.val}</div>
                     {m.sub && <div style={{ color: m.good ? 'var(--green)' : 'var(--red)', fontSize: '10px', letterSpacing: '0.5px' }}>{m.sub}</div>}
@@ -987,12 +987,12 @@ export default function StockPage({ params }) {
               </div>
 
               {/* Charts */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
                 {[
-                  { title: 'REVENUE', chart: revChart, color: '#F59E0B', type: 'line' },
+                  { title: 'REVENUE', chart: revChart, color: 'var(--amber)', type: 'line' },
 { title: 'FREE CASH FLOW', chart: fcfChart, color: '#8b5cf6', type: 'line' },
                 ].map(({ title, chart, color, type }) => (
-                  <div key={title} style={{ background: 'var(--bg-1)', padding: '16px' }}>
+                  <div key={title} style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px' }}>
                     <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '12px' }}>{title}</div>
                     <MiniLine data={chart} color={color} />
                   </div>
