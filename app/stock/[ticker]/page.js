@@ -449,8 +449,10 @@ export default function StockPage({ params }) {
                   })}
                 </div>
                 <div>
-                  <div style={{ position: 'relative', height: '10px', borderRadius: '6px', overflow: 'hidden', marginBottom: '8px', background: 'linear-gradient(90deg, #6D28D9 0%, #3B82F6 100%)' }}>
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(109, 40, 217, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)', pointerEvents: 'none' }} />
+                  <div style={{ display: 'flex', height: '10px', borderRadius: '6px', overflow: 'hidden', marginBottom: '8px' }}>
+                    <div style={{ background: `linear-gradient(90deg, var(--green) 0%, rgba(52, 211, 153, 0.7) 100%)`, width: `${voteConsensus.BUY}%` }} />
+                    <div style={{ background: `linear-gradient(90deg, var(--amber) 0%, rgba(251, 191, 36, 0.7) 100%)`, width: `${voteConsensus.HOLD}%` }} />
+                    <div style={{ background: `linear-gradient(90deg, var(--red) 0%, rgba(248, 113, 113, 0.7) 100%)`, width: `${voteConsensus.SELL}%` }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace' }}>
                     <span style={{ color: 'var(--green)' }}>● {voteConsensus.BUY}% Buy</span>

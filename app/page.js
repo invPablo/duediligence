@@ -206,8 +206,10 @@ export default function Home() {
                 
                 <div style={{ borderTop: '1px solid var(--accent)', paddingTop: '16px', marginBottom: '16px' }}>
                   <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '8px' }}>COMMUNITY CONSENSUS</div>
-                  <div style={{ position: 'relative', height: '12px', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px', background: 'linear-gradient(90deg, #6D28D9 0%, #3B82F6 100%)' }}>
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(109, 40, 217, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)', pointerEvents: 'none' }} />
+                  <div style={{ display: 'flex', height: '12px', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
+                    <div style={{ background: `linear-gradient(90deg, var(--green) 0%, rgba(52, 211, 153, 0.7) 100%)`, width: `${sotwVotes.BUY}%` }} />
+                    <div style={{ background: `linear-gradient(90deg, var(--amber) 0%, rgba(251, 191, 36, 0.7) 100%)`, width: `${sotwVotes.HOLD}%` }} />
+                    <div style={{ background: `linear-gradient(90deg, var(--red) 0%, rgba(248, 113, 113, 0.7) 100%)`, width: `${sotwVotes.SELL}%` }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-2)' }}>
                     <span>● {sotwVotes.BUY}% Buy</span>
@@ -326,8 +328,10 @@ export default function Home() {
             
             <div style={{ borderTop: '1px solid var(--accent)', paddingTop: '16px', marginBottom: '16px' }}>
               <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '8px' }}>COMMUNITY CONSENSUS</div>
-              <div style={{ position: 'relative', height: '12px', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px', background: 'linear-gradient(90deg, #6D28D9 0%, #3B82F6 100%)' }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(109, 40, 217, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)', pointerEvents: 'none' }} />
+              <div style={{ display: 'flex', height: '12px', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
+                <div style={{ background: `linear-gradient(90deg, var(--green) 0%, rgba(52, 211, 153, 0.7) 100%)`, width: `${sotwVotes.BUY}%` }} />
+                <div style={{ background: `linear-gradient(90deg, var(--amber) 0%, rgba(251, 191, 36, 0.7) 100%)`, width: `${sotwVotes.HOLD}%` }} />
+                <div style={{ background: `linear-gradient(90deg, var(--red) 0%, rgba(248, 113, 113, 0.7) 100%)`, width: `${sotwVotes.SELL}%` }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-2)' }}>
                 <span>● {sotwVotes.BUY}% Buy</span>
