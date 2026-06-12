@@ -4,6 +4,7 @@ import CookieBanner from './components/CookieBanner';
 import WatchlistWidget from './components/WatchlistWidget';
 import BottomNav from './components/BottomNav';
 import Header from './components/Header';
+import MobileHeader from './components/MobileHeader';
 import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
@@ -46,6 +47,7 @@ export default function RootLayout({ children }) {
     <ClerkProvider publishableKey="pk_live_Y2xlcmsudHJhcWNrZXIuY29tJA">
       <html lang="en">
         <body>
+          <MobileHeader />
           <Header />
           {children}
           <BottomNav />

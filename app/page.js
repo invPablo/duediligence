@@ -386,7 +386,7 @@ export default function Home() {
               <div style={{ position: 'relative', zIndex: 50 }}>
                 <div style={{ display: 'flex', gap: '0' }}>
                   <input
-                    style={{ flex: 1, maxWidth: '280px', background: 'var(--bg-2)', border: '1px solid var(--border-2)', borderRight: 'none', color: 'var(--accent)', fontFamily: 'JetBrains Mono, monospace', fontSize: '22px', fontWeight: 700, padding: '12px 16px', outline: 'none', letterSpacing: '4px' }}
+                    style={{ flex: 1, maxWidth: isMobile ? '100%' : '280px', background: 'var(--bg-2)', border: '1px solid var(--border-2)', borderRight: 'none', color: 'var(--accent)', fontFamily: 'JetBrains Mono, monospace', fontSize: isMobile ? '16px' : '22px', fontWeight: 700, padding: '12px 16px', outline: 'none', letterSpacing: isMobile ? '2px' : '4px' }}
                     placeholder="AAPL"
                     value={searchQ || ticker}
                     onChange={e => { const v = e.target.value; setSearchQ(v); setTicker(v.toUpperCase()); setShowSuggestions(true); }}
