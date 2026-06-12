@@ -383,7 +383,7 @@ export default function Home() {
               <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '8px' }}>
                 ENTER TICKER{blink ? '_' : ' '}
               </div>
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', zIndex: 50 }}>
                 <div style={{ display: 'flex', gap: '0' }}>
                   <input
                     style={{ flex: 1, maxWidth: '280px', background: 'var(--bg-2)', border: '1px solid var(--border-2)', borderRight: 'none', color: 'var(--accent)', fontFamily: 'JetBrains Mono, monospace', fontSize: '22px', fontWeight: 700, padding: '12px 16px', outline: 'none', letterSpacing: '4px' }}
@@ -403,13 +403,16 @@ export default function Home() {
                   </button>
                 </div>
                 {showSuggestions && suggestions.length > 0 && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, background: 'var(--bg-1)', border: '1px solid var(--border)', minWidth: '320px', zIndex: 100, marginTop: '2px' }}>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--bg-1)', border: '1px solid var(--border)', width: '100%', maxHeight: '300px', overflowY: 'auto', zIndex: 9999, marginTop: '4px', boxSizing: 'border-box' }}>
                     {suggestions.map(s => (
                       <div key={s.ticker}
                         onMouseDown={() => { router.push(`/stock/${s.ticker}`); setShowSuggestions(false); }}
-                        style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border)' }}
+                        onTouchEnd={() => { router.push(`/stock/${s.ticker}`); setShowSuggestions(false); }}
+                        style={{ padding: '12px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border)' }}
                         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        onTouchStart={e => e.currentTarget.style.background = 'var(--bg-2)'}
+                        onTouchEnd={e => e.currentTarget.style.background = 'transparent'}>
                         <span style={{ color: 'var(--accent)', fontSize: '13px', fontWeight: 700, width: 56, flexShrink: 0 }}>{s.ticker}</span>
                         <span style={{ color: 'var(--text-2)', fontSize: '12px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
                         <span style={{ color: 'var(--text-3)', fontSize: '10px', flexShrink: 0 }}>{s.exchange}</span>
