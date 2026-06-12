@@ -38,7 +38,9 @@ const NAV = [
     { key: 'overview', label: 'OVERVIEW' },
     { key: 'quality', label: 'QUALITY' },
     { key: 'financials', label: 'FINANCIALS', pro: true },
-    { key: 'dcf', label: 'DCF', pro: true },
+    // DCF tab hidden from nav (Graham formula now powers the Fair Value bar in Overview).
+    // Code kept for potential future use - just not shown.
+    // { key: 'dcf', label: 'DCF', pro: true },
   ];
 
 const QUESTIONS = [
@@ -261,9 +263,18 @@ export default function StockPage({ params }) {
   })();
 
   // Fair value positioning (0-100% along Cheap -> Fair -> Expensive bar)
+  // Graham intrinsic value (base scenario) - same formula as DCF tab
+  // V = EPS x (8.5 + 2g) x (4.4/5.5), g = 5Y EPS CAGR (capped 0-20%)
+  const grahamValue = (() => {
+    if (!data.eps) return null;
+    const cagr = data.epsCagr;
+    const g = cagr !== null && !isNaN(cagr) ? Math.max(0, Math.min(Number(cagr), 20)) : 7;
+    return +(data.eps * (8.5 + 2 * g) * (4.4 / 5.5)).toFixed(2);
+  })();
+
   const fairValue = (() => {
-    if (!intrinsicValue || !price) return null;
-    const ratio = price / intrinsicValue; // >1 = expensive, <1 = cheap
+    if (!grahamValue || !price) return null;
+    const ratio = price / grahamValue; // >1 = expensive, <1 = cheap
     // Map ratio 0.5x -> 1.5x onto 0% -> 100%
     const pct = Math.max(2, Math.min(98, ((ratio - 0.5) / 1.0) * 100));
     let tag;
@@ -272,7 +283,7 @@ export default function StockPage({ params }) {
     else if (ratio < 1.3) tag = 'SLIGHTLY EXPENSIVE';
     else tag = 'EXPENSIVE';
     const tagColor = ratio < 0.85 ? 'var(--green)' : ratio < 1.05 ? 'var(--green)' : ratio < 1.3 ? 'var(--amber)' : 'var(--red)';
-    return { pct, tag, tagColor, estimate: intrinsicValue };
+    return { pct, tag, tagColor, estimate: grahamValue };
   })();
 
   // Community vote state (local-only placeholder until backend exists)
