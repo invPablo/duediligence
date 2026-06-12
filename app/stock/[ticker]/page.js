@@ -154,6 +154,16 @@ export default function StockPage({ params }) {
     }
   }, [ticker, isSignedIn]);
 
+  // Load persisted vote (per ticker) from localStorage, only when signed in.
+  useEffect(() => {
+    if (!isSignedIn || typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem(`vote_${ticker}`);
+      if (saved) setUserVote(saved);
+    } catch {}
+  }, [ticker, isSignedIn]);
+
+
   const getDimScore = (dim) => {
     const indices = QUESTIONS.map((q, i) => q.dim === dim ? i : -1).filter(i => i >= 0);
     const answered = indices.filter(i => answers[i] === 'YES' || answers[i] === 'NO');
@@ -385,14 +395,20 @@ export default function StockPage({ params }) {
               {/* Community vote */}
               <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', marginBottom: '16px' }}>
                 <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>What's your call?</div>
-                <div style={{ color: 'var(--text-3)', fontSize: '12px', marginBottom: '16px' }}>Tap one — see what everyone else thinks</div>
+                <div style={{ color: 'var(--text-3)', fontSize: '12px', marginBottom: '16px' }}>
+                  {isSignedIn ? "Tap one — we'll remember your call" : 'Sign in to save your call'}
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                   {['BUY', 'HOLD', 'SELL'].map(v => {
                     const active = userVote === v;
                     const activeColor = v === 'BUY' ? 'var(--green)' : v === 'SELL' ? 'var(--red)' : 'var(--amber)';
                     const activeDim = v === 'BUY' ? 'var(--green-dim)' : v === 'SELL' ? 'var(--red-dim)' : 'var(--amber-dim)';
                     return (
-                      <button key={v} onClick={() => setUserVote(v)}
+                      <button key={v} onClick={() => {
+                        if (!isSignedIn) { window.location.href = '/sign-in'; return; }
+                        setUserVote(v);
+                        try { localStorage.setItem(`vote_${ticker}`, v); } catch {}
+                      }}
                         style={{
                           borderRadius: '14px', padding: '14px 8px', textAlign: 'center',
                           border: `1.5px solid ${active ? activeColor : 'var(--border)'}`,
@@ -405,18 +421,6 @@ export default function StockPage({ params }) {
                       </button>
                     );
                   })}
-                </div>
-                <div style={{ marginTop: '18px' }}>
-                  <div style={{ display: 'flex', height: '10px', borderRadius: '6px', overflow: 'hidden' }}>
-                    <div style={{ background: 'var(--green)', width: '64%' }} />
-                    <div style={{ background: 'var(--amber)', width: '28%' }} />
-                    <div style={{ background: 'var(--red)', width: '8%' }} />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '11px', color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace' }}>
-                    <span style={{ color: 'var(--green)' }}>● 64% Buy</span>
-                    <span style={{ color: 'var(--amber)' }}>● 28% Hold</span>
-                    <span style={{ color: 'var(--red)' }}>● 8% Sell</span>
-                  </div>
                 </div>
               </div>
 
@@ -458,15 +462,6 @@ export default function StockPage({ params }) {
                   </div>
                 </div>
               )}
-
-              {/* Stock of the Week teaser */}
-              <div style={{ background: 'linear-gradient(135deg, var(--accent-dim), transparent)', border: '1px solid var(--accent)', borderRadius: '18px', padding: '16px 18px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🔥</div>
-                <div>
-                  <div style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--accent)', fontWeight: 600, fontSize: '12px', letterSpacing: '0.5px' }}>STOCK OF THE WEEK</div>
-                  <div style={{ color: 'var(--text-2)', fontSize: '12px', marginTop: '2px' }}>{ticker} is this week's pick — 1,240 people have voted</div>
-                </div>
-              </div>
 
               {/* The Numbers, Simplified - meter bars */}
               <div style={{ marginBottom: '16px' }}>
