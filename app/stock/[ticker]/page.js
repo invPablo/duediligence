@@ -410,7 +410,7 @@ export default function StockPage({ params }) {
                 <div style={{ color: 'var(--text-3)', fontSize: '12px', marginBottom: '16px' }}>
                   {isSignedIn ? "Tap one — we'll remember your call" : 'Sign in to save your call'}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '16px' }}>
                   {['BUY', 'HOLD', 'SELL'].map(v => {
                     const active = userVote === v;
                     const activeColor = v === 'BUY' ? 'var(--green)' : v === 'SELL' ? 'var(--red)' : 'var(--amber)';
@@ -432,20 +432,23 @@ export default function StockPage({ params }) {
                             .catch(() => {});
                         }).catch(() => {});
                       }}
+                        onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
+                        onMouseLeave={e => e.target.style.transform = 'scale(1)'}
                         style={{
                           borderRadius: '14px', padding: '14px 8px', textAlign: 'center',
                           border: `1.5px solid ${active ? activeColor : 'var(--border)'}`,
                           background: active ? activeDim : 'var(--bg-2)',
                           color: active ? activeColor : 'var(--text-2)',
                           fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '13px', letterSpacing: '0.5px',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s ease'
                         }}>
                         {v}
                       </button>
                     );
                   })}
                 </div>
-                <div style={{ marginTop: '16px' }}>
+                <div>
                   <div style={{ display: 'flex', height: '10px', borderRadius: '6px', overflow: 'hidden' }}>
                     <div style={{ background: 'var(--green)', width: `${voteConsensus.BUY}%` }} />
                     <div style={{ background: 'var(--amber)', width: `${voteConsensus.HOLD}%` }} />
