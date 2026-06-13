@@ -30,7 +30,7 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
     }
   };
 
-  const verdictColor = verdict === 'BUY' ? 'var(--green)' : verdict === 'SELL' ? 'var(--red)' : 'var(--amber)';
+  const verdictColor = verdict === 'BUY' ? '#22c55e' : verdict === 'SELL' ? '#ef4444' : '#eab308';
 
   return (
     <>
@@ -38,69 +38,78 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
       <div ref={cardRef} style={{
         position: 'fixed',
         left: '-9999px',
-        width: '600px',
-        background: 'linear-gradient(135deg, var(--bg) 0%, var(--bg-1) 100%)',
-        padding: '40px',
-        borderRadius: '20px',
-        border: '2px solid var(--accent)',
+        width: '800px',
+        height: '900px',
+        background: '#0B0E14',
+        padding: '60px',
+        borderRadius: '24px',
+        border: '3px solid #a78bfa',
         fontFamily: 'JetBrains Mono, monospace',
-        color: 'var(--text)'
+        color: '#e0e7ff',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        boxSizing: 'border-box'
       }}>
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '14px', color: 'var(--accent)', fontWeight: 700, letterSpacing: '2px', marginBottom: '8px' }}>
-            TRAQCKER
+        {/* Top Section - Logo + Ticker + Name */}
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          {/* Logo */}
+          <div style={{ fontSize: '56px', fontWeight: 700, color: '#a78bfa', marginBottom: '30px', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '2px' }}>
+            Traq●cker
           </div>
-          <div style={{ fontSize: '32px', fontWeight: 700, marginBottom: '4px', fontFamily: 'Space Grotesk, sans-serif' }}>
+          
+          {/* Ticker */}
+          <div style={{ fontSize: '72px', fontWeight: 700, color: '#ffffff', marginBottom: '12px', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '1px' }}>
             {ticker}
           </div>
-          <div style={{ fontSize: '16px', color: 'var(--text-2)' }}>
+          
+          {/* Company Name */}
+          <div style={{ fontSize: '28px', color: '#cbd5e1', marginBottom: '40px' }}>
             {name}
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '24px' }}>
-          <div style={{ fontSize: '28px', fontWeight: 700 }}>
-            ${price?.toFixed(2) || 'N/A'}
-          </div>
-          <div style={{ fontSize: '16px', color: priceChange >= 0 ? 'var(--green)' : 'var(--red)', fontWeight: 600 }}>
-            {priceChange >= 0 ? '↑' : '↓'} {Math.abs(priceChange || 0).toFixed(2)}%
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border)' }}>
-          {metrics && metrics.map((m, i) => (
-            <div key={i}>
-              <div style={{ fontSize: '11px', color: 'var(--text-3)', letterSpacing: '1px', marginBottom: '4px' }}>
-                {m.label}
-              </div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--accent)' }}>
-                {m.value}
-              </div>
+        {/* Middle Section - Price */}
+        <div style={{ textAlign: 'center', marginBottom: '50px', borderTop: '2px solid #a78bfa', borderBottom: '2px solid #a78bfa', paddingTop: '30px', paddingBottom: '30px' }}>
+          {/* Current Price */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ fontSize: '64px', fontWeight: 700, color: '#ffffff' }}>
+              ${price?.toFixed(2) || '—'}
             </div>
-          ))}
+            {priceChange !== undefined && (
+              <div style={{ fontSize: '32px', color: priceChange >= 0 ? '#22c55e' : '#ef4444', fontWeight: 700 }}>
+                {priceChange >= 0 ? '↑' : '↓'} {Math.abs(priceChange).toFixed(2)}%
+              </div>
+            )}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: '11px', color: 'var(--text-3)', letterSpacing: '1px', marginBottom: '4px' }}>
+        {/* Bottom Section - Score & Verdict */}
+        <div style={{ textAlign: 'center' }}>
+          {/* Score */}
+          <div style={{ marginBottom: '30px' }}>
+            <div style={{ fontSize: '16px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '10px' }}>
               EASY MODE SCORE
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--accent)' }}>
+            <div style={{ fontSize: '56px', fontWeight: 700, color: '#a78bfa' }}>
               {score}/100
             </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-3)', letterSpacing: '1px', marginBottom: '4px' }}>
+
+          {/* Verdict */}
+          <div style={{ marginBottom: '40px' }}>
+            <div style={{ fontSize: '16px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '10px' }}>
               VERDICT
             </div>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: verdictColor }}>
+            <div style={{ fontSize: '48px', fontWeight: 700, color: verdictColor }}>
               {verdict}
             </div>
           </div>
-        </div>
 
-        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border)', fontSize: '11px', color: 'var(--text-3)', textAlign: 'center' }}>
-          traqcker.com — Fundamental analysis without noise
+          {/* Footer */}
+          <div style={{ fontSize: '14px', color: '#64748b', letterSpacing: '1px' }}>
+            traqcker.com — Fundamental analysis without noise
+          </div>
         </div>
       </div>
 
