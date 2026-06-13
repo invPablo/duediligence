@@ -34,9 +34,9 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
   const scoreNum = Math.max(0, Math.min(100, Math.round(score ?? 50)));
   const scoreColor = scoreNum >= 70 ? '#22c55e' : scoreNum >= 50 ? '#a78bfa' : '#ef4444';
 
-  const rotation = (scoreNum / 100) * 360;
-  const rightRotation = Math.min(rotation, 180);
-  const leftRotation = Math.max(0, rotation - 180);
+  // SVG circle: r=80, circumference = 2*pi*80 = 502.65
+  const circumference = 502.65;
+  const dashOffset = circumference - (circumference * scoreNum / 100);
 
   return (
     <>
@@ -52,13 +52,10 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
         border: '3px solid #a78bfa',
         fontFamily: 'JetBrains Mono, monospace',
         color: '#e0e7ff',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
         boxSizing: 'border-box'
       }}>
         {/* Top Section - Logo + Ticker + Name */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
           <div style={{ fontSize: '48px', fontWeight: 700, color: '#a78bfa', marginBottom: '20px', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '2px' }}>
             Traq●cker
           </div>
@@ -71,20 +68,24 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
         </div>
 
         {/* Price Section */}
-        <div style={{ textAlign: 'center', marginBottom: '20px', borderTop: '2px solid #a78bfa', borderBottom: '2px solid #a78bfa', paddingTop: '25px', paddingBottom: '25px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '12px' }}>
-            <div style={{ fontSize: '56px', fontWeight: 700, color: '#ffffff' }}>
-              ${price?.toFixed(2) || '—'}
-            </div>
-            {priceChange !== undefined && (
-              <div style={{ fontSize: '28px', color: priceChange >= 0 ? '#22c55e' : '#ef4444', fontWeight: 700 }}>
-                {priceChange >= 0 ? '↑' : '↓'} {Math.abs(priceChange).toFixed(2)}%
-              </div>
-            )}
-          </div>
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px', borderTop: '2px solid #a78bfa', borderBottom: '2px solid #a78bfa', paddingTop: '25px', paddingBottom: '25px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tr>
+              <td style={{ textAlign: 'center', padding: 0 }}>
+                <span style={{ fontSize: '56px', fontWeight: 700, color: '#ffffff' }}>
+                  ${price?.toFixed(2) || '—'}
+                </span>
+                {priceChange !== undefined && (
+                  <span style={{ fontSize: '28px', color: priceChange >= 0 ? '#22c55e' : '#ef4444', fontWeight: 700, marginLeft: '16px' }}>
+                    {priceChange >= 0 ? '↑' : '↓'} {Math.abs(priceChange).toFixed(2)}%
+                  </span>
+                )}
+              </td>
+            </tr>
+          </table>
 
           {fairValue !== null && fairValue !== undefined && (
-            <div style={{ fontSize: '20px', color: '#94a3b8' }}>
+            <div style={{ fontSize: '20px', color: '#94a3b8', marginTop: '12px', textAlign: 'center' }}>
               Traqcker Fair Value: {fairValueNegative ? (
                 <span style={{ color: '#ef4444', fontWeight: 700 }}>N/A (negative earnings)</span>
               ) : (
@@ -94,68 +95,59 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
           )}
         </div>
 
-        {/* Score Ring - using flex centering wrapper for perfect alignment */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        {/* Score Ring - SVG with stroke-dasharray (no rotate transform needed) */}
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
           <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '20px' }}>
             EASY MODE SCORE
           </div>
           
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: '180px', height: '180px', borderRadius: '50%', position: 'relative', background: '#1e293b' }}>
-              {/* Right half (0-180deg) */}
-              <div style={{
-                position: 'absolute',
-                width: '180px',
-                height: '180px',
-                borderRadius: '50%',
-                clip: 'rect(0px, 180px, 180px, 90px)',
-                background: scoreColor,
-                transform: `rotate(${rightRotation}deg)`,
-                transformOrigin: '90px 90px'
-              }} />
-              {/* Left half (180-360deg) */}
-              {rotation > 180 && (
-                <div style={{
-                  position: 'absolute',
-                  width: '180px',
-                  height: '180px',
-                  borderRadius: '50%',
-                  clip: 'rect(0px, 90px, 180px, 0px)',
-                  background: scoreColor,
-                  transform: `rotate(${leftRotation}deg)`,
-                  transformOrigin: '90px 90px'
-                }} />
-              )}
-              {/* Inner hole + centered number - flex centering, no absolute positioning issues */}
-              <div style={{
-                position: 'absolute',
-                top: '15px',
-                left: '15px',
-                width: '150px',
-                height: '150px',
-                borderRadius: '50%',
-                background: '#0B0E14',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: '56px',
-                  fontWeight: 700,
-                  color: scoreColor,
-                  lineHeight: 1,
-                  width: '100%'
-                }}>
-                  {scoreNum}
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tr>
+              <td style={{ textAlign: 'center', padding: 0 }}>
+                <div style={{ display: 'inline-block', position: 'relative', width: '200px', height: '200px' }}>
+                  <svg width="200" height="200" viewBox="0 0 200 200">
+                    {/* Background track */}
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#1e293b" strokeWidth="16" />
+                    {/* Progress arc - starts at top (12 o'clock), goes clockwise */}
+                    <circle 
+                      cx="100" cy="100" r="80" 
+                      fill="none" 
+                      stroke={scoreColor} 
+                      strokeWidth="16" 
+                      strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={dashOffset}
+                      transform="rotate(-90 100 100)"
+                    />
+                  </svg>
+                  {/* Centered number overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '200px',
+                    height: '200px',
+                    display: 'table'
+                  }}>
+                    <div style={{
+                      display: 'table-cell',
+                      verticalAlign: 'middle',
+                      textAlign: 'center',
+                      fontSize: '56px',
+                      fontWeight: 700,
+                      color: scoreColor
+                    }}>
+                      {scoreNum}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </td>
+            </tr>
+          </table>
         </div>
 
         {/* Verdict */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
           <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '12px' }}>
             VERDICT
           </div>
@@ -166,26 +158,27 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
 
         {/* Community Sentiment */}
         {consensus && consensus.total > 0 && (
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
             <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '14px' }}>
               COMMUNITY SENTIMENT ({consensus.total} {consensus.total === 1 ? 'vote' : 'votes'})
             </div>
-            {/* Consensus bar */}
             <div style={{ display: 'flex', height: '20px', borderRadius: '10px', overflow: 'hidden', marginBottom: '12px' }}>
               <div style={{ width: `${consensus.BUY}%`, background: '#22c55e' }} />
               <div style={{ width: `${consensus.HOLD}%`, background: '#eab308' }} />
               <div style={{ width: `${consensus.SELL}%`, background: '#ef4444' }} />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px' }}>
-              <span style={{ color: '#22c55e' }}>● {consensus.BUY}% Buy</span>
-              <span style={{ color: '#eab308' }}>● {consensus.HOLD}% Hold</span>
-              <span style={{ color: '#ef4444' }}>● {consensus.SELL}% Sell</span>
-            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <tr>
+                <td style={{ textAlign: 'left', color: '#22c55e', fontSize: '16px' }}>● {consensus.BUY}% Buy</td>
+                <td style={{ textAlign: 'center', color: '#eab308', fontSize: '16px' }}>● {consensus.HOLD}% Hold</td>
+                <td style={{ textAlign: 'right', color: '#ef4444', fontSize: '16px' }}>● {consensus.SELL}% Sell</td>
+              </tr>
+            </table>
           </div>
         )}
 
         {/* Footer */}
-        <div style={{ fontSize: '13px', color: '#64748b', letterSpacing: '0.5px', textAlign: 'center' }}>
+        <div style={{ fontSize: '13px', color: '#64748b', letterSpacing: '0.5px', textAlign: 'center', width: '100%' }}>
           traqcker.com — Fundamental analysis without noise
         </div>
       </div>
