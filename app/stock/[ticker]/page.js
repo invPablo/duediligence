@@ -7,6 +7,7 @@ import Sparkline from '../../components/Sparkline';
 import SparklineHeader from '../../components/SparklineHeader';
 import Topbar from '../../components/Topbar';
 import ShareCardComponent from '../../components/ShareCard';
+import AchievementToast from '../../components/AchievementToast';
 import { useUser } from '@clerk/nextjs';
 
 const fmt = (val) => {
@@ -121,6 +122,7 @@ export default function StockPage({ params }) {
   const [voteConsensus, setVoteConsensus] = useState({ BUY: 0, HOLD: 0, SELL: 0, total: 0 });
   const [expanded, setExpanded] = useState(false);
   const [sotw, setSotw] = useState(null);
+  const [achievementToast, setAchievementToast] = useState(null);
   const { isSignedIn } = useUser();
 
 
@@ -457,7 +459,14 @@ export default function StockPage({ params }) {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ userId: user.id, achievementKey: 'first_vote' })
-                              }).catch(() => {});
+                              })
+                              .then(r => r.json())
+                              .then(data => {
+                                if (data.unlocked) {
+                                  setAchievementToast(data.achievement);
+                                }
+                              })
+                              .catch(() => {});
                             }
 
                             // Achievement: Serial voter (5 votes)
@@ -466,7 +475,14 @@ export default function StockPage({ params }) {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ userId: user.id, achievementKey: 'serial_voter' })
-                              }).catch(() => {});
+                              })
+                              .then(r => r.json())
+                              .then(data => {
+                                if (data.unlocked) {
+                                  setAchievementToast(data.achievement);
+                                }
+                              })
+                              .catch(() => {});
                             }
 
                             // Achievement: Contrarian (opposite to consensus)
@@ -475,7 +491,14 @@ export default function StockPage({ params }) {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ userId: user.id, achievementKey: 'contrarian' })
-                              }).catch(() => {});
+                              })
+                              .then(r => r.json())
+                              .then(data => {
+                                if (data.unlocked) {
+                                  setAchievementToast(data.achievement);
+                                }
+                              })
+                              .catch(() => {});
                             }
                           }
                         }).catch(() => {});
@@ -1311,6 +1334,14 @@ export default function StockPage({ params }) {
 
         </div>
       </div>
+
+      {/* Achievement Toast */}
+      {achievementToast && (
+        <AchievementToast 
+          achievement={achievementToast}
+          onClose={() => setAchievementToast(null)}
+        />
+      )}
     </div>
   );
 }
