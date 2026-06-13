@@ -54,22 +54,22 @@ export default function Topbar() {
 
   return (
     <>
-      <div style={{ borderBottom: '1px solid var(--border)', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10 }}>
-        <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+      <div style={{ borderBottom: '1px solid var(--border)', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10, gap: '12px' }}>
+        <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '18px', letterSpacing: '-0.3px', color: 'var(--text)' }}>
             Traq<span style={{ color: 'var(--accent)' }}>●</span>cker
           </span>
         </a>
 
         {/* Desktop nav */}
-        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
           {/* Search */}
           <div style={{ position: 'relative' }}>
             <div style={{ display: 'flex', gap: '0' }}>
               <input
                 value={searchQ}
-                onChange={e => { setSearchQ(e.target.value.toUpperCase()); setShowSuggestions(true); }}
-                onKeyDown={e => { if (e.key === 'Enter' && searchQ) { router.push(`/stock/${searchQ}`); setSearchQ(''); setShowSuggestions(false); } if (e.key === 'Escape') setShowSuggestions(false); }}
+                onChange={e => { setSearchQ(e.target.value); setShowSuggestions(true); }}
+                onKeyDown={e => { if (e.key === 'Enter' && searchQ) { router.push(`/stock/${searchQ.toUpperCase()}`); setSearchQ(''); setShowSuggestions(false); } if (e.key === 'Escape') setShowSuggestions(false); }}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 onFocus={() => searchQ && setShowSuggestions(true)}
                 style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', padding: '4px 10px', width: '160px', outline: 'none', letterSpacing: '1px' }}
@@ -128,7 +128,7 @@ export default function Topbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button className="mobile-menu-btn"
             onClick={() => setMenuOpen(!menuOpen)}
-            style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text)', padding: '4px 8px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: '16px' }}>
+            style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text)', padding: '4px 8px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: '16px', flexShrink: 0 }}>
             {menuOpen ? '✕' : '☰'}
           </button>
         </div>
