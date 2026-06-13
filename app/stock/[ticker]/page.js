@@ -460,11 +460,13 @@ export default function StockPage({ params }) {
                               })
                               .then(r => r.json())
                               .then(data => {
+                                console.log('First vote achievement response:', data);
                                 if (data.unlocked) {
+                                  console.log('Setting achievement toast:', data.achievement);
                                   setAchievementToast(data.achievement);
                                 }
                               })
-                              .catch(() => {});
+                              .catch(err => console.error('First vote achievement error:', err));
                             }
 
                             // Achievement: Serial voter (5 votes)
@@ -476,11 +478,12 @@ export default function StockPage({ params }) {
                               })
                               .then(r => r.json())
                               .then(data => {
+                                console.log('Serial voter achievement response:', data);
                                 if (data.unlocked) {
                                   setAchievementToast(data.achievement);
                                 }
                               })
-                              .catch(() => {});
+                              .catch(err => console.error('Serial voter achievement error:', err));
                             }
 
                             // Achievement: Contrarian (opposite to consensus)
@@ -499,11 +502,12 @@ export default function StockPage({ params }) {
                                   })
                                   .then(r => r.json())
                                   .then(data => {
+                                    console.log('Contrarian achievement response:', data);
                                     if (data.unlocked) {
                                       setAchievementToast(data.achievement);
                                     }
                                   })
-                                  .catch(() => {});
+                                  .catch(err => console.error('Contrarian achievement error:', err));
                                 }
                               })
                               .catch(() => {});

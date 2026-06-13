@@ -109,11 +109,16 @@ export async function POST(req) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Achievement insert error:', error, { userId, achievementKey });
+      throw error;
+    }
+
+    console.log('Achievement unlocked:', { userId, achievementKey, data });
 
     return Response.json({ unlocked: true, achievement: data });
   } catch (e) {
     console.error('POST achievements error:', e);
-    return Response.json({ error: e.message }, { status: 500 });
+    return Response.json({ error: e.message, unlocked: false }, { status: 500 });
   }
 }
