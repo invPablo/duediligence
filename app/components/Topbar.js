@@ -61,6 +61,33 @@ export default function Topbar() {
           </span>
         </a>
 
+        {/* Mobile search bar */}
+        <div className="mobile-search" style={{ flex: 1, minWidth: 0, position: 'relative', display: 'none', '@media (max-width: 768px)': { display: 'block' } }}>
+          <input
+            value={searchQ}
+            onChange={e => { setSearchQ(e.target.value); setShowSuggestions(true); }}
+            onKeyDown={e => { if (e.key === 'Enter' && searchQ) { router.push(`/stock/${searchQ.toUpperCase()}`); setSearchQ(''); setShowSuggestions(false); } if (e.key === 'Escape') setShowSuggestions(false); }}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            onFocus={() => searchQ && setShowSuggestions(true)}
+            style={{ width: '100%', background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', padding: '6px 10px', outline: 'none', letterSpacing: '0.5px', borderRadius: '6px' }}
+            placeholder="Search..."
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--bg-1)', border: '1px solid var(--border)', maxHeight: '250px', overflowY: 'auto', zIndex: 100, marginTop: '2px', borderRadius: '6px', boxSizing: 'border-box' }}>
+              {suggestions.map(s => (
+                <div key={s.ticker}
+                  onMouseDown={() => { router.push(`/stock/${s.ticker}`); setSearchQ(''); setShowSuggestions(false); }}
+                  style={{ padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', borderBottom: '1px solid var(--border)', fontSize: '12px' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <span style={{ color: 'var(--accent)', fontWeight: 700, minWidth: '40px', flexShrink: 0 }}>{s.ticker}</span>
+                  <span style={{ color: 'var(--text-2)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Desktop nav */}
         <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
           {/* Search */}
@@ -133,6 +160,25 @@ export default function Topbar() {
           </button>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .mobile-search {
+            display: block !important;
+          }
+          .desktop-nav {
+            display: none !important;
+          }
+        }
+        @media (min-width: 769px) {
+          .mobile-search {
+            display: none !important;
+          }
+          .desktop-nav {
+            display: flex !important;
+          }
+        }
+      `}</style>
 
       {/* Mobile dropdown menu */}
       {menuOpen && (

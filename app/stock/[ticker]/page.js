@@ -519,8 +519,9 @@ export default function StockPage({ params }) {
 
               {/* Share Stock Button */}
               <button onClick={() => {
-                const text = `Check out ${ticker} – ${data?.name} on Traqcker\n\nScore: ${data?.healthScore || 50}/100\nVerdict: ${data?.verdict || 'HOLD'}\n\ntraqcker.com/stock/${ticker}`;
-                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+                const text = `${ticker} – ${data?.name || 'Stock'}\n\nScore: ${data?.healthScore || 50}/100 | Verdict: ${data?.verdict || 'HOLD'}\n\ntraqcker.com/stock/${ticker}`;
+                const encoded = encodeURIComponent(text);
+                window.open(`https://twitter.com/intent/tweet?text=${encoded}`, '_blank');
               }}
                 style={{ 
                   width: '100%', 
@@ -544,7 +545,7 @@ export default function StockPage({ params }) {
                   e.target.style.background = 'var(--accent-dim)';
                   e.target.style.color = 'var(--accent)';
                 }}>
-                📸 Share {ticker} on Twitter
+                📸 Share
               </button>
 
               {/* The Numbers, Simplified - meter bars */}
