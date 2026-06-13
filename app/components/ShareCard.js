@@ -55,11 +55,11 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
         boxSizing: 'border-box'
       }}>
         {/* Top Section - Logo + Ticker + Name */}
-        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
-          <div style={{ fontSize: '48px', fontWeight: 700, color: '#a78bfa', marginBottom: '20px', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '2px' }}>
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '36px' }}>
+          <div style={{ fontSize: '48px', fontWeight: 700, color: '#a78bfa', marginBottom: '24px', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '2px' }}>
             Traq●cker
           </div>
-          <div style={{ fontSize: '64px', fontWeight: 700, color: '#ffffff', marginBottom: '8px', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '1px' }}>
+          <div style={{ fontSize: '64px', fontWeight: 700, color: '#ffffff', marginBottom: '12px', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '1px' }}>
             {ticker}
           </div>
           <div style={{ fontSize: '24px', color: '#cbd5e1' }}>
@@ -68,7 +68,7 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
         </div>
 
         {/* Price Section */}
-        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px', borderTop: '2px solid #a78bfa', borderBottom: '2px solid #a78bfa', paddingTop: '25px', paddingBottom: '25px' }}>
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '36px', borderTop: '2px solid #a78bfa', borderBottom: '2px solid #a78bfa', paddingTop: '32px', paddingBottom: '32px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tr>
               <td style={{ textAlign: 'center', padding: 0 }}>
@@ -85,7 +85,7 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
           </table>
 
           {fairValue !== null && fairValue !== undefined && (
-            <div style={{ fontSize: '20px', color: '#94a3b8', marginTop: '12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', color: '#94a3b8', marginTop: '18px', textAlign: 'center' }}>
               Traqcker Fair Value: {fairValueNegative ? (
                 <span style={{ color: '#ef4444', fontWeight: 700 }}>N/A (negative earnings)</span>
               ) : (
@@ -96,50 +96,44 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
         </div>
 
         {/* Score Ring - SVG with stroke-dasharray (no rotate transform needed) */}
-        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
-          <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '20px' }}>
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '36px' }}>
+          <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '24px' }}>
             EASY MODE SCORE
           </div>
           
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tr>
-              <td style={{ textAlign: 'center', padding: 0 }}>
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  {/* Background track */}
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="#1e293b" strokeWidth="16" />
-                  {/* Progress arc - starts at top (12 o'clock), goes clockwise */}
-                  <circle 
-                    cx="100" cy="100" r="80" 
-                    fill="none" 
-                    stroke={scoreColor} 
-                    strokeWidth="16" 
-                    strokeLinecap="round"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={dashOffset}
-                    transform="rotate(-90 100 100)"
-                  />
-                  {/* Centered number - directly in SVG */}
-                  <text 
-                    x="100" 
-                    y="100" 
-                    textAnchor="middle" 
-                    dominantBaseline="central"
-                    fontSize="56" 
-                    fontWeight="700" 
-                    fill={scoreColor}
-                    fontFamily="JetBrains Mono, monospace"
-                  >
-                    {scoreNum}
-                  </text>
-                </svg>
-              </td>
-            </tr>
-          </table>
+          <svg width="200" height="200" viewBox="0 0 200 200" style={{ display: 'block', margin: '0 auto' }}>
+            {/* Background track */}
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#1e293b" strokeWidth="16" />
+            {/* Progress arc - starts at top (12 o'clock), goes clockwise */}
+            <circle 
+              cx="100" cy="100" r="80" 
+              fill="none" 
+              stroke={scoreColor} 
+              strokeWidth="16" 
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={dashOffset}
+              transform="rotate(-90 100 100)"
+            />
+            {/* Centered number - directly in SVG */}
+            <text 
+              x="100" 
+              y="100" 
+              textAnchor="middle" 
+              dominantBaseline="central"
+              fontSize="56" 
+              fontWeight="700" 
+              fill={scoreColor}
+              fontFamily="JetBrains Mono, monospace"
+            >
+              {scoreNum}
+            </text>
+          </svg>
         </div>
 
         {/* Verdict */}
-        <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
-          <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '12px' }}>
+        <div style={{ textAlign: 'center', width: '100%', marginBottom: '36px' }}>
+          <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '18px' }}>
             VERDICT
           </div>
           <div style={{ fontSize: '44px', fontWeight: 700, color: verdictColor }}>
@@ -149,11 +143,11 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
 
         {/* Community Sentiment */}
         {consensus && consensus.total > 0 && (
-          <div style={{ textAlign: 'center', width: '100%', marginBottom: '20px' }}>
-            <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '14px' }}>
+          <div style={{ textAlign: 'center', width: '100%', marginBottom: '36px' }}>
+            <div style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '2px', marginBottom: '20px' }}>
               COMMUNITY SENTIMENT ({consensus.total} {consensus.total === 1 ? 'vote' : 'votes'})
             </div>
-            <div style={{ display: 'flex', height: '20px', borderRadius: '10px', overflow: 'hidden', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', height: '20px', borderRadius: '10px', overflow: 'hidden', marginBottom: '18px' }}>
               <div style={{ width: `${consensus.BUY}%`, background: '#22c55e' }} />
               <div style={{ width: `${consensus.HOLD}%`, background: '#eab308' }} />
               <div style={{ width: `${consensus.SELL}%`, background: '#ef4444' }} />
@@ -169,7 +163,7 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
         )}
 
         {/* Footer */}
-        <div style={{ fontSize: '13px', color: '#64748b', letterSpacing: '0.5px', textAlign: 'center', width: '100%' }}>
+        <div style={{ fontSize: '13px', color: '#64748b', letterSpacing: '0.5px', textAlign: 'center', width: '100%', marginTop: '24px' }}>
           traqcker.com — Fundamental analysis without noise
         </div>
       </div>
