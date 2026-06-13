@@ -11,18 +11,18 @@ export default function About() {
         <div style={{ marginBottom: '48px' }}>
           <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '3px', marginBottom: '12px' }}>ABOUT</div>
           <h1 style={{ fontSize: '36px', fontWeight: 600, letterSpacing: '-1px', marginBottom: '24px' }}>
-            Built by an investor.<br />
-            <span style={{ color: 'var(--accent)' }}>For investors.</span>
+            Built for people<br />
+            <span style={{ color: 'var(--accent)' }}>who just want facts.</span>
           </h1>
           <div style={{ color: 'var(--text-2)', fontSize: '13px', lineHeight: 1.9, maxWidth: '600px' }}>
             <p style={{ marginBottom: '16px' }}>
-              Traqcker was born out of frustration. Most stock analysis tools are either too expensive, too noisy, or push buy/sell recommendations that serve the platform more than the investor.
+              Most stock tools are either super expensive, overwhelming with jargon, or designed to push you into trades that benefit them, not you.
             </p>
             <p style={{ marginBottom: '16px' }}>
-              The idea was simple: build a tool that goes straight to the source. SEC EDGAR filings. No opinions. No noise. Just the raw data that actually matters for fundamental analysis.
+              Traqcker is different. We pull real data from official company filings and turn it into a simple score. No complicated formulas. No noise. Just what matters.
             </p>
             <p>
-              Built by an individual investor for individual investors who want to do their own due diligence.
+              Built by someone who got frustrated with existing tools. For anyone who wants to understand stocks without a finance degree.
             </p>
           </div>
         </div>
@@ -58,9 +58,9 @@ export default function About() {
           <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '3px', marginBottom: '16px' }}>DATA SOURCES</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)' }}>
             {[
-              { name: 'SEC EDGAR', desc: 'Primary financial data from official US filings (XBRL)' },
-              { name: 'FINNHUB', desc: 'Real-time prices, market data and company profiles' },
-              { name: 'YAHOO FINANCE', desc: 'Historical price data and sparklines' },
+              { name: 'Official Data', desc: 'Real financial information from company filings' },
+              { name: 'FINNHUB', desc: 'Live stock prices and market data' },
+              { name: 'YAHOO FINANCE', desc: 'Historical price data' },
             ].map(s => (
               <div key={s.name} style={{ background: 'var(--bg-1)', padding: '16px' }}>
                 <div style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 600, marginBottom: '6px', letterSpacing: '1px' }}>{s.name}</div>
