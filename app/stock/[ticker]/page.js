@@ -450,9 +450,12 @@ export default function StockPage({ params }) {
                           // Check achievements using the vote count returned from POST
                           if (user?.id && voteData.voteCount) {
                             const voteCount = voteData.voteCount;
+                            console.log('Vote data received:', voteCount);
+                            alert(`DEBUG: voteCount = ${voteCount}`);
 
                             // Achievement: First vote (on first vote ever)
                             if (voteCount === 1) {
+                              alert('DEBUG: Attempting first_vote achievement');
                               fetch('/api/achievements', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -461,56 +464,32 @@ export default function StockPage({ params }) {
                               .then(r => r.json())
                               .then(data => {
                                 console.log('First vote achievement response:', data);
+                                alert(`DEBUG: Achievement response = ${JSON.stringify(data)}`);
                                 if (data.unlocked) {
-                                  console.log('Setting achievement toast:', data.achievement);
+                                  alert('DEBUG: Setting toast now!');
                                   setAchievementToast(data.achievement);
+                                } else {
+                                  alert('DEBUG: data.unlocked is false or missing');
                                 }
                               })
-                              .catch(err => console.error('First vote achievement error:', err));
+                              .catch(err => {
+                                console.error('First vote achievement error:', err);
+                                alert(`DEBUG: Error = ${err.message}`);
+                              });
+                            } else {
+                              alert(`DEBUG: voteCount is ${voteCount}, not 1, skipping first_vote`);
                             }
 
+                            // TODO: Serial voter and Contrarian temporarily disabled for debugging
+                            /*
                             // Achievement: Serial voter (5 votes)
                             if (voteCount === 5) {
-                              fetch('/api/achievements', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userId: user.id, achievementKey: 'serial_voter' })
-                              })
-                              .then(r => r.json())
-                              .then(data => {
-                                console.log('Serial voter achievement response:', data);
-                                if (data.unlocked) {
-                                  setAchievementToast(data.achievement);
-                                }
-                              })
-                              .catch(err => console.error('Serial voter achievement error:', err));
+                              ...
                             }
 
-                            // Achievement: Contrarian (opposite to consensus)
-                            // Get fresh consensus after vote
-                            fetch(`/api/votes?ticker=${ticker}`)
-                              .then(r => r.json())
-                              .then(d => {
-                                const majorityVote = Object.keys(d.percentages).reduce((a, b) => d.percentages[a] > d.percentages[b] ? a : b);
-                                const isContrarian = v !== majorityVote && d.percentages[v] < 25;
-                                
-                                if (isContrarian) {
-                                  fetch('/api/achievements', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ userId: user.id, achievementKey: 'contrarian' })
-                                  })
-                                  .then(r => r.json())
-                                  .then(data => {
-                                    console.log('Contrarian achievement response:', data);
-                                    if (data.unlocked) {
-                                      setAchievementToast(data.achievement);
-                                    }
-                                  })
-                                  .catch(err => console.error('Contrarian achievement error:', err));
-                                }
-                              })
-                              .catch(() => {});
+                            // Achievement: Contrarian
+                            fetch(...).then(...)
+                            */
                           }
                         }).catch(() => {});
                       }}
