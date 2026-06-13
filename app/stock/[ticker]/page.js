@@ -6,6 +6,7 @@ import StockChart from '../../components/StockChart';
 import Sparkline from '../../components/Sparkline';
 import SparklineHeader from '../../components/SparklineHeader';
 import Topbar from '../../components/Topbar';
+import ShareCard from '../../components/ShareCard';
 import { useUser } from '@clerk/nextjs';
 
 const fmt = (val) => {
@@ -568,8 +569,23 @@ export default function StockPage({ params }) {
                 </button>
               </div>
 
-
-
+              {/* Share Card */}
+              <div style={{ marginBottom: '16px' }}>
+                <ShareCard 
+                  ticker={ticker}
+                  name={data?.name || 'N/A'}
+                  price={data?.currentPrice}
+                  priceChange={data?.priceChangePct}
+                  metrics={[
+                    { label: 'P/E', value: fmtN(data?.peRatio) },
+                    { label: 'Rev Growth', value: fmtP(data?.revenueGrowth) },
+                    { label: 'Op Margin', value: fmtP(data?.operatingMargin) },
+                    { label: 'FCF Yield', value: fmtP(data?.fcfYield) }
+                  ]}
+                  score={data?.healthScore || 50}
+                  verdict={data?.verdict || 'HOLD'}
+                />
+              </div>
               {/* Continue research */}
               <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px' }}>CONTINUE RESEARCH</div>
               <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
