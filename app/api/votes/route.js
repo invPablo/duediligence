@@ -75,6 +75,16 @@ export async function POST(req) {
       return Response.json({ error: 'Invalid ticker or vote' }, { status: 400 });
     }
 
+    // Check if this is a new vote (first time voting)
+    const { data: existingVote } = await supabase
+      .from('votes')
+      .select('id')
+      .eq('ticker', ticker)
+      .eq('user_id', userId)
+      .single();
+
+    const isNewVote = !existingVote;
+
     // Upsert vote (insert or update)
     const { error } = await supabase
       .from('votes')
@@ -84,7 +94,15 @@ export async function POST(req) {
 
     if (error) throw error;
 
-    return Response.json({ success: true });
+    // Get total vote count for this user (across all tickers)
+    const { data: allUserVotes } = await supabase
+      .from('votes')
+      .select('id')
+      .eq('user_id', userId);
+
+    const voteCount = allUserVotes?.length || 0;
+
+    return Response.json({ success: true, voteCount, isNewVote });
   } catch (error) {
     console.error('votes POST error:', error);
     return Response.json({ error: error.message }, { status: 500 });

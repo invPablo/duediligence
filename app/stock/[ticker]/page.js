@@ -447,14 +447,12 @@ export default function StockPage({ params }) {
                             .then(d => setVoteConsensus({ ...d.percentages, total: d.total }))
                             .catch(() => {});
 
-                          // Check achievements
-                          if (user?.id) {
-                            // Achievement: First vote
-                            const voteCount = await fetch(`/api/votes/count?userId=${user.id}`)
-                              .then(r => r.json())
-                              .catch(() => ({ count: 0 }));
-                            
-                            if (voteCount.count === 1) {
+                          // Check achievements using the vote count returned from POST
+                          if (user?.id && voteData.voteCount) {
+                            const voteCount = voteData.voteCount;
+
+                            // Achievement: First vote (on first vote ever)
+                            if (voteCount === 1) {
                               fetch('/api/achievements', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -470,7 +468,7 @@ export default function StockPage({ params }) {
                             }
 
                             // Achievement: Serial voter (5 votes)
-                            if (voteCount.count === 5) {
+                            if (voteCount === 5) {
                               fetch('/api/achievements', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -486,20 +484,29 @@ export default function StockPage({ params }) {
                             }
 
                             // Achievement: Contrarian (opposite to consensus)
-                            if (d.percentages[v] < 25 && v !== Object.keys(d.percentages).reduce((a, b) => d.percentages[a] > d.percentages[b] ? a : b)) {
-                              fetch('/api/achievements', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userId: user.id, achievementKey: 'contrarian' })
-                              })
+                            // Get fresh consensus after vote
+                            fetch(`/api/votes?ticker=${ticker}`)
                               .then(r => r.json())
-                              .then(data => {
-                                if (data.unlocked) {
-                                  setAchievementToast(data.achievement);
+                              .then(d => {
+                                const majorityVote = Object.keys(d.percentages).reduce((a, b) => d.percentages[a] > d.percentages[b] ? a : b);
+                                const isContrarian = v !== majorityVote && d.percentages[v] < 25;
+                                
+                                if (isContrarian) {
+                                  fetch('/api/achievements', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ userId: user.id, achievementKey: 'contrarian' })
+                                  })
+                                  .then(r => r.json())
+                                  .then(data => {
+                                    if (data.unlocked) {
+                                      setAchievementToast(data.achievement);
+                                    }
+                                  })
+                                  .catch(() => {});
                                 }
                               })
                               .catch(() => {});
-                            }
                           }
                         }).catch(() => {});
                       }}
