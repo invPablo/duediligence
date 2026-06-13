@@ -104,43 +104,34 @@ export default function ShareCard({ ticker, name, price, priceChange, metrics, s
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tr>
               <td style={{ textAlign: 'center', padding: 0 }}>
-                <div style={{ display: 'inline-block', position: 'relative', width: '200px', height: '200px' }}>
-                  <svg width="200" height="200" viewBox="0 0 200 200">
-                    {/* Background track */}
-                    <circle cx="100" cy="100" r="80" fill="none" stroke="#1e293b" strokeWidth="16" />
-                    {/* Progress arc - starts at top (12 o'clock), goes clockwise */}
-                    <circle 
-                      cx="100" cy="100" r="80" 
-                      fill="none" 
-                      stroke={scoreColor} 
-                      strokeWidth="16" 
-                      strokeLinecap="round"
-                      strokeDasharray={circumference}
-                      strokeDashoffset={dashOffset}
-                      transform="rotate(-90 100 100)"
-                    />
-                  </svg>
-                  {/* Centered number overlay */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '0',
-                    left: '0',
-                    width: '200px',
-                    height: '200px',
-                    display: 'table'
-                  }}>
-                    <div style={{
-                      display: 'table-cell',
-                      verticalAlign: 'middle',
-                      textAlign: 'center',
-                      fontSize: '56px',
-                      fontWeight: 700,
-                      color: scoreColor
-                    }}>
-                      {scoreNum}
-                    </div>
-                  </div>
-                </div>
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                  {/* Background track */}
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="#1e293b" strokeWidth="16" />
+                  {/* Progress arc - starts at top (12 o'clock), goes clockwise */}
+                  <circle 
+                    cx="100" cy="100" r="80" 
+                    fill="none" 
+                    stroke={scoreColor} 
+                    strokeWidth="16" 
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={dashOffset}
+                    transform="rotate(-90 100 100)"
+                  />
+                  {/* Centered number - directly in SVG */}
+                  <text 
+                    x="100" 
+                    y="100" 
+                    textAnchor="middle" 
+                    dominantBaseline="central"
+                    fontSize="56" 
+                    fontWeight="700" 
+                    fill={scoreColor}
+                    fontFamily="JetBrains Mono, monospace"
+                  >
+                    {scoreNum}
+                  </text>
+                </svg>
               </td>
             </tr>
           </table>
