@@ -28,12 +28,6 @@ export const metadata = {
     ],
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Traqcker — Easy Mode Stock Analysis",
-    description: "Stock scores in seconds. Community votes. Free. Easy mode for everyday investors.",
-    images: ["https://traqcker.com/og-screenshot.png"],
-  },
 };
 
 export const viewport = {
