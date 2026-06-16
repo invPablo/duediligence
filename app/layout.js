@@ -21,7 +21,7 @@ export const metadata = {
     siteName: "Traqcker",
     images: [
       {
-        url: "https://traqcker.com/og-image-v2.png",
+        url: "https://traqcker.com/_next/image?url=%2Fog-image-v2.png&w=1200&q=100",
         width: 1200,
         height: 630,
       },
@@ -32,7 +32,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Traqcker — Easy Mode Stock Analysis",
     description: "Stock scores in seconds. Community votes. Free. Easy mode for everyday investors.",
-    images: ["https://traqcker.com/og-image-v2.png"],
+    images: ["https://traqcker.com/_next/image?url=%2Fog-image-v2.png&w=1200&q=100"],
   },
 };
 
