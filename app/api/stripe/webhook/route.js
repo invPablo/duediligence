@@ -33,6 +33,7 @@ export async function POST(request) {
     await supabase.from('subscriptions').upsert({
       user_id: userId,
       stripe_subscription_id: subscriptionId,
+      stripe_customer_id: session.customer,
       status: 'active',
       updated_at: new Date().toISOString(),
     });

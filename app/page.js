@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import MarketBar from './components/MarketBar';
 import Topbar from './components/Topbar';
-import MobileHeader from './components/MobileHeader';
 
 const fmt = (val) => {
   if (val === null || val === undefined) return '—';
@@ -152,7 +151,6 @@ export default function Home() {
     <main style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' }}>
       <Topbar />
       <MarketBar />
-
       {isMobile && (
         <div style={{ padding: '20px 16px' }}>
 

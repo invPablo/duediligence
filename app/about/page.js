@@ -5,7 +5,7 @@ export default function About() {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' }}>
       <Topbar />
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 24px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 24px 80px' }}>
 
         {/* Header */}
         <div style={{ marginBottom: '48px' }}>

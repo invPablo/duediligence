@@ -59,7 +59,7 @@ export default function Watchlist() {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' }}>
       <Topbar />
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 24px' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 24px 80px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
           <div>
             <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '3px', marginBottom: '8px' }}>MY WATCHLIST</div>

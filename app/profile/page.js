@@ -12,6 +12,8 @@ export default function ProfilePage() {
   const [sotwVotes, setSotwVotes] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isPro, setIsPro] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -26,10 +28,11 @@ export default function ProfilePage() {
     try {
       setLoading(true);
 
-      const [wlRes, votesRes, achievRes] = await Promise.all([
+      const [wlRes, votesRes, achievRes, subRes] = await Promise.all([
         fetch('/api/watchlist'),
         fetch('/api/votes'),
         fetch(`/api/achievements?userId=${user.id}`),
+        fetch('/api/subscription'),
       ]);
 
       const wlData = await wlRes.json();
@@ -40,10 +43,25 @@ export default function ProfilePage() {
 
       const achievData = await achievRes.json();
       setAchievements(achievData.achievements || []);
+
+      const subData = await subRes.json();
+      setIsPro(subData.isPro || false);
     } catch (e) {
       console.error('Error loading profile:', e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const goToPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const { url, error } = await res.json();
+      if (url) window.location.href = url;
+      else console.error('Portal error:', error);
+    } finally {
+      setPortalLoading(false);
     }
   };
 
@@ -94,6 +112,40 @@ export default function ProfilePage() {
                 Sign out
               </button>
             </SignOutButton>
+          )}
+        </div>
+
+        {/* Subscription */}
+        <div style={{ background: 'var(--bg-1)', border: `1px solid ${isPro ? 'var(--accent)' : 'var(--border)'}`, borderRadius: '16px', padding: '20px', marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '1px', marginBottom: '6px' }}>PLAN</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700 }}>
+                {isPro ? 'Pro' : 'Free'}
+              </span>
+              {isPro && (
+                <span style={{ background: 'var(--accent)', color: '#000', fontSize: '9px', fontWeight: 700, padding: '2px 8px', letterSpacing: '1px' }}>
+                  ACTIVE
+                </span>
+              )}
+            </div>
+            {!isPro && (
+              <div style={{ color: 'var(--text-3)', fontSize: '11px', marginTop: '4px' }}>
+                Upgrade to unlock Financials, DCF, Screener and Compare
+              </div>
+            )}
+          </div>
+          {isPro ? (
+            <button onClick={goToPortal} disabled={portalLoading}
+              style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-2)', padding: '8px 16px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', cursor: portalLoading ? 'default' : 'pointer', letterSpacing: '1px', opacity: portalLoading ? 0.5 : 1 }}
+              onMouseEnter={e => { if (!portalLoading) e.currentTarget.style.borderColor = 'var(--accent)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; }}>
+              {portalLoading ? 'LOADING...' : 'MANAGE SUBSCRIPTION →'}
+            </button>
+          ) : (
+            <a href="/pricing" style={{ background: 'var(--accent)', color: '#000', padding: '8px 16px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textDecoration: 'none' }}>
+              UPGRADE →
+            </a>
           )}
         </div>
 
