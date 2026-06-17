@@ -489,43 +489,29 @@ export default function StockPage({ params }) {
                           if (user?.id && voteData.voteCount) {
                             const voteCount = voteData.voteCount;
 
-                            // Achievement: Serial voter (5 total votes)
-                            if (voteCount === 5) {
+                            const unlockAchievement = (key) => {
                               fetch('/api/achievements', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userId: user.id, achievementKey: 'serial_voter' })
+                                body: JSON.stringify({ userId: user.id, achievementKey: key })
                               })
                               .then(r => r.json())
-                              .then(data => {
-                                if (data.unlocked) {
-                                  setAchievementToast(data.achievement);
-                                }
-                              })
+                              .then(data => { if (data.unlocked) setAchievementToast(data.achievement); })
                               .catch(() => {});
-                            }
+                            };
+
+                            // Achievement: First vote
+                            if (voteData.isNewVote && voteCount === 1) unlockAchievement('first_vote');
+
+                            // Achievement: Serial voter (5+ total votes)
+                            if (voteCount >= 5) unlockAchievement('serial_voter');
 
                             // Achievement: Contrarian (opposite to consensus)
                             fetch(`/api/votes?ticker=${ticker}`)
                               .then(r => r.json())
                               .then(d => {
                                 const majorityVote = Object.keys(d.percentages).reduce((a, b) => d.percentages[a] > d.percentages[b] ? a : b);
-                                const isContrarian = v !== majorityVote && d.percentages[v] < 25;
-                                
-                                if (isContrarian) {
-                                  fetch('/api/achievements', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ userId: user.id, achievementKey: 'contrarian' })
-                                  })
-                                  .then(r => r.json())
-                                  .then(data => {
-                                    if (data.unlocked) {
-                                      setAchievementToast(data.achievement);
-                                    }
-                                  })
-                                  .catch(() => {});
-                                }
+                                if (v !== majorityVote && d.percentages[v] < 25) unlockAchievement('contrarian');
                               })
                               .catch(() => {});
                           }
