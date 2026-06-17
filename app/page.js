@@ -362,7 +362,7 @@ export default function Home() {
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--accent-dim)', border: '1px solid var(--accent)', padding: '4px 12px', marginBottom: '20px' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
-            <span style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', fontWeight: 700 }}>LIVE · SEC EDGAR · FINNHUB</span>
+            <span style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', fontWeight: 700 }}>DATA FROM COMPANY FILINGS</span>
           </div>
 
           <h1 style={{ fontSize: '56px', fontWeight: 700, letterSpacing: '-2px', lineHeight: 1.0, marginBottom: '28px', whiteSpace: 'nowrap' }}>
@@ -374,7 +374,7 @@ export default function Home() {
             <div style={{ display: 'flex' }}>
               <input
                 style={{ flex: 1, background: 'var(--bg-2)', border: '1px solid var(--border-2)', borderRight: 'none', color: 'var(--accent)', fontFamily: 'JetBrains Mono, monospace', fontSize: '22px', fontWeight: 700, padding: '14px 20px', outline: 'none', letterSpacing: '4px' }}
-                placeholder="AAPL"
+                placeholder="Search a Company, e.g. Apple"
                 value={searchQ || ticker}
                 onChange={e => { const v = e.target.value; setSearchQ(v); setTicker(v.toUpperCase()); setShowSuggestions(true); }}
                 onKeyDown={e => { if (e.key === 'Enter') { go(); setShowSuggestions(false); } if (e.key === 'Escape') setShowSuggestions(false); }}
