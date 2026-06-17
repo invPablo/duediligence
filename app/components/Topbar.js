@@ -134,6 +134,7 @@ export default function Topbar() {
           {navItem('/pricing', 'PRICING')}
           {navItem('/watchlist', 'WATCHLIST')}
           {navItem('/about', 'ABOUT')}
+          {isSignedIn && navItem('/profile', 'PROFILE')}
           {isSignedIn ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ProBadge />
