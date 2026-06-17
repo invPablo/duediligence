@@ -551,6 +551,26 @@ export default function Home() {
       {/* STATS BAR */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px 24px' }}>
 
+        {/* HOW IT WORKS */}
+        <div style={{ marginBottom: '48px' }}>
+          <div style={{ color: 'var(--text-3)', fontSize: '9px', letterSpacing: '3px', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+            HOW IT WORKS
+          </div>
+          <div className="how-it-works-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)' }}>
+            {[
+              { step: '01', title: 'SEARCH A COMPANY', desc: 'Search any company by name. Traqcker fetches real-time data directly from company filings.' },
+              { step: '02', title: 'DOES IT DESERVE YOUR MONEY?', desc: 'See instantly if the company is financially healthy and worth your investment' },
+              { step: '03', title: 'MAKE THE DECISION', desc: 'No recommendations. JUST the necessary information you need to know to make the decision' },
+            ].map(s => (
+              <div key={s.step} style={{ background: 'var(--bg-1)', padding: '24px' }}>
+                <div style={{ color: 'var(--accent)', fontSize: '32px', fontWeight: 700, letterSpacing: '-1px', marginBottom: '12px', opacity: 0.4 }}>{s.step}</div>
+                <div style={{ color: 'var(--text)', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', marginBottom: '8px' }}>{s.title}</div>
+                <div style={{ color: 'var(--text-3)', fontSize: '11px', lineHeight: 1.7 }}>{s.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* MARKET DATA */}
         {movers && (
           <>
@@ -594,48 +614,6 @@ export default function Home() {
             )}
           </>
         )}
-
-        {/* HOW IT WORKS */}
-        <div style={{ marginBottom: '48px' }}>
-          <div style={{ color: 'var(--text-3)', fontSize: '9px', letterSpacing: '3px', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
-            HOW IT WORKS
-          </div>
-          <div className="how-it-works-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)' }}>
-            {[
-              { step: '01', title: 'SEARCH A TICKER', desc: 'Enter any US stock ticker. Traqcker fetches real-time data directly from SEC EDGAR filings and Finnhub.' },
-              { step: '02', title: 'ANALYZE THE BUSINESS', desc: 'Review quality scores, margins, cash flow, valuation multiples, and Graham DCF across 5 analysis dimensions.' },
-              { step: '03', title: 'MAKE YOUR OWN CALL', desc: 'No recommendations. No noise. Just the data you need to form your own informed investment thesis.' },
-            ].map(s => (
-              <div key={s.step} style={{ background: 'var(--bg-1)', padding: '24px' }}>
-                <div style={{ color: 'var(--accent)', fontSize: '32px', fontWeight: 700, letterSpacing: '-1px', marginBottom: '12px', opacity: 0.4 }}>{s.step}</div>
-                <div style={{ color: 'var(--text)', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', marginBottom: '8px' }}>{s.title}</div>
-                <div style={{ color: 'var(--text-3)', fontSize: '11px', lineHeight: 1.7 }}>{s.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* FRAMEWORK */}
-        <div style={{ marginBottom: '48px' }}>
-          <div style={{ color: 'var(--text-3)', fontSize: '9px', letterSpacing: '3px', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
-            ANALYSIS FRAMEWORK · 5 DIMENSIONS · 15 QUESTIONS
-          </div>
-          <div className="framework-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1px', background: 'var(--border)' }}>
-            {[
-              { num: '01', name: 'MANAGEMENT', desc: 'Guidance, compensation alignment, C-suite stability' },
-              { num: '02', name: 'CONCENTRATION', desc: 'Customer, geography, and product diversification' },
-              { num: '03', name: 'OP. TREND', desc: 'Margin expansion, FCF/share CAGR, ROIC vs WACC' },
-              { num: '04', name: 'EARN. QUALITY', desc: 'Cash conversion, accruals, receivables growth' },
-              { num: '05', name: 'TRANSPARENCY', desc: 'Guidance quality, risk disclosure, segment reporting' },
-            ].map(d => (
-              <div key={d.num} style={{ background: 'var(--bg-1)', padding: '20px 16px' }}>
-                <div style={{ color: 'var(--accent)', fontSize: '10px', marginBottom: '8px', opacity: 0.5 }}>{d.num}</div>
-                <div style={{ color: 'var(--text)', fontSize: '11px', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>{d.name}</div>
-                <div style={{ color: 'var(--text-3)', fontSize: '10px', lineHeight: 1.6 }}>{d.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* CTA BOTTOM */}
         <div style={{ border: '1px solid var(--border)', padding: '48px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px', background: 'var(--bg-1)' }}>
