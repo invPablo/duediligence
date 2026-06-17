@@ -122,6 +122,14 @@ export default function Topbar() {
 
           <button onClick={async () => {
   const res = await fetch('/api/random');
+  if (res.status === 429) {
+    const d = await res.json();
+    const msg = d.isAnon
+      ? 'Sign in to get 3 daily discovers. Pro gets unlimited.'
+      : 'Daily limit reached. Upgrade to Pro for unlimited discovers.';
+    alert(msg);
+    return;
+  }
   const { ticker } = await res.json();
   window.location.href = `/stock/${ticker}`;
 }} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace', fontSize: '10px', padding: '4px 10px', cursor: 'pointer', letterSpacing: '1px' }}

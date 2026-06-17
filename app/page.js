@@ -473,7 +473,7 @@ export default function Home() {
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-3)'; }}>
                 SEE PRICING
               </a>
-              <button onClick={async () => { const r = await fetch('/api/random'); const { ticker } = await r.json(); router.push(`/stock/${ticker}`); }}
+              <button onClick={async () => { const r = await fetch('/api/random'); if (r.status === 429) { const d = await r.json(); alert(d.isAnon ? 'Sign in to get 3 daily discovers. Pro gets unlimited.' : 'Daily limit reached. Upgrade to Pro for unlimited discovers.'); return; } const { ticker } = await r.json(); router.push(`/stock/${ticker}`); }}
                 style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-3)', padding: '10px 20px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', letterSpacing: '1px', cursor: 'pointer' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-3)'; }}>
