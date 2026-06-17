@@ -127,6 +127,16 @@ export default function StockPage({ params }) {
 
 
   useEffect(() => {
+    if (isSignedIn && user?.id) {
+      const key = `viewed_stocks_${user.id}`;
+      const viewed = new Set(JSON.parse(localStorage.getItem(key) || '[]'));
+      viewed.add(ticker);
+      localStorage.setItem(key, JSON.stringify([...viewed]));
+      if (viewed.size >= 20) unlockAchievement('stock_explorer');
+    }
+  }, [isSignedIn, user?.id, ticker]);
+
+  useEffect(() => {
     fetch(`/api/stock?ticker=${ticker}`)
       .then(r => r.json())
       .then(d => { if (d.error) { setError(d.error); return; } setData(d); })
@@ -191,14 +201,30 @@ export default function StockPage({ params }) {
     return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
   };
 
+  const unlockAchievement = (key) => {
+    if (!user?.id) return;
+    fetch('/api/achievements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, achievementKey: key }),
+    })
+    .then(r => r.json())
+    .then(data => { if (data.unlocked) setAchievementToast(data.achievement); })
+    .catch(() => {});
+  };
+
   const toggleWatchlist = async () => {
     if (!isSignedIn) { window.location.href = '/sign-in'; return; }
     const method = inWatchlist ? 'DELETE' : 'POST';
-    await fetch('/api/watchlist', {
+    const res = await fetch('/api/watchlist', {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticker }),
     });
+    if (method === 'POST') {
+      const data = await res.json();
+      if (data.watchlistCount >= 5) unlockAchievement('watchlist_builder');
+    }
     setInWatchlist(!inWatchlist);
   };
 
@@ -488,17 +514,6 @@ export default function StockPage({ params }) {
                           // Check achievements using the vote data returned from POST
                           if (user?.id && voteData.voteCount) {
                             const voteCount = voteData.voteCount;
-
-                            const unlockAchievement = (key) => {
-                              fetch('/api/achievements', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userId: user.id, achievementKey: key })
-                              })
-                              .then(r => r.json())
-                              .then(data => { if (data.unlocked) setAchievementToast(data.achievement); })
-                              .catch(() => {});
-                            };
 
                             // Achievement: First vote
                             if (voteData.isNewVote && voteCount === 1) unlockAchievement('first_vote');

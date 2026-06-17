@@ -22,7 +22,13 @@ export async function POST(request) {
   if (!ticker) return Response.json({ error: 'Ticker required' }, { status: 400 });
 
   await supabase.from('watchlists').upsert({ user_id: userId, ticker: ticker.toUpperCase() });
-  return Response.json({ success: true });
+
+  const { count } = await supabase
+    .from('watchlists')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+
+  return Response.json({ success: true, watchlistCount: count || 0 });
 }
 
 export async function DELETE(request) {
