@@ -13,7 +13,7 @@ export default function AchievementToast({ achievement, onClose }) {
   return (
     <div style={{
       position: 'fixed',
-      bottom: isMobile ? '16px' : '20px',
+      bottom: isMobile ? '80px' : '20px',
       right: isMobile ? '16px' : '20px',
       left: isMobile ? '16px' : 'auto',
       background: 'linear-gradient(135deg, var(--accent-dim), rgba(167, 139, 250, 0.05))',
