@@ -6,7 +6,7 @@ export default function AchievementToast({ achievement, onClose }) {
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
-    const timer = setTimeout(onClose, 4000);
+    const timer = setTimeout(onClose, 6000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -16,7 +16,7 @@ export default function AchievementToast({ achievement, onClose }) {
       bottom: isMobile ? '80px' : '20px',
       right: isMobile ? '16px' : '20px',
       left: isMobile ? '16px' : 'auto',
-      background: 'linear-gradient(135deg, var(--accent-dim), rgba(167, 139, 250, 0.05))',
+      background: 'var(--bg-1)',
       border: '2px solid var(--accent)',
       borderRadius: '16px',
       padding: isMobile ? '16px 16px' : '20px 24px',
