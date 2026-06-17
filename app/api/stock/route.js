@@ -1,6 +1,6 @@
 import { supabase } from '../../../lib/supabase';
 
-const FH_KEY = 'd8he51pr01qgcfbpbuo0d8he51pr01qgcfbpbuog';
+const FH_KEY = process.env.FINNHUB_API_KEY;
 const CACHE_HOURS = 24;
 
 export async function GET(request) {
@@ -102,10 +102,6 @@ export async function GET(request) {
       try {
         await supabase.from('stock_cache').upsert({ ticker, data: result, updated_at: new Date().toISOString() });
       } catch (e) {}
-
-      // Detectar si los datos son muy incompletos
-    const dataQuality = [revVal, niVal, oiVal, fcfVal, assetsVal, equityVal].filter(v => v !== null).length;
-    result.finnhubFallback = dataQuality < 2;
 
       return Response.json(result);
     }

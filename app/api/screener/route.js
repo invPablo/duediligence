@@ -1,6 +1,10 @@
+import { auth } from '@clerk/nextjs/server';
 import { supabase } from '../../../lib/supabase';
 
 export async function GET() {
+  const { userId } = await auth();
+  if (!userId) return Response.json({ error: 'Not authenticated' }, { status: 401 });
+
   try {
     const { data, error } = await supabase
       .from('stock_cache')

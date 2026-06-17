@@ -5,10 +5,13 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const ticker = searchParams.get('ticker')?.toUpperCase();
-    const userId = searchParams.get('userId');
 
-    // If userId provided, return vote count for that user
-    if (userId) {
+    const { userId } = await auth();
+
+    // If no ticker, return vote count for the authenticated user
+    if (!ticker) {
+      if (!userId) return Response.json({ error: 'Not authenticated' }, { status: 401 });
+
       const { data: userVotes, error } = await supabase
         .from('votes')
         .select('ticker')
@@ -19,12 +22,7 @@ export async function GET(req) {
       return Response.json({ count: userVotes?.length || 0 });
     }
 
-    // Otherwise, return vote percentages for a ticker
-    if (!ticker) {
-      return Response.json({ error: 'ticker or userId required' }, { status: 400 });
-    }
-
-    // Get vote counts for this ticker
+    // Return vote percentages for a ticker
     const { data: votes, error } = await supabase
       .from('votes')
       .select('vote')
@@ -41,25 +39,21 @@ export async function GET(req) {
       SELL: Math.round((counts.SELL / total) * 100),
     };
 
-    // Get user's vote if signed in
     let userVote = null;
-    try {
-      const { userId } = await auth();
-      if (userId) {
-        const { data: userVotes } = await supabase
-          .from('votes')
-          .select('vote')
-          .eq('ticker', ticker)
-          .eq('user_id', userId)
-          .single();
-        if (userVotes) userVote = userVotes.vote;
-      }
-    } catch {}
+    if (userId) {
+      const { data: userVotes } = await supabase
+        .from('votes')
+        .select('vote')
+        .eq('ticker', ticker)
+        .eq('user_id', userId)
+        .single();
+      if (userVotes) userVote = userVotes.vote;
+    }
 
     return Response.json({ percentages, userVote, total });
   } catch (error) {
     console.error('votes GET error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Error fetching votes' }, { status: 500 });
   }
 }
 
@@ -75,7 +69,6 @@ export async function POST(req) {
       return Response.json({ error: 'Invalid ticker or vote' }, { status: 400 });
     }
 
-    // Check if this is a new vote (first time voting)
     const { data: existingVote } = await supabase
       .from('votes')
       .select('id')
@@ -85,7 +78,6 @@ export async function POST(req) {
 
     const isNewVote = !existingVote;
 
-    // Upsert vote (insert or update)
     const { error } = await supabase
       .from('votes')
       .upsert([{ ticker: ticker.toUpperCase(), user_id: userId, vote }], {
@@ -94,7 +86,6 @@ export async function POST(req) {
 
     if (error) throw error;
 
-    // Get total vote count for this user (across all tickers)
     const { data: allUserVotes } = await supabase
       .from('votes')
       .select('id')
@@ -105,6 +96,6 @@ export async function POST(req) {
     return Response.json({ success: true, voteCount, isNewVote });
   } catch (error) {
     console.error('votes POST error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Error saving vote' }, { status: 500 });
   }
 }

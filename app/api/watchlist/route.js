@@ -30,6 +30,7 @@ export async function DELETE(request) {
   if (!userId) return Response.json({ error: 'Not authenticated' }, { status: 401 });
 
   const { ticker } = await request.json();
+  if (!ticker) return Response.json({ error: 'Ticker required' }, { status: 400 });
   await supabase.from('watchlists').delete().eq('user_id', userId).eq('ticker', ticker.toUpperCase());
   return Response.json({ success: true });
 }

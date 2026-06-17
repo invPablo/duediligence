@@ -19,6 +19,11 @@ export async function POST(request) {
 
   const { priceId } = await request.json();
 
+  const allowedPrices = [process.env.STRIPE_PRICE_MONTHLY, process.env.STRIPE_PRICE_ANNUAL];
+  if (!allowedPrices.includes(priceId)) {
+    return Response.json({ error: 'Invalid price' }, { status: 400 });
+  }
+
   try {
     const stripeClient = getStripe();
     const session = await stripeClient.checkout.sessions.create({
