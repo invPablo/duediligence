@@ -832,19 +832,19 @@ export default function StockPage({ params }) {
     </a>
   )}
   <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', filter: !isSignedIn ? 'blur(12px)' : 'none', pointerEvents: !isSignedIn ? 'none' : 'auto', userSelect: !isSignedIn ? 'none' : 'auto', overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1px', background: 'var(--border)' }}>
+            <div className="quality-score-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1px', background: 'var(--border)' }}>
               {[
                 { label: 'CORE BUSINESS', score: cbs, desc: 'ROIC · Margins · Leverage' },
                 { label: 'OPPO SCORE', score: oppo, desc: 'P/FCF · FCF Yield' },
                 { label: 'GROWTH QUALITY', score: gqs, desc: 'Revenue · FCF trend' },
                 { label: 'FINAL NOTE', score: finalNote, desc: 'Weighted composite', highlight: true },
               ].map(s => (
-                <div key={s.label} style={{ background: s.highlight ? 'var(--bg-2)' : 'var(--bg-1)', padding: '20px', textAlign: 'center' }}>
-                  <div style={{ color: 'var(--text-3)', fontSize: '9px', letterSpacing: '2px', marginBottom: '12px' }}>{s.label}</div>
-                  <div style={{ fontSize: s.highlight ? '48px' : '40px', fontWeight: 700, color: scoreColor(s.score), letterSpacing: '-2px', lineHeight: 1 }}>
+                <div key={s.label} style={{ background: s.highlight ? 'var(--bg-2)' : 'var(--bg-1)', padding: '12px 8px', textAlign: 'center' }}>
+                  <div style={{ color: 'var(--text-3)', fontSize: '8px', letterSpacing: '1px', marginBottom: '8px', lineHeight: 1.3 }}>{s.label}</div>
+                  <div style={{ fontSize: s.highlight ? '36px' : '30px', fontWeight: 700, color: scoreColor(s.score), letterSpacing: '-1px', lineHeight: 1 }}>
                     {s.score.toFixed(1)}
                   </div>
-                  <div style={{ color: 'var(--text-3)', fontSize: '9px', marginTop: '6px' }}>{s.desc}</div>
+                  <div style={{ color: 'var(--text-3)', fontSize: '8px', marginTop: '4px', lineHeight: 1.3 }}>{s.desc}</div>
                   <ScoreBar score={s.score} />
                 </div>
               ))}
