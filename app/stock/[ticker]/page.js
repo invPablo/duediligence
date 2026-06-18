@@ -402,7 +402,7 @@ export default function StockPage({ params }) {
       <div className="mobile-tabs" style={{ display: 'none', borderBottom: '1px solid var(--border)', background: 'var(--bg-1)', overflowX: 'auto', whiteSpace: 'nowrap' }}>
         {NAV.map(n => (
           <button key={n.key}
-            onClick={() => setTab(n.key)}
+            onClick={() => { setTab(n.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             style={{ display: 'inline-block', padding: '10px 16px', fontSize: '12px', letterSpacing: '0.5px', background: 'none', border: 'none', color: tab === n.key ? 'var(--accent)' : 'var(--text-3)', borderBottom: tab === n.key ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'Nunito, sans-serif', fontWeight: tab === n.key ? 700 : 500, cursor: 'pointer' }}>
             {n.label}
           </button>
@@ -416,7 +416,7 @@ export default function StockPage({ params }) {
           {NAV.map(n => (
             <button key={n.key}
               style={{ ...S.navItem(tab === n.key) }}
-              onClick={() => setTab(n.key)}>
+              onClick={() => { setTab(n.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               {n.label}{n.pro && !isPro && !checkingPro ? ' 🔒' : ''}
             </button>
           ))}
@@ -700,7 +700,7 @@ export default function StockPage({ params }) {
                   { key: 'financials', title: 'Financials', desc: 'Income, cash flow, balance sheet' },
                   { key: 'dcf', title: 'DCF Valuation', desc: "What's it really worth?" },
                 ].map(s => (
-                  <button key={s.key} onClick={() => setTab(s.key)}
+                  <button key={s.key} onClick={() => { setTab(s.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                     style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '14px', padding: '14px 16px', textAlign: 'left', cursor: 'pointer', fontFamily: 'Nunito, sans-serif', transition: 'background 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
