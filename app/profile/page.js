@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser, SignOutButton } from '@clerk/nextjs';
 import Topbar from '../components/Topbar';
-import MobileHeader from '../components/MobileHeader';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -45,7 +44,7 @@ export default function ProfilePage() {
 
   if (!isLoaded || loading) return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text)', fontFamily: 'Nunito, sans-serif' }}>
-      <Topbar /><MobileHeader />
+      <Topbar />
       <div style={{ color: 'var(--text-3)', fontSize: '14px' }}>Loading...</div>
     </div>
   );
@@ -53,7 +52,6 @@ export default function ProfilePage() {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'Nunito, sans-serif' }}>
       <Topbar />
-      <MobileHeader />
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 16px', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
 
         {/* Header */}
