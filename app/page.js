@@ -97,6 +97,7 @@ export default function Home() {
   const [discoverRemaining, setDiscoverRemaining] = useState(null);
   const [discoverSlot, setDiscoverSlot] = useState('???');
   const [faqOpen, setFaqOpen] = useState(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const router = useRouter();
   const { isSignedIn } = useUser();
 
@@ -130,6 +131,12 @@ export default function Home() {
     }, 200);
     return () => clearTimeout(timeout);
   }, [searchQ]);
+
+  useEffect(() => {
+    const onScroll = () => setShowStickyBar(window.scrollY > 300);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     fetch('/api/movers').then(r => r.json()).then(d => setMovers(d)).catch(() => {});
@@ -992,6 +999,26 @@ export default function Home() {
       </div>
     </div>
 
+      {/* STICKY MOBILE BAR */}
+      {!isSignedIn && (
+        <div className="mobile-only" style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
+          padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+          background: 'rgba(8,9,15,0.92)', backdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(167,139,250,0.2)',
+          transform: showStickyBar ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s ease',
+          display: 'flex', gap: '10px', alignItems: 'center',
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text)', lineHeight: 1.2 }}>Free to start</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-3)', marginTop: '1px' }}>No credit card needed</div>
+          </div>
+          <a href="/sign-up" className="btn-primary" style={{ flexShrink: 0, padding: '11px 22px', borderRadius: '12px', fontSize: '14px', textDecoration: 'none' }}>
+            Start free →
+          </a>
+        </div>
+      )}
     </main>
   );
 }
