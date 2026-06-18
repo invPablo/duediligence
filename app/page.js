@@ -1002,8 +1002,8 @@ export default function Home() {
       {/* STICKY MOBILE BAR */}
       {!isSignedIn && (
         <div className="mobile-only" style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
-          padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+          position: 'fixed', bottom: '60px', left: 0, right: 0, zIndex: 100,
+          padding: '12px 16px',
           background: 'rgba(8,9,15,0.92)', backdropFilter: 'blur(20px)',
           borderTop: '1px solid rgba(167,139,250,0.2)',
           transform: showStickyBar ? 'translateY(0)' : 'translateY(100%)',
