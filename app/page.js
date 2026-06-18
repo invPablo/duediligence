@@ -228,12 +228,9 @@ export default function Home() {
                 Real data from company filings. No finance degree needed. Free to start.
               </p>
               {displayCount > 0 && (
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                  <div style={{ display: 'flex', gap: '2px' }}>
-                    {[...String(displayCount)].map((d, i) => (
-                      <span key={i} style={{ display: 'inline-block', background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.2)', borderRadius: '6px', padding: '2px 5px', fontWeight: 800, fontSize: '16px', color: 'var(--accent)', fontVariantNumeric: 'tabular-nums', minWidth: '14px', textAlign: 'center' }}>{d}</span>
-                    ))}
-                  </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '50px', padding: '6px 14px', marginBottom: '20px' }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', display: 'inline-block', flexShrink: 0 }} />
+                  <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '13px' }}>{displayCount.toLocaleString()}</span>
                   <span style={{ color: 'var(--text-3)', fontSize: '13px', fontWeight: 600 }}>investors already using Traqcker</span>
                 </div>
               )}
@@ -587,12 +584,9 @@ export default function Home() {
             Real data from company filings. No finance degree needed. Free to start.
           </p>
           {displayCount > 0 && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '28px' }}>
-              <div style={{ display: 'flex', gap: '3px' }}>
-                {[...String(displayCount)].map((d, i) => (
-                  <span key={i} style={{ display: 'inline-block', background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.2)', borderRadius: '7px', padding: '3px 7px', fontWeight: 800, fontSize: '18px', color: 'var(--accent)', fontVariantNumeric: 'tabular-nums', minWidth: '16px', textAlign: 'center' }}>{d}</span>
-                ))}
-              </div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '50px', padding: '7px 16px', marginBottom: '28px' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '14px' }}>{displayCount.toLocaleString()}</span>
               <span style={{ color: 'var(--text-3)', fontSize: '14px', fontWeight: 600 }}>investors already using Traqcker</span>
             </div>
           )}
