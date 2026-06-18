@@ -999,25 +999,23 @@ export default function Home() {
       </div>
     </div>
 
-      {/* STICKY MOBILE BAR */}
+      {/* STICKY MOBILE WIDGET */}
       {!isSignedIn && (
-        <div className="mobile-only" style={{
-          position: 'fixed', bottom: '60px', left: 0, right: 0, zIndex: 100,
-          padding: '12px 16px',
-          background: 'rgba(8,9,15,0.92)', backdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(167,139,250,0.2)',
-          transform: showStickyBar ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 0.3s ease',
-          display: 'flex', gap: '10px', alignItems: 'center',
-        }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text)', lineHeight: 1.2 }}>Free to start</div>
-            <div style={{ fontSize: '11px', color: 'var(--text-3)', marginTop: '1px' }}>No credit card needed</div>
-          </div>
-          <a href="/sign-up" className="btn-primary" style={{ flexShrink: 0, padding: '11px 22px', borderRadius: '12px', fontSize: '14px', textDecoration: 'none' }}>
-            Start free →
-          </a>
-        </div>
+        <a href="/sign-up" className="mobile-only" style={{
+          position: 'fixed', bottom: '76px', right: '16px', zIndex: 100,
+          display: showStickyBar ? 'flex' : 'none',
+          alignItems: 'center', gap: '8px',
+          background: 'linear-gradient(135deg, #a78bfa, #60a5fa)',
+          color: '#000', fontFamily: 'Nunito, sans-serif', fontWeight: 800,
+          fontSize: '14px', padding: '12px 20px', borderRadius: '50px',
+          textDecoration: 'none',
+          boxShadow: '0 4px 24px rgba(167,139,250,0.4)',
+          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 6px 32px rgba(167,139,250,0.55)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(167,139,250,0.4)'; }}>
+          ✦ Start free
+        </a>
       )}
     </main>
   );
