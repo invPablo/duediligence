@@ -96,6 +96,7 @@ export default function Home() {
   const [discoverTicker, setDiscoverTicker] = useState(null);
   const [discoverRemaining, setDiscoverRemaining] = useState(null);
   const [discoverSlot, setDiscoverSlot] = useState('???');
+  const [faqOpen, setFaqOpen] = useState(null);
   const router = useRouter();
   const { isSignedIn } = useUser();
 
@@ -467,6 +468,40 @@ export default function Home() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* FAQ — mobile */}
+          {(() => {
+            const faqs = [
+              { q: 'Is it really free?', a: 'Yes — no credit card needed. Easy Mode score, Fair Value, votes and Stock of the Week are free forever. Pro unlocks financials, screener, DCF and Compare.' },
+              { q: 'Where does the data come from?', a: 'Directly from SEC EDGAR filings — the same source companies are legally required to file with. Supplemented by Finnhub for real-time prices.' },
+              { q: 'Do I need a finance background?', a: 'No. Easy Mode is designed for everyone. The score and plain-language summaries give you everything you need without a finance degree.' },
+              { q: 'How is this different from other apps?', a: 'We show you the actual business — margins, cash flow, debt — scored in plain language. No analyst opinions. No buy/sell recommendations. Just the facts.' },
+              { q: 'What does Pro include?', a: 'Full financials, DCF valuation model, screener across 8,000+ stocks, side-by-side comparison, and unlimited Spin the Market.' },
+            ];
+            return (
+              <div style={{ marginBottom: '40px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '2px', fontWeight: 700, marginBottom: '8px' }}>FAQ</div>
+                  <div style={{ fontSize: '22px', fontWeight: 800 }}>Common questions</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {faqs.map((f, i) => (
+                    <div key={i} className="glass" style={{ overflow: 'hidden', cursor: 'pointer' }} onClick={() => setFaqOpen(faqOpen === i ? null : i)}>
+                      <div style={{ padding: '16px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: 700, color: faqOpen === i ? 'var(--accent)' : 'var(--text)' }}>{f.q}</span>
+                        <span style={{ color: 'var(--accent)', fontSize: '18px', fontWeight: 300, flexShrink: 0, transform: faqOpen === i ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s', lineHeight: 1 }}>+</span>
+                      </div>
+                      {faqOpen === i && (
+                        <div style={{ padding: '0 18px 16px', color: 'var(--text-2)', fontSize: '13px', lineHeight: 1.7, borderTop: '1px solid var(--border)' }}>
+                          <div style={{ paddingTop: '12px' }}>{f.a}</div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -906,6 +941,40 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* FAQ */}
+        {(() => {
+          const faqs = [
+            { q: 'Is it really free?', a: 'Yes — no credit card, no trial. Easy Mode score, Fair Value check, community votes and Stock of the Week are free forever for every stock. Pro unlocks full financial statements, the screener, DCF valuation and Compare.' },
+            { q: 'Where does the data come from?', a: 'Directly from SEC EDGAR filings (the same source public companies are legally required to file with), supplemented by Finnhub for real-time prices and international stocks. No analyst opinions, no aggregated estimates — primary sources only.' },
+            { q: 'Do I need a finance background to use this?', a: 'No. Easy Mode is specifically designed for people who don\'t read balance sheets. The score, the Fair Value bar and the plain-language summaries give you everything you need to make an informed decision without a finance degree.' },
+            { q: 'How is this different from other stock apps?', a: 'Most apps show you price charts and analyst ratings. We show you the actual business: margins, cash flow, return on capital, debt levels — scored and explained in plain language. No buy/sell recommendations. Just the facts.' },
+            { q: 'What exactly does Pro include?', a: 'Full income statement, balance sheet and cash flow history. DCF / Graham intrinsic value model. Stock screener across 8,000+ companies with 10+ filters. Side-by-side comparison of up to 3 stocks. Unlimited Spin the Market.' },
+          ];
+          return (
+            <div style={{ marginBottom: '64px', maxWidth: '720px', margin: '0 auto 64px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <div style={{ color: 'var(--accent)', fontSize: '10px', letterSpacing: '3px', fontWeight: 700, marginBottom: '12px' }}>FAQ</div>
+                <div style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.5px' }}>Common questions</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {faqs.map((f, i) => (
+                  <div key={i} className="glass" style={{ overflow: 'hidden', cursor: 'pointer' }} onClick={() => setFaqOpen(faqOpen === i ? null : i)}>
+                    <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 700, color: faqOpen === i ? 'var(--accent)' : 'var(--text)' }}>{f.q}</span>
+                      <span style={{ color: 'var(--accent)', fontSize: '18px', fontWeight: 300, flexShrink: 0, transform: faqOpen === i ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s', lineHeight: 1 }}>+</span>
+                    </div>
+                    {faqOpen === i && (
+                      <div style={{ padding: '0 24px 20px', color: 'var(--text-2)', fontSize: '14px', lineHeight: 1.8, borderTop: '1px solid var(--border)' }}>
+                        <div style={{ paddingTop: '16px' }}>{f.a}</div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* FOOTER */}
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-3)', fontSize: '10px', flexWrap: 'wrap', gap: '12px' }}>
