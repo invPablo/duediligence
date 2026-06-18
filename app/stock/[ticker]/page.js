@@ -21,10 +21,10 @@ const fmtP = (v) => v !== null && v !== undefined ? `${v}%` : 'N/A';
 const fmtN = (v, d = 2) => v !== null && v !== undefined ? v.toFixed(d) : 'N/A';
 
 const S = {
-  page: { background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' },
+  page: { background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'Nunito, sans-serif' },
   topbar: { borderBottom: '1px solid var(--border)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10, fontSize: '11px' },
   sidebar: { width: '160px', flexShrink: 0, borderRight: '1px solid var(--border)', minHeight: '100vh', padding: '16px 0', position: 'sticky', top: '33px', alignSelf: 'flex-start' },
-  navItem: (active) => ({ display: 'block', width: '100%', textAlign: 'left', padding: '8px 16px', fontSize: '11px', letterSpacing: '0.5px', background: 'none', border: 'none', cursor: 'pointer', color: active ? 'var(--accent)' : 'var(--text-3)', borderLeft: active ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'JetBrains Mono, monospace' }),
+  navItem: (active) => ({ display: 'block', width: '100%', textAlign: 'left', padding: '8px 16px', fontSize: '12px', letterSpacing: '0.5px', background: 'none', border: 'none', cursor: 'pointer', color: active ? 'var(--accent)' : 'var(--text-3)', borderLeft: active ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'Nunito, sans-serif', fontWeight: active ? 700 : 500 }),
   content: { flex: 1, padding: '24px', overflow: 'hidden' },
   card: { background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '16px', marginBottom: '1px' },
   label: { color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', marginBottom: '4px' },
@@ -112,14 +112,14 @@ export default function StockPage({ params }) {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('overview');
   const [answers, setAnswers] = useState({});
-  const [finTab, setFinTab] = useState('income');
+  const [finTab, setFinTab] = useState('snapshot');
   const [evidence, setEvidence] = useState({});
   const [sparklineData, setSparklineData] = useState(null);
   const [isPro, setIsPro] = useState(false);
   const [checkingPro, setCheckingPro] = useState(true);
   const [inWatchlist, setInWatchlist] = useState(false);
   const [userVote, setUserVote] = useState(null);
-  const [voteConsensus, setVoteConsensus] = useState({ BUY: 0, HOLD: 0, SELL: 0, total: 0 });
+  const [voteConsensus, setVoteConsensus] = useState({ BUY: 0, HOLD: 0, SELL: 0, total: 0, source: 'none' });
   const [expanded, setExpanded] = useState(false);
   const [sotw, setSotw] = useState(null);
   const [achievementToast, setAchievementToast] = useState(null);
@@ -176,7 +176,7 @@ export default function StockPage({ params }) {
       .then(r => r.json())
       .then(d => {
         if (d.userVote) setUserVote(d.userVote);
-        setVoteConsensus({ ...d.percentages, total: d.total });
+        setVoteConsensus({ ...d.percentages, total: d.total, source: d.source || 'none' });
       })
       .catch(() => {});
   }, [ticker]);
@@ -265,7 +265,7 @@ export default function StockPage({ params }) {
       <Topbar />
       <div style={{ maxWidth: '480px', margin: '80px auto', padding: '0 24px', textAlign: 'center' }}>
         <div style={{ fontSize: '32px', marginBottom: '16px' }}>🔍</div>
-        <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
+        <div style={{ fontFamily: 'Nunito, sans-serif', fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
           Ticker not found
         </div>
         <div style={{ color: 'var(--text-3)', fontSize: '13px', marginBottom: '32px', lineHeight: 1.6 }}>
@@ -273,11 +273,11 @@ export default function StockPage({ params }) {
           Try checking the ticker symbol or search for a different stock.
         </div>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-          <a href="/" style={{ background: 'var(--accent)', color: '#000', padding: '10px 20px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textDecoration: 'none' }}>
-            ← SEARCH AGAIN
+          <a href="/" className="btn-primary" style={{ textDecoration: 'none', fontSize: '13px' }}>
+            ← Search again
           </a>
-          <a href="/screener" style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-3)', padding: '10px 20px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', letterSpacing: '1px', textDecoration: 'none' }}>
-            SCREENER →
+          <a href="/screener" className="btn-secondary" style={{ textDecoration: 'none', fontSize: '13px' }}>
+            Screener →
           </a>
         </div>
       </div>
@@ -402,8 +402,8 @@ export default function StockPage({ params }) {
       <div className="mobile-tabs" style={{ display: 'none', borderBottom: '1px solid var(--border)', background: 'var(--bg-1)', overflowX: 'auto', whiteSpace: 'nowrap' }}>
         {NAV.map(n => (
           <button key={n.key}
-            onClick={() => setTab(n.key)}
-            style={{ display: 'inline-block', padding: '10px 16px', fontSize: '11px', letterSpacing: '1px', background: 'none', border: 'none', color: tab === n.key ? 'var(--accent)' : 'var(--text-3)', borderBottom: tab === n.key ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer' }}>
+            onClick={() => { setTab(n.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            style={{ display: 'inline-block', padding: '10px 16px', fontSize: '12px', letterSpacing: '0.5px', background: 'none', border: 'none', color: tab === n.key ? 'var(--accent)' : 'var(--text-3)', borderBottom: tab === n.key ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'Nunito, sans-serif', fontWeight: tab === n.key ? 700 : 500, cursor: 'pointer' }}>
             {n.label}
           </button>
         ))}
@@ -416,7 +416,7 @@ export default function StockPage({ params }) {
           {NAV.map(n => (
             <button key={n.key}
               style={{ ...S.navItem(tab === n.key) }}
-              onClick={() => setTab(n.key)}>
+              onClick={() => { setTab(n.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               {n.label}{n.pro && !isPro && !checkingPro ? ' 🔒' : ''}
             </button>
           ))}
@@ -442,7 +442,7 @@ export default function StockPage({ params }) {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '17px', fontWeight: 600, letterSpacing: '-0.3px', marginBottom: '2px' }}>{data.name}</div>
+              <div style={{ fontFamily: 'Nunito, sans-serif', fontSize: '17px', fontWeight: 800, letterSpacing: '-0.3px', marginBottom: '2px' }}>{data.name}</div>
               <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>
                 {ticker} · {data.exchange || 'NASDAQ'} · {data.sector}
               </div>
@@ -466,17 +466,21 @@ export default function StockPage({ params }) {
 
 
           {data.description && (() => {
-            const short = data.description.slice(0, 200);
+            const LIMIT = 320;
+            const short = data.description.slice(0, LIMIT);
             const full = data.description;
             return (
-              <div style={{ color: 'var(--text-3)', fontSize: '11px', lineHeight: 1.7, marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
-                {expanded ? full : `${short}...`}
-                {data.description.length > 200 && (
-                  <span onClick={() => setExpanded(!expanded)}
-                    style={{ color: 'var(--accent)', cursor: 'pointer', marginLeft: '6px', letterSpacing: '0.5px' }}>
-                    {expanded ? 'COLLAPSE ↑' : 'READ MORE ↓'}
-                  </span>
-                )}
+              <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px 18px', marginBottom: '16px' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-3)', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '8px' }}>ABOUT</div>
+                <div style={{ color: 'var(--text-2)', fontSize: '13px', lineHeight: 1.75 }}>
+                  {expanded ? full : `${short}${data.description.length > LIMIT ? '…' : ''}`}
+                  {data.description.length > LIMIT && (
+                    <span onClick={() => setExpanded(!expanded)}
+                      style={{ color: 'var(--accent)', cursor: 'pointer', marginLeft: '6px', fontWeight: 700, fontSize: '12px' }}>
+                      {expanded ? 'Show less' : 'Read more'}
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })()}
@@ -486,7 +490,7 @@ export default function StockPage({ params }) {
             <div>
               {/* Community vote */}
               <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', marginBottom: '16px' }}>
-                <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '13px', marginBottom: '8px', color: 'var(--text-3)' }}>Your vote</div>
+                <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: '13px', marginBottom: '8px', color: 'var(--text-3)' }}>Your vote</div>
                 <div style={{ color: 'var(--text-3)', fontSize: '11px', marginBottom: '14px', opacity: 0.7 }}>
                   {isSignedIn ? "Choose your call" : 'Sign in to vote'}
                 </div>
@@ -539,7 +543,7 @@ export default function StockPage({ params }) {
                           border: `1.5px solid ${active ? activeColor : 'var(--border)'}`,
                           background: active ? activeDim : 'var(--bg-2)',
                           color: active ? activeColor : 'var(--text-2)',
-                          fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '13px', letterSpacing: '0.5px',
+                          fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: '13px', letterSpacing: '0.5px',
                           cursor: 'pointer',
                           transition: 'transform 0.2s ease'
                         }}>
@@ -554,16 +558,18 @@ export default function StockPage({ params }) {
                     <div style={{ background: `linear-gradient(90deg, var(--amber) 0%, rgba(251, 191, 36, 0.7) 100%)`, width: `${voteConsensus.HOLD}%` }} />
                     <div style={{ background: `linear-gradient(90deg, var(--red) 0%, rgba(248, 113, 113, 0.7) 100%)`, width: `${voteConsensus.SELL}%` }} />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--text-3)', fontFamily: 'Nunito, sans-serif', fontWeight: 600 }}>
                     <span style={{ color: 'var(--green)' }}>● {voteConsensus.BUY}% Buy</span>
                     <span style={{ color: 'var(--amber)' }}>● {voteConsensus.HOLD}% Hold</span>
                     <span style={{ color: 'var(--red)' }}>● {voteConsensus.SELL}% Sell</span>
                   </div>
-                  {voteConsensus.total > 0 && (
-                    <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--text-3)', textAlign: 'center' }}>
-                      {voteConsensus.total} {voteConsensus.total === 1 ? 'person' : 'people'} voted
-                    </div>
-                  )}
+                  <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--text-3)', textAlign: 'center' }}>
+                    {voteConsensus.source === 'analysts'
+                      ? `Analyst consensus · ${voteConsensus.total} analysts`
+                      : voteConsensus.source === 'community'
+                      ? `${voteConsensus.total} ${voteConsensus.total === 1 ? 'person' : 'people'} voted`
+                      : null}
+                  </div>
                 </div>
               </div>
 
@@ -576,13 +582,13 @@ export default function StockPage({ params }) {
                       strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * easyMode.score100 / 100)} />
                   </svg>
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '26px', lineHeight: 1 }}>{easyMode.score100}</div>
+                    <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: '26px', lineHeight: 1 }}>{easyMode.score100}</div>
                     <div style={{ fontSize: '9px', color: 'var(--text-3)', letterSpacing: '1px', marginTop: '2px' }}>/ 100</div>
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '11px', letterSpacing: '2px', color: 'var(--text-3)', marginBottom: '6px', fontFamily: 'JetBrains Mono, monospace' }}>EASY MODE</div>
-                  <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '17px', color: easyMode.verdictColor, marginBottom: '6px' }}>{easyMode.verdict}</div>
+                  <div style={{ fontSize: '11px', letterSpacing: '2px', color: 'var(--text-3)', marginBottom: '6px', fontFamily: 'Nunito, sans-serif', fontWeight: 700 }}>EASY MODE</div>
+                  <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: '17px', color: easyMode.verdictColor, marginBottom: '6px' }}>{easyMode.verdict}</div>
                   <div style={{ fontSize: '13px', color: 'var(--text-2)', lineHeight: 1.4 }}>{easyMode.summary}</div>
                 </div>
               </div>
@@ -591,7 +597,7 @@ export default function StockPage({ params }) {
               {fairValue && (
                 <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', marginBottom: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '14px' }}>
-                    <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '15px' }}>Fair value</div>
+                    <div style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: '15px' }}>Fair value</div>
                     <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '1px', color: fairValue.tagColor, padding: '4px 10px', borderRadius: '8px', backgroundColor: fairValue.tag === 'EXPENSIVE' ? 'var(--red-dim)' : fairValue.tag === 'SLIGHTLY EXPENSIVE' ? 'var(--amber-dim)' : 'var(--green-dim)' }}>{fairValue.tag}</div>
                   </div>
                   <div style={{ position: 'relative', height: '10px', borderRadius: '6px', background: 'linear-gradient(90deg, var(--green) 0%, var(--amber) 50%, var(--red) 100%)', opacity: 0.35 }}>
@@ -615,7 +621,7 @@ export default function StockPage({ params }) {
                 <div style={{ background: 'linear-gradient(135deg, var(--accent-dim), transparent)', border: '1px solid var(--accent)', borderRadius: '18px', padding: '16px 18px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🔥</div>
                   <div>
-                    <div style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--accent)', fontWeight: 600, fontSize: '12px', letterSpacing: '0.5px' }}>STOCK OF THE WEEK</div>
+                    <div style={{ fontFamily: 'Nunito, sans-serif', color: 'var(--accent)', fontWeight: 700, fontSize: '12px', letterSpacing: '0.5px' }}>STOCK OF THE WEEK</div>
                     <div style={{ color: 'var(--text-2)', fontSize: '12px', marginTop: '2px' }}>{ticker} is this week's community pick.</div>
                   </div>
                 </div>
@@ -643,7 +649,7 @@ export default function StockPage({ params }) {
 
               {/* The Numbers, Simplified - meter bars */}
               <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-3)', fontSize: '11px', letterSpacing: '2px', marginBottom: '10px', paddingLeft: '4px' }}>THE NUMBERS, SIMPLIFIED</div>
+                <div style={{ fontFamily: 'Nunito, sans-serif', color: 'var(--text-3)', fontSize: '11px', letterSpacing: '2px', marginBottom: '10px', paddingLeft: '4px', fontWeight: 700 }}>THE NUMBERS, SIMPLIFIED</div>
                 <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '20px', padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {[
                     { label: 'Revenue is growing', value: data.revGrowth != null ? `${data.revGrowth > 0 ? '+' : ''}${data.revGrowth}% / yr` : 'N/A', pct: data.revGrowth != null ? Math.max(4, Math.min(100, 50 + data.revGrowth * 2)) : 0, color: data.revGrowth > 5 ? 'green' : data.revGrowth > 0 ? 'amber' : 'red' },
@@ -666,7 +672,7 @@ export default function StockPage({ params }) {
 
               {/* Price chart + actions - relocated from header */}
               <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-3)', fontSize: '11px', letterSpacing: '2px', marginBottom: '10px', paddingLeft: '4px' }}>PRICE CHART</div>
+                <div style={{ fontFamily: 'Nunito, sans-serif', color: 'var(--text-3)', fontSize: '11px', letterSpacing: '2px', marginBottom: '10px', paddingLeft: '4px', fontWeight: 700 }}>PRICE CHART</div>
                 <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '20px', padding: '16px 16px 12px' }}>
                   <div style={{ marginBottom: '6px' }}>
                     <SparklineHeader ticker={ticker} />
@@ -682,11 +688,11 @@ export default function StockPage({ params }) {
                   SEC FILINGS ↗
                 </a>
                 <button onClick={toggleWatchlist}
-                    style={{ flex: 1, background: inWatchlist ? 'var(--accent-dim)' : 'var(--bg-1)', border: `1px solid ${inWatchlist ? 'var(--accent)' : 'var(--border)'}`, borderRadius: '12px', color: inWatchlist ? 'var(--accent)' : 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', padding: '10px 8px', cursor: 'pointer', letterSpacing: '0.5px' }}>
+                    style={{ flex: 1, background: inWatchlist ? 'var(--accent-dim)' : 'var(--bg-1)', border: `1px solid ${inWatchlist ? 'var(--accent)' : 'var(--border)'}`, borderRadius: '12px', color: inWatchlist ? 'var(--accent)' : 'var(--text-2)', fontFamily: 'Nunito, sans-serif', fontSize: '12px', fontWeight: 700, padding: '10px 8px', cursor: 'pointer', letterSpacing: '0.5px' }}>
                     {inWatchlist ? '★ WATCHLIST' : '☆ WATCHLIST'}
                 </button>
                 <button onClick={() => { window.location.href = `/stock/${ticker}?refresh=true`; }}
-                  style={{ flex: 1, background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', padding: '10px 8px', cursor: 'pointer', letterSpacing: '0.5px' }}
+                  style={{ flex: 1, background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-2)', fontFamily: 'Nunito, sans-serif', fontSize: '12px', fontWeight: 700, padding: '10px 8px', cursor: 'pointer', letterSpacing: '0.5px' }}
                   title="Refresh data">
                   ↻ REFRESH
                 </button>
@@ -694,18 +700,18 @@ export default function StockPage({ params }) {
 
               {/* Continue research */}
               <div style={{ color: 'var(--text-3)', fontSize: '10px', letterSpacing: '2px', borderBottom: '1px solid var(--border)', paddingBottom: '6px', marginBottom: '12px' }}>CONTINUE RESEARCH</div>
-              <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)', marginBottom: '24px' }}>
+              <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '24px' }}>
                 {[
-                  { key: 'quality', title: 'QUALITY SCORECARD', desc: 'Is this a high-quality business?' },
-                  { key: 'financials', title: 'FINANCIALS', desc: 'Income, cash flow, balance sheet' },
-                  { key: 'dcf', title: 'DCF VALUATION', desc: "What's it really worth?" },
+                  { key: 'quality', title: 'Quality Scorecard', desc: 'Is this a high-quality business?' },
+                  { key: 'financials', title: 'Financials', desc: 'Income, cash flow, balance sheet' },
+                  { key: 'dcf', title: 'DCF Valuation', desc: "What's it really worth?" },
                 ].map(s => (
-                  <button key={s.key} onClick={() => setTab(s.key)}
-                    style={{ background: 'var(--bg-1)', border: 'none', padding: '14px 16px', textAlign: 'left', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-1)'}>
-                    <div style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '1px', marginBottom: '4px' }}>{s.title}</div>
-                    <div style={{ color: 'var(--text-3)', fontSize: '11px' }}>{s.desc}</div>
+                  <button key={s.key} onClick={() => { setTab(s.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '14px', padding: '14px 16px', textAlign: 'left', cursor: 'pointer', fontFamily: 'Nunito, sans-serif', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                    <div style={{ color: 'var(--accent)', fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>{s.title}</div>
+                    <div style={{ color: 'var(--text-3)', fontSize: '12px' }}>{s.desc}</div>
                   </button>
                 ))}
               </div>
@@ -831,20 +837,20 @@ export default function StockPage({ params }) {
       </div>
     </a>
   )}
-  <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', padding: '24px', filter: !isSignedIn ? 'blur(12px)' : 'none', pointerEvents: !isSignedIn ? 'none' : 'auto', userSelect: !isSignedIn ? 'none' : 'auto' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1px', background: 'var(--border)' }}>
+  <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', filter: !isSignedIn ? 'blur(12px)' : 'none', pointerEvents: !isSignedIn ? 'none' : 'auto', userSelect: !isSignedIn ? 'none' : 'auto', overflow: 'hidden' }}>
+            <div className="quality-score-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1px', background: 'var(--border)' }}>
               {[
                 { label: 'CORE BUSINESS', score: cbs, desc: 'ROIC · Margins · Leverage' },
                 { label: 'OPPO SCORE', score: oppo, desc: 'P/FCF · FCF Yield' },
                 { label: 'GROWTH QUALITY', score: gqs, desc: 'Revenue · FCF trend' },
                 { label: 'FINAL NOTE', score: finalNote, desc: 'Weighted composite', highlight: true },
               ].map(s => (
-                <div key={s.label} style={{ background: s.highlight ? 'var(--bg-2)' : 'var(--bg-1)', padding: '20px', textAlign: 'center' }}>
-                  <div style={{ color: 'var(--text-3)', fontSize: '9px', letterSpacing: '2px', marginBottom: '12px' }}>{s.label}</div>
-                  <div style={{ fontSize: s.highlight ? '48px' : '40px', fontWeight: 700, color: scoreColor(s.score), letterSpacing: '-2px', lineHeight: 1 }}>
+                <div key={s.label} style={{ background: s.highlight ? 'var(--bg-2)' : 'var(--bg-1)', padding: '12px 8px', textAlign: 'center' }}>
+                  <div style={{ color: 'var(--text-3)', fontSize: '8px', letterSpacing: '1px', marginBottom: '8px', lineHeight: 1.3 }}>{s.label}</div>
+                  <div style={{ fontSize: s.highlight ? '36px' : '30px', fontWeight: 700, color: scoreColor(s.score), letterSpacing: '-1px', lineHeight: 1 }}>
                     {s.score.toFixed(1)}
                   </div>
-                  <div style={{ color: 'var(--text-3)', fontSize: '9px', marginTop: '6px' }}>{s.desc}</div>
+                  <div style={{ color: 'var(--text-3)', fontSize: '8px', marginTop: '4px', lineHeight: 1.3 }}>{s.desc}</div>
                   <ScoreBar score={s.score} />
                 </div>
               ))}
@@ -947,23 +953,24 @@ export default function StockPage({ params }) {
           {/* FINANCIALS TAB */}
           {tab === 'financials' && !isPro && !checkingPro && (
             <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: '20px' }}>
-              <div style={{ color: 'var(--accent)', fontSize: '13px', letterSpacing: '2px', marginBottom: '12px' }}>🔒 SIGN IN REQUIRED</div>
+              <div style={{ color: 'var(--accent)', fontSize: '13px', letterSpacing: '2px', marginBottom: '12px', fontWeight: 700 }}>🔒 SIGN IN REQUIRED</div>
               <div style={{ color: 'var(--text-2)', fontSize: '13px', marginBottom: '24px' }}>Create a free account to access Financial Statements.</div>
-              <a href="/sign-in" style={{ display: 'inline-block', background: 'var(--accent)', color: '#0B0E14', padding: '12px 28px', borderRadius: '12px', fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 700, letterSpacing: '0.3px', textDecoration: 'none' }}>Create free account →</a>
+              <a href="/sign-in" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>Create free account →</a>
             </div>
           )}
           {tab === 'financials' && isPro && (
   <div>
     {/* Fin tabs */}
     <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-      {[['income', 'INCOME'], ['balance', 'BALANCE'], ['cashflow', 'CASH FLOW']].map(([key, label]) => (
+      {[['snapshot', 'SNAPSHOT'], ['income', 'INCOME'], ['balance', 'BALANCE'], ['cashflow', 'CASH FLOW']].map(([key, label]) => (
         <button key={key} onClick={() => setFinTab(key)}
-          style={{ flex: 1, padding: '10px 8px', fontSize: '10px', letterSpacing: '0.5px', borderRadius: '12px', background: finTab === key ? 'var(--accent)' : 'var(--bg-1)', color: finTab === key ? '#0B0E14' : 'var(--text-2)', border: finTab === key ? 'none' : '1px solid var(--border)', cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif', fontWeight: finTab === key ? 700 : 500 }}>
+          style={{ flex: 1, padding: '10px 8px', fontSize: '13px', letterSpacing: '0.3px', borderRadius: '12px', background: finTab === key ? 'linear-gradient(135deg, #a78bfa, #60a5fa)' : 'rgba(255,255,255,0.04)', color: finTab === key ? '#000' : 'var(--text-2)', border: finTab === key ? 'none' : '1px solid var(--border)', cursor: 'pointer', fontFamily: 'Nunito, sans-serif', fontWeight: 700 }}>
           {label}
         </button>
       ))}
     </div>
 
+    {finTab === 'snapshot' && <div>
               {/* Metrics Table */}
 <div style={{ marginBottom: '16px' }}>
   <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
@@ -1136,6 +1143,8 @@ export default function StockPage({ params }) {
                   </div>
                 ))}
               </div>
+    </div>}
+
     {finTab === 'income' && (() => {
       const years = data.revHistory?.map(r => r.year) || [];
       const rows = [
@@ -1296,7 +1305,7 @@ export default function StockPage({ params }) {
             <div style={{ textAlign: 'center', padding: '80px 24px' }}>
               <div style={{ color: 'var(--accent)', fontSize: '13px', letterSpacing: '2px', marginBottom: '12px' }}>🔒 SIGN IN REQUIRED</div>
               <div style={{ color: 'var(--text-2)', fontSize: '12px', marginBottom: '24px' }}>Create a free account to access DCF Valuation.</div>
-              <a href="/sign-in" style={{ background: 'var(--accent)', color: '#000', padding: '10px 24px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textDecoration: 'none' }}>CREATE FREE ACCOUNT →</a>
+              <a href="/sign-in" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>Create free account →</a>
             </div>
           )}
           {tab === 'dcf' && isPro && (
