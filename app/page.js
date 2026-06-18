@@ -907,27 +907,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* CTA BOTTOM */}
-        <div className="glass reveal" style={{ padding: '48px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px', background: 'linear-gradient(135deg, rgba(167,139,250,0.08), rgba(96,165,250,0.05))' }}>
-          <div>
-            <div style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '3px', marginBottom: '10px', fontFamily: 'Space Grotesk, sans-serif' }}>GET STARTED TODAY</div>
-            <div style={{ fontSize: '28px', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: '8px', fontFamily: 'Space Grotesk, sans-serif' }}>
-              Free access. No credit card.
-            </div>
-            <div style={{ color: 'var(--text-3)', fontSize: '13px' }}>
-              Overview + Quality Scorecard for every stock. Upgrade to Pro for Financials, DCF, Screener and Compare.
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
-            <a href="/sign-up" className="btn-primary">Start for free →</a>
-            <a href="/pricing" className="btn-secondary"
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(167,139,250,0.4)'; e.currentTarget.style.color = 'var(--accent)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-3)'; }}>
-              VIEW PRICING
-            </a>
-          </div>
-        </div>
-
         {/* FOOTER */}
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-3)', fontSize: '10px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
