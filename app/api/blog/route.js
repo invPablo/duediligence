@@ -19,9 +19,9 @@ export async function POST(req) {
   if (!isAdmin) return Response.json({ error: 'Not authorized' }, { status: 403 });
 
   const body = await req.json();
-  const { slug, title, description, date, readTime, tag, tickers, sentiment, author, content, published } = body;
+  const { slug, title, description, date, readTime, tag, tickers, sentiment, author, content, contentHtml, published } = body;
 
-  if (!slug || !title || !content) {
+  if (!slug || !title || (!content && !contentHtml)) {
     return Response.json({ error: 'slug, title and content are required' }, { status: 400 });
   }
 
@@ -35,7 +35,8 @@ export async function POST(req) {
     tickers: tickers || [],
     sentiment: sentiment || 'neutral',
     author: author || 'Traqcker Team',
-    content,
+    content: content || [],
+    content_html: contentHtml || null,
     published: published !== false,
   });
 

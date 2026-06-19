@@ -2,16 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Topbar from '../../components/Topbar';
+import RichEditor from './RichEditor';
 
-function parseBody(text) {
-  return text.split(/\n\s*\n/).map(block => block.trim()).filter(Boolean).map(block => {
-    if (block.startsWith('## ')) return { type: 'h2', text: block.slice(3).trim() };
-    return { type: 'p', text: block };
-  });
-}
-
-function bodyToText(content) {
-  return (content || []).map(b => b.type === 'h2' ? `## ${b.text}` : b.text).join('\n\n');
+function blocksToHtml(content) {
+  return (content || []).map(b => b.type === 'h2' ? `<h2>${b.text}</h2>` : `<p>${b.text}</p>`).join('');
 }
 
 function slugify(title) {
@@ -23,7 +17,7 @@ export default function AdminBlogPage() {
   const [isAdmin, setIsAdmin] = useState(null);
   const [posts, setPosts] = useState([]);
   const [editing, setEditing] = useState(null); // null = list, {} = new, post = edit
-  const [body, setBody] = useState('');
+  const [htmlBody, setHtmlBody] = useState('');
   const [tickersInput, setTickersInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -45,14 +39,14 @@ export default function AdminBlogPage() {
 
   const startNew = () => {
     setEditing({ slug: '', title: '', description: '', date: new Date().toISOString().slice(0, 10), readTime: '4 min read', tag: 'Fundamentals', sentiment: 'neutral', author: 'Traqcker Team', published: true });
-    setBody('');
+    setHtmlBody('');
     setTickersInput('');
     setError('');
   };
 
   const startEdit = (post) => {
     setEditing({ ...post, readTime: post.read_time });
-    setBody(bodyToText(post.content));
+    setHtmlBody(post.content_html || blocksToHtml(post.content));
     setTickersInput((post.tickers || []).join(', '));
     setError('');
   };
@@ -60,14 +54,14 @@ export default function AdminBlogPage() {
   const save = async () => {
     setSaving(true);
     setError('');
-    const content = parseBody(body);
     const tickers = tickersInput.split(',').map(t => t.trim().toUpperCase()).filter(Boolean);
     const isNew = !posts.some(p => p.slug === editing.slug);
     const slug = editing.slug || slugify(editing.title);
 
     const payload = {
       slug, title: editing.title, description: editing.description, date: editing.date,
-      readTime: editing.readTime, tag: editing.tag, tickers, sentiment: editing.sentiment || 'neutral', author: editing.author || 'Traqcker Team', content, published: editing.published,
+      readTime: editing.readTime, tag: editing.tag, tickers, sentiment: editing.sentiment || 'neutral', author: editing.author || 'Traqcker Team',
+      content: [], contentHtml: htmlBody, published: editing.published,
     };
 
     const res = await fetch(isNew ? '/api/blog' : `/api/blog/${slug}`, {
@@ -194,8 +188,8 @@ export default function AdminBlogPage() {
               </div>
 
               <div>
-                <label style={labelStyle}>BODY — blank line = new paragraph, line starting with "## " = subheading</label>
-                <textarea style={{ ...inputStyle, minHeight: '320px', resize: 'vertical', fontFamily: 'monospace', fontSize: '13px', lineHeight: 1.6 }} value={body} onChange={e => setBody(e.target.value)} placeholder={'## A subheading\n\nA paragraph of text goes here.\n\nAnother paragraph.'} />
+                <label style={labelStyle}>BODY</label>
+                <RichEditor html={htmlBody} onChange={setHtmlBody} />
               </div>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-2)', cursor: 'pointer' }}>

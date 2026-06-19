@@ -15,10 +15,11 @@ export async function PUT(req, { params }) {
 
   const { slug } = await params;
   const body = await req.json();
-  const { title, description, date, readTime, tag, tickers, sentiment, author, content, published } = body;
+  const { title, description, date, readTime, tag, tickers, sentiment, author, content, contentHtml, published } = body;
 
   const { error } = await supabase.from('blog_posts').update({
-    title, description, date, read_time: readTime, tag, tickers, sentiment, author, content, published,
+    title, description, date, read_time: readTime, tag, tickers, sentiment, author,
+    content: content || [], content_html: contentHtml ?? null, published,
   }).eq('slug', slug);
 
   if (error) return Response.json({ error: error.message }, { status: 500 });

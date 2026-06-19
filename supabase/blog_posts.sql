@@ -10,6 +10,7 @@ create table if not exists blog_posts (
   sentiment text not null default 'neutral',
   author text not null default 'Traqcker Team',
   content jsonb not null default '[]',
+  content_html text,
   published boolean not null default true,
   created_at timestamptz not null default now()
 );

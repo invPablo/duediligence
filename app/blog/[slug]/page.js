@@ -2,6 +2,23 @@
 import { useRouter } from 'next/navigation';
 import { use, useState, useEffect } from 'react';
 import Topbar from '../../components/Topbar';
+import TradingViewChart from '../../components/TradingViewChart';
+
+const CHART_PATTERN = /<p>\s*\[chart:([A-Za-z0-9.\-]+)\]\s*<\/p>/gi;
+
+function renderHtmlContent(html) {
+  const parts = html.split(CHART_PATTERN);
+  // parts alternates: [html, ticker, html, ticker, ..., html]
+  const nodes = [];
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      if (parts[i]) nodes.push(<div key={`h-${i}`} dangerouslySetInnerHTML={{ __html: parts[i] }} />);
+    } else {
+      nodes.push(<TradingViewChart key={`c-${i}`} ticker={parts[i].toUpperCase()} />);
+    }
+  }
+  return nodes;
+}
 
 export default function BlogPost({ params }) {
   const { slug } = use(params);
@@ -65,14 +82,30 @@ export default function BlogPost({ params }) {
           <span style={{ color: 'var(--text-2)', fontSize: '13px', fontWeight: 700 }}>{post.author || 'Traqcker Team'}</span>
         </div>
 
-        <div>
-          {post.content.map((block, i) => {
-            if (block.type === 'h2') {
-              return <h2 key={i} style={{ fontSize: '21px', fontWeight: 800, marginTop: '36px', marginBottom: '14px', letterSpacing: '-0.3px' }}>{block.text}</h2>;
-            }
-            return <p key={i} style={{ color: 'var(--text-2)', fontSize: '16px', lineHeight: 1.9, marginBottom: '18px' }}>{block.text}</p>;
-          })}
+        <div className="blog-post-body">
+          {post.content_html
+            ? renderHtmlContent(post.content_html)
+            : post.content.map((block, i) => {
+                if (block.type === 'h2') {
+                  return <h2 key={i} style={{ fontSize: '21px', fontWeight: 800, marginTop: '36px', marginBottom: '14px', letterSpacing: '-0.3px' }}>{block.text}</h2>;
+                }
+                return <p key={i} style={{ color: 'var(--text-2)', fontSize: '16px', lineHeight: 1.9, marginBottom: '18px' }}>{block.text}</p>;
+              })}
         </div>
+
+        <style>{`
+          .blog-post-body { color: var(--text-2); font-size: 16px; line-height: 1.9; }
+          .blog-post-body h2 { font-size: 21px; font-weight: 800; margin: 36px 0 14px; color: var(--text); letter-spacing: -0.3px; }
+          .blog-post-body h3 { font-size: 18px; font-weight: 800; margin: 28px 0 12px; color: var(--text); }
+          .blog-post-body p { margin: 0 0 18px; }
+          .blog-post-body ul, .blog-post-body ol { margin: 0 0 18px; padding-left: 24px; }
+          .blog-post-body li { margin-bottom: 6px; }
+          .blog-post-body blockquote { border-left: 3px solid var(--accent); margin: 0 0 18px; padding-left: 16px; color: var(--text-3); }
+          .blog-post-body pre { background: var(--bg-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px; overflow-x: auto; margin-bottom: 18px; }
+          .blog-post-body img { max-width: 100%; border-radius: 14px; margin: 8px 0 18px; }
+          .blog-post-body a { color: var(--accent); }
+          .blog-post-body hr { border-color: var(--border); margin: 28px 0; }
+        `}</style>
 
         <div className="glass" style={{ padding: '24px', marginTop: '40px', textAlign: 'center' }}>
           <div style={{ fontSize: '16px', fontWeight: 800, marginBottom: '6px' }}>Want to see the numbers, not just the theory?</div>
