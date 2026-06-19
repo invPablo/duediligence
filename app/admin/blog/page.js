@@ -44,7 +44,7 @@ export default function AdminBlogPage() {
   };
 
   const startNew = () => {
-    setEditing({ slug: '', title: '', description: '', date: new Date().toISOString().slice(0, 10), readTime: '4 min read', tag: 'Fundamentals', published: true });
+    setEditing({ slug: '', title: '', description: '', date: new Date().toISOString().slice(0, 10), readTime: '4 min read', tag: 'Fundamentals', sentiment: 'neutral', published: true });
     setBody('');
     setTickersInput('');
     setError('');
@@ -67,7 +67,7 @@ export default function AdminBlogPage() {
 
     const payload = {
       slug, title: editing.title, description: editing.description, date: editing.date,
-      readTime: editing.readTime, tag: editing.tag, tickers, content, published: editing.published,
+      readTime: editing.readTime, tag: editing.tag, tickers, sentiment: editing.sentiment || 'neutral', content, published: editing.published,
     };
 
     const res = await fetch(isNew ? '/api/blog' : `/api/blog/${slug}`, {
@@ -174,9 +174,19 @@ export default function AdminBlogPage() {
                 </div>
               </div>
 
-              <div>
-                <label style={labelStyle}>LINKED TICKERS (comma-separated, optional — shows post on those stock pages)</label>
-                <input style={inputStyle} value={tickersInput} onChange={e => setTickersInput(e.target.value)} placeholder="AAPL, MSFT" />
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={labelStyle}>LINKED TICKERS (comma-separated, optional — shows post on those stock pages)</label>
+                  <input style={inputStyle} value={tickersInput} onChange={e => setTickersInput(e.target.value)} placeholder="AAPL, MSFT" />
+                </div>
+                <div>
+                  <label style={labelStyle}>SENTIMENT (dot color on stock page)</label>
+                  <select style={inputStyle} value={editing.sentiment || 'neutral'} onChange={e => setEditing({ ...editing, sentiment: e.target.value })}>
+                    <option value="positive">🟢 Positive</option>
+                    <option value="neutral">🟡 Neutral</option>
+                    <option value="negative">🔴 Negative</option>
+                  </select>
+                </div>
               </div>
 
               <div>

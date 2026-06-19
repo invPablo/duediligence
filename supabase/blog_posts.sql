@@ -7,6 +7,7 @@ create table if not exists blog_posts (
   read_time text not null default '4 min read',
   tag text not null default 'Fundamentals',
   tickers text[] not null default '{}',
+  sentiment text not null default 'neutral',
   content jsonb not null default '[]',
   published boolean not null default true,
   created_at timestamptz not null default now()

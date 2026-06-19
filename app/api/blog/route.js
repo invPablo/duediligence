@@ -19,7 +19,7 @@ export async function POST(req) {
   if (!isAdmin) return Response.json({ error: 'Not authorized' }, { status: 403 });
 
   const body = await req.json();
-  const { slug, title, description, date, readTime, tag, tickers, content, published } = body;
+  const { slug, title, description, date, readTime, tag, tickers, sentiment, content, published } = body;
 
   if (!slug || !title || !content) {
     return Response.json({ error: 'slug, title and content are required' }, { status: 400 });
@@ -33,6 +33,7 @@ export async function POST(req) {
     read_time: readTime || '4 min read',
     tag: tag || 'Fundamentals',
     tickers: tickers || [],
+    sentiment: sentiment || 'neutral',
     content,
     published: published !== false,
   });
