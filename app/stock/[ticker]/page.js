@@ -542,6 +542,25 @@ export default function StockPage({ params }) {
                 </div>
               </div>
 
+              {/* Related reading */}
+              {relatedPosts.length > 0 && (
+                <div>
+                  <div style={{ color: 'var(--accent)', fontSize: '11px', letterSpacing: '2px', marginBottom: '10px', fontWeight: 700 }}>RELATED READING</div>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {relatedPosts.map(post => {
+                      const dotColor = post.sentiment === 'positive' ? 'var(--green)' : post.sentiment === 'negative' ? 'var(--red)' : 'var(--amber)';
+                      return (
+                        <a key={post.slug} href={`/blog/${post.slug}`}
+                          style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: 'var(--text-2)', fontSize: '12px', fontWeight: 600, lineHeight: 1.5, textDecoration: 'none' }}>
+                          <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, flexShrink: 0, marginTop: '4px' }} />
+                          {post.title}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
             </div>
 
             {/* Right column: about + fair value + share + actions + continue */}
@@ -566,25 +585,6 @@ export default function StockPage({ params }) {
                   </div>
                 );
               })()}
-
-              {/* Related reading */}
-              {relatedPosts.length > 0 && (
-                <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px 18px' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--accent)', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '10px' }}>RELATED READING</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {relatedPosts.map(post => {
-                      const dotColor = post.sentiment === 'positive' ? 'var(--green)' : post.sentiment === 'negative' ? 'var(--red)' : 'var(--amber)';
-                      return (
-                        <a key={post.slug} href={`/blog/${post.slug}`}
-                          style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: 'var(--text-2)', fontSize: '12px', fontWeight: 600, lineHeight: 1.5, textDecoration: 'none' }}>
-                          <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, flexShrink: 0, marginTop: '4px' }} />
-                          {post.title}
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
               {/* Fair value */}
               {fairValue && (
