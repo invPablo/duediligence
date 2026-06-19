@@ -225,7 +225,7 @@ export default function StockPage({ params }) {
   if (loading) return (
     <div style={{ ...S.page }}>
       <Topbar />
-      <div style={{ maxWidth: '960px', margin: '40px auto', padding: '0 20px' }}>
+      <div style={{ maxWidth: '1200px', margin: '40px auto', padding: '0 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
           <div style={{ width: 56, height: 56, borderRadius: '14px', background: 'var(--bg-1)', border: '1px solid var(--border)' }} />
           <div>
@@ -360,7 +360,7 @@ export default function StockPage({ params }) {
       </div>
       <OnboardingBanner />
 
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '20px 20px 80px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 20px 80px' }}>
 
         {/* Finnhub fallback notice */}
         {data.finnhubFallback && (
