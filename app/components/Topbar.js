@@ -100,6 +100,7 @@ export default function Topbar() {
           {navItem('/pricing', 'Pricing')}
           {navItem('/watchlist', 'Watchlist')}
           {navItem('/about', 'About')}
+          {navItem('/blog', 'Blog')}
           {isSignedIn && navItem('/profile', 'Profile')}
 
           {isSignedIn ? (
@@ -130,7 +131,7 @@ export default function Topbar() {
       {/* Mobile dropdown menu */}
       {menuOpen && (
         <div className="topbar-mobile-menu mobile-menu">
-          {[['/', 'Home'], ['/screener', 'Screener'], ['/compare', 'Compare'], ['/pricing', 'Pricing'], ['/watchlist', 'Watchlist'], ['/about', 'About']].map(([href, label]) => (
+          {[['/', 'Home'], ['/screener', 'Screener'], ['/compare', 'Compare'], ['/pricing', 'Pricing'], ['/watchlist', 'Watchlist'], ['/about', 'About'], ['/blog', 'Blog']].map(([href, label]) => (
             <a key={href} href={href} onClick={() => setMenuOpen(false)}
               className={`topbar-mobile-link${path === href ? ' active' : ''}`}>
               {label}

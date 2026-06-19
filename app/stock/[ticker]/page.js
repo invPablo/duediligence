@@ -120,8 +120,12 @@ export default function StockPage({ params }) {
   const [expanded, setExpanded] = useState(false);
   const [sotw, setSotw] = useState(null);
   const [achievementToast, setAchievementToast] = useState(null);
+  const [relatedPosts, setRelatedPosts] = useState([]);
   const { isSignedIn, user } = useUser();
 
+  useEffect(() => {
+    fetch(`/api/blog?ticker=${ticker}`).then(r => r.json()).then(d => setRelatedPosts(d.posts || [])).catch(() => {});
+  }, [ticker]);
 
   useEffect(() => {
     if (isSignedIn && user?.id) {
@@ -562,6 +566,21 @@ export default function StockPage({ params }) {
                   </div>
                 );
               })()}
+
+              {/* Related reading */}
+              {relatedPosts.length > 0 && (
+                <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px 18px' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--accent)', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '10px' }}>RELATED READING</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {relatedPosts.map(post => (
+                      <a key={post.slug} href={`/blog/${post.slug}`}
+                        style={{ color: 'var(--text-2)', fontSize: '12px', fontWeight: 600, lineHeight: 1.5, textDecoration: 'none' }}>
+                        → {post.title}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Fair value */}
               {fairValue && (

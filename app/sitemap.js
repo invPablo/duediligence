@@ -16,6 +16,7 @@ const SP500_TICKERS = [
 export default async function sitemap() {
   const staticPages = [
     { url: BASE_URL,                        changeFrequency: 'weekly',  priority: 1.0 },
+    { url: `${BASE_URL}/blog`,              changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${BASE_URL}/screener`,          changeFrequency: 'weekly',  priority: 0.9 },
     { url: `${BASE_URL}/compare`,           changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${BASE_URL}/pricing`,           changeFrequency: 'monthly', priority: 0.8 },
@@ -59,5 +60,23 @@ export default async function sitemap() {
     }
   } catch { /* sitemap still works without extra tickers */ }
 
-  return [...staticPages, ...stockPages, ...extraTickers];
+  let blogPages = [];
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    const { data } = await supabase.from('blog_posts').select('slug, date').eq('published', true);
+    if (data) {
+      blogPages = data.map(post => ({
+        url: `${BASE_URL}/blog/${post.slug}`,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+        lastModified: new Date(post.date),
+      }));
+    }
+  } catch { /* sitemap still works without blog posts */ }
+
+  return [...staticPages, ...blogPages, ...stockPages, ...extraTickers];
 }
