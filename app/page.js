@@ -1169,6 +1169,9 @@ export default function Home() {
             <a href="https://www.producthunt.com/products/traqcker?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-traqcker" target="_blank" rel="noopener noreferrer">
               <img alt="Traqcker - Know if a stock is worth it. In seconds. | Product Hunt" width="125" height="27" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1176027&theme=dark&t=1781871112852" style={{ verticalAlign: 'middle' }} />
             </a>
+            <a href="https://nicklaunches.com/products/traqcker/?utm_source=traqcker.com&utm_medium=badge&utm_campaign=featured" target="_blank" rel="noopener">
+              <img src="https://nicklaunches.com/badges/featured.png" alt="Traqcker on Nick Launches" width="244" height="56" style={{ verticalAlign: 'middle' }} />
+            </a>
           </div>
           <div style={{ letterSpacing: '1px' }}>DATA: SEC EDGAR · FINNHUB · YAHOO FINANCE · NOT INVESTMENT ADVICE · © 2026 TRAQCKER</div>
         </div>
